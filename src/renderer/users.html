@@ -2,29 +2,95 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Users • RetroCatz POS</title>
+  <title>Users � RetroCatz POS</title>
   <meta http-equiv="Content-Security-Policy"
         content="default-src 'self';
                  script-src 'self';
                  connect-src 'self' http://127.0.0.1:5175 http://localhost:5175;
                  style-src 'self' 'unsafe-inline'">
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <style>
-    body { font-family: system-ui, sans-serif; margin: 16px; }
-    .row { display: grid; gap: 8px; grid-template-columns: 1fr 1fr 140px 1fr auto; max-width: 760px; }
-    input, select, button { padding: 8px; border: 1px solid #d1d5db; border-radius: 8px; }
-    table { border-collapse: collapse; width: 100%; margin-top: 16px; font-size: 14px; }
-    th, td { border: 1px solid #e5e7eb; padding: 6px; text-align: center; }
+    :root {
+      --bg: #0b0b0d;
+      --panel: #111827;
+      --border: #374151;
+      --text: #e5e7eb;
+      --muted: #9ca3af;
+    }
+    * { box-sizing: border-box; }
+    body {
+      font-family: system-ui, sans-serif;
+      margin: 16px;
+      background: var(--bg);
+      color: var(--text);
+    }
+    .topbar {
+      display:flex;
+      align-items:center;
+      gap:10px;
+      background:#091226;
+      padding:12px;
+      border-radius:8px;
+      border:1px solid #0e1b36;
+      flex-wrap:wrap;
+      margin-bottom:12px;
+    }
+    .topbar h1 { margin:0; font-size:20px; font-weight:700; }
+    .logo { height:22px; width:auto; display:block; }
+    .toolbar-spacer { flex:1; }
+    .btn {
+      padding:8px 12px;
+      border:1px solid var(--border);
+      border-radius:8px;
+      background:#0c0c0f;
+      color:var(--text);
+      cursor:pointer;
+      transition:box-shadow 0.12s ease, transform 0.12s ease, border-color 0.12s ease;
+      font-size:13px;
+      white-space:nowrap;
+    }
+    .btn:hover{
+      border-color:#596274;
+      box-shadow:0 0 0 1px rgba(148,163,184,.35);
+      transform:translateY(-0.5px);
+    }
+    .row {
+      display: grid;
+      gap: 8px;
+      grid-template-columns: 1fr 1fr 140px 1fr auto;
+      max-width: 980px;
+      margin-top: 16px;
+    }
+    input, select, button {
+      padding: 8px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background: #000;
+      color: var(--text);
+    }
+    table {
+      border-collapse: collapse;
+      width: 100%;
+      margin-top: 16px;
+      font-size: 13px;
+      border: 1px solid var(--border);
+    }
+    th, td { border-bottom: 1px solid #1f2937; padding: 8px; text-align: center; }
+    th { background:#0d0d10; color:#cbd5e1; }
     th:first-child, td:first-child { text-align: left; }
-    .muted { opacity: .7; font-size: 12px; }
-    .btn-sm { padding: 6px 10px; border: 1px solid #d1d5db; border-radius: 8px; background: #fff; cursor: pointer; }
-    input[type="checkbox"] { transform: scale(1.2); cursor: pointer; }
-    .topbar { display:flex; align-items:center; justify-content:space-between; margin-bottom:12px; }
+    .muted { color: var(--muted); font-size: 12px; }
+    input[type="checkbox"] { transform: scale(1.1); cursor: pointer; }
+    @media (max-width: 960px) { .row { grid-template-columns: 1fr 1fr; } }
+    @media (max-width: 640px) { .row { grid-template-columns: 1fr; } }
   </style>
 </head>
 <body>
   <div class="topbar">
-    <button id="back-btn" class="btn-sm">← Back to Main</button>
+    <img class="logo" src="assets/retrocatz-logo.png" alt="RetroCatz" />
     <h1>Users</h1>
+    <button id="back-btn" class="btn">Back to Dashboard</button>
+    <span class="toolbar-spacer"></span>
+    <span class="muted">Role and permission controls</span>
   </div>
 
   <form id="user-form" class="row">
@@ -61,7 +127,7 @@
       </tr>
     </thead>
     <tbody id="users-table">
-      <tr><td colspan="14" class="muted">Loading…</td></tr>
+      <tr><td colspan="14" class="muted">Loading...</td></tr>
     </tbody>
   </table>
 

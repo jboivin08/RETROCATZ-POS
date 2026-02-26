@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Settings • RetroCatz POS</title>
+  <title>Settings � RetroCatz POS</title>
   <meta http-equiv="Content-Security-Policy"
         content="default-src 'self';
                  script-src 'self' 'unsafe-inline';
@@ -10,12 +10,11 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <style>
     :root {
-      --bg: #0b0b0f;
-      --panel: #11121a;
-      --border: #1f2937;
+      --bg: #0b0b0d;
+      --panel: #111827;
+      --border: #374151;
       --text: #e5e7eb;
       --muted: #9ca3af;
-      --accent: #38bdf8;
     }
     * { box-sizing: border-box; }
     body {
@@ -32,21 +31,35 @@
       min-height: 100vh;
     }
     .topbar {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 12px;
+      display:flex;
+      align-items:center;
+      gap:10px;
+      background:#091226;
+      padding:12px;
+      border-radius:8px;
+      border:1px solid #0e1b36;
+      flex-wrap:wrap;
     }
+    .topbar h1 { margin:0; font-size:20px; font-weight:700; }
+    .logo { height:22px; width:auto; display:block; }
+    .toolbar-spacer { flex:1; }
+    .topbar-note { color: var(--muted); font-size: 12px; }
     .btn {
-      background: #151826;
+      background: #0c0c0f;
       border: 1px solid var(--border);
       color: var(--text);
       padding: 8px 12px;
       border-radius: 8px;
       cursor: pointer;
-      font-size: 12px;
+      font-size: 13px;
+      white-space: nowrap;
+      transition:box-shadow 0.12s ease, transform 0.12s ease, border-color 0.12s ease;
     }
-    .btn:hover { border-color: #334155; }
+    .btn:hover {
+      border-color:#596274;
+      box-shadow:0 0 0 1px rgba(148,163,184,.35);
+      transform:translateY(-0.5px);
+    }
     .panel {
       background: var(--panel);
       border: 1px solid var(--border);
@@ -74,7 +87,7 @@
       padding: 8px;
       border-radius: 8px;
       border: 1px solid var(--border);
-      background: #0f1118;
+      background: #000;
       color: var(--text);
       font-size: 12px;
     }
@@ -92,7 +105,7 @@
       border: 1px solid var(--border);
       padding: 8px;
       border-radius: 8px;
-      background: #0f1118;
+      background: #0f172a;
     }
     .row-actions {
       display: flex;
@@ -107,8 +120,11 @@
 <body>
   <div class="page">
     <div class="topbar">
-      <button id="back-btn" class="btn">Back to Main</button>
+      <img class="logo" src="assets/retrocatz-logo.png" alt="RetroCatz" />
       <h1>Settings</h1>
+      <button id="back-btn" class="btn">Back to Dashboard</button>
+      <span class="toolbar-spacer"></span>
+      <span class="topbar-note">Tax, register, and export preferences</span>
     </div>
 
     <section class="panel">
@@ -197,7 +213,7 @@
       <div class="row-actions">
         <button class="btn" id="btnSaveExportCols">Save Export Columns</button>
       </div>
-      <div id="exportColsStatus" class="muted">Used by Customers → Export CSV.</div>
+      <div id="exportColsStatus" class="muted">Used by Customers -> Export CSV.</div>
     </section>
   </div>
 

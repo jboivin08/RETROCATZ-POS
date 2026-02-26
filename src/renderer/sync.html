@@ -12,32 +12,91 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <link rel="stylesheet" href="index.css" />
   <style>
-    body { background:#0f1115; color:#e7e7e7; }
-    .shell { max-width: 1100px; margin: 0 auto; padding: 20px; }
-    .panel { background:#141821; border:1px solid #242a35; border-radius:12px; padding:16px; margin-bottom:16px; }
-    .row { display:flex; gap:12px; flex-wrap:wrap; align-items:center; }
-    .row label { font-size:12px; color:#b8bcc6; }
-    .row select, .row input { background:#0f131b; color:#e7e7e7; border:1px solid #2a3140; border-radius:8px; padding:6px 10px; }
-    .row button { background:#1f2937; border:1px solid #374151; color:#e5e7eb; padding:6px 12px; border-radius:8px; cursor:pointer; }
-    .row button:hover { background:#263041; }
+    :root {
+      --bg: #0b0b0d;
+      --panel: #111827;
+      --border: #374151;
+      --text: #e5e7eb;
+      --muted: #9ca3af;
+    }
+    * { box-sizing: border-box; }
+    body { margin: 16px; background: var(--bg); color: var(--text); font-family: system-ui, sans-serif; }
+    .shell { max-width: 1200px; margin: 0 auto; }
+
+    .toolbar {
+      display:flex;
+      align-items:center;
+      gap:10px;
+      background:#091226;
+      padding:12px;
+      border-radius:8px;
+      border:1px solid #0e1b36;
+      flex-wrap:wrap;
+      margin-bottom:12px;
+    }
+    .toolbar h1 { margin:0; font-size:20px; font-weight:700; }
+    .logo { height:22px; width:auto; display:block; }
+    .toolbar-spacer { flex:1; }
+
+    .btn {
+      padding:8px 12px;
+      border:1px solid var(--border);
+      border-radius:8px;
+      background:#0c0c0f;
+      color:var(--text);
+      cursor:pointer;
+      transition:box-shadow 0.12s ease, transform 0.12s ease, border-color 0.12s ease;
+      font-size:13px;
+      white-space:nowrap;
+    }
+    .btn:hover{
+      border-color:#596274;
+      box-shadow:0 0 0 1px rgba(148,163,184,.35);
+      transform:translateY(-0.5px);
+    }
+
+    .panel { background: var(--panel); border:1px solid var(--border); border-radius:12px; padding:12px; margin-bottom:12px; }
+    .row { display:flex; gap:10px; flex-wrap:wrap; align-items:center; }
+    .row label { font-size:12px; color: var(--muted); }
+    .row select, .row input {
+      background:#000;
+      color:var(--text);
+      border:1px solid var(--border);
+      border-radius:8px;
+      padding:8px 10px;
+    }
+    .row button {
+      background:#0c0c0f;
+      border:1px solid var(--border);
+      color:var(--text);
+      padding:8px 12px;
+      border-radius:8px;
+      cursor:pointer;
+      transition:box-shadow 0.12s ease, transform 0.12s ease, border-color 0.12s ease;
+    }
+    .row button:hover {
+      border-color:#596274;
+      box-shadow:0 0 0 1px rgba(148,163,184,.35);
+      transform:translateY(-0.5px);
+    }
     table { width:100%; border-collapse: collapse; font-size:12px; }
-    th, td { padding:8px; border-bottom:1px solid #262c39; text-align:left; }
-    th { color:#9ca3af; font-weight:600; }
+    th, td { padding:10px 8px; border-bottom:1px solid #1f2937; text-align:left; }
+    th { color:#cbd5e1; font-weight:600; background:#0d0d10; }
     .ok { color:#10b981; }
     .fail { color:#ef4444; }
-    .muted { color:#9ca3af; font-size:12px; }
+    .muted { color:var(--muted); font-size:12px; }
     .mono { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
     .section-title { font-weight:600; margin-bottom:10px; }
   </style>
 </head>
 <body>
   <div class="shell">
-    <header class="panel">
-      <div class="row" style="justify-content:space-between;">
-        <button type="button" onclick="location.href='index.html'">← Back to Dashboard</button>
-      </div>
+    <header class="toolbar">
+      <img class="logo" src="assets/retrocatz-logo.png" alt="RetroCatz" />
       <h1>Channel Sync Monitor</h1>
-      <div class="muted">Track inventory sync health for external sales channels.</div>
+      <button type="button" class="btn" onclick="location.href='index.html'">Back to Dashboard</button>
+      <span class="toolbar-spacer"></span>
+      <span class="muted">Track inventory sync health for external sales channels.</span>
     </header>
 
     <section class="panel">

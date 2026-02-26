@@ -222,3 +222,11 @@ Files touched: src/renderer/trade-in.html, backend/index.js, backend/providers/p
 - Files: CODEX_HANDOFF.md, src/renderer/pos.html
 - Status: In progress
 - Notes/Ideas: Git initialized and pushed to GitHub (`https://github.com/jboivin08/RETROCATZ-POS`). Baseline checkpoint pushed at `b8c6e40`. Complete renderer audit scope confirmed (13 HTML pages). Planned execution order: 1) Header standardization pass (POS first), 2) Non-frozen body consistency pass, 3) QA sweep, with small pushable save-point commits throughout.
+
+## Entry
+- Timestamp: 2026-02-26 01:11:13
+- Window/Owner: This Codex window
+- Task: UI standardization batch 1 (header/top and core token alignment)
+- Files: src/renderer/users.html, src/renderer/settings.html, src/renderer/customers.html, src/renderer/sync.html, CODEX_HANDOFF.md
+- Status: Completed (committing/pushing now)
+- Notes/Ideas: Normalized top bar pattern (logo/title/back/actions rhythm), aligned controls/panels to shared dark token set, preserved existing IDs and script hooks. No JS logic changes.
