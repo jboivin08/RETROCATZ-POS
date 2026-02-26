@@ -70,6 +70,14 @@ app.use((req, _res, next) => {
 // ---------------------------------------------------------------------------
 console.log(`[API] Using DB: ${DB_PATH}`);
 const db = initDb();
+try {
+  const cleared = db.prepare(`DELETE FROM sessions`).run();
+  if (cleared.changes) {
+    console.log(`[AUTH] Cleared ${cleared.changes} stale session(s) on startup.`);
+  }
+} catch (e) {
+  console.warn("[AUTH] Failed to clear sessions on startup:", e.message);
+}
 
 // Auth + Bootstrap
 // ---------------------------------------------------------------------------

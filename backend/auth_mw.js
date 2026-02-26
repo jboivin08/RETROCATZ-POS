@@ -1,5 +1,10 @@
 // backend/auth_mw.js
 module.exports = function makeAuthMW(db) {
+  function normalizeRole(role) {
+    const normalized = String(role || "").toLowerCase().trim();
+    return normalized === "admin" ? "owner" : normalized;
+  }
+
   function loadPerms(userId) {
     const p = db.prepare(`
       SELECT inv_add, inv_edit, inv_delete, cost_change,
@@ -29,7 +34,7 @@ module.exports = function makeAuthMW(db) {
     req.user = {
       id: row.id,
       username: row.username,
-      role: String(row.role).toLowerCase(),
+      role: normalizeRole(row.role),
       session_id: row.session_id,
       display_name: row.display_name || row.username,
       permissions: loadPerms(row.id),

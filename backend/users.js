@@ -1,7 +1,7 @@
 // backend/users.js
 const bcrypt = require("bcryptjs");
 
-module.exports = function makeUserRoutes(app, db, { requireSession, requireRole }) {
+module.exports = function makeUserRoutes(app, db, { requireSession, requireRole, requirePerm }) {
   const VALID_ROLES = ["owner", "manager", "clerk", "viewer"];
   const PERM_KEYS = ["inv_add", "inv_edit", "inv_delete", "cost_change", "category_admin", "user_admin", "checkout", "reports"];
 
@@ -36,10 +36,59 @@ module.exports = function makeUserRoutes(app, db, { requireSession, requireRole 
     return u;
   }
 
+  function asCanonicalRole(v) {
+    const role = String(v || "").toLowerCase().trim();
+    return role === "admin" ? "owner" : role;
+  }
+
+  function canManageUsers(req) {
+    if (!req.user) return false;
+    const role = asCanonicalRole(req.user.role);
+    if (role === "owner") return true;
+    return role === "manager" && !!(req.user.permissions && req.user.permissions.user_admin);
+  }
+
+  function requireUserAdminAccess(req, res, next) {
+    requireSession(req, res, () => {
+      if (!canManageUsers(req)) return res.status(403).json({ error: "User admin permission required" });
+      next();
+    });
+  }
+
+  // Managers can only manage non-privileged roles.
+  function managerCanTouchRole(role) {
+    return role === "clerk" || role === "viewer";
+  }
+
+  function defaultPermsForRole(role) {
+    if (role === "owner") {
+      return {
+        inv_add: 1, inv_edit: 1, inv_delete: 1, cost_change: 1,
+        category_admin: 1, user_admin: 1, checkout: 1, reports: 1
+      };
+    }
+    if (role === "manager") {
+      return {
+        inv_add: 1, inv_edit: 1, inv_delete: 0, cost_change: 1,
+        category_admin: 1, user_admin: 1, checkout: 1, reports: 1
+      };
+    }
+    if (role === "clerk") {
+      return {
+        inv_add: 1, inv_edit: 1, inv_delete: 0, cost_change: 0,
+        category_admin: 0, user_admin: 0, checkout: 1, reports: 1
+      };
+    }
+    return {
+      inv_add: 0, inv_edit: 0, inv_delete: 0, cost_change: 0,
+      category_admin: 0, user_admin: 0, checkout: 0, reports: 1
+    };
+  }
+
   // LIST users (owner)
-  app.get("/api/users", requireSession, requireRole("owner"), (req, res) => {
+  app.get("/api/users", requireUserAdminAccess, (req, res) => {
     const rows = db.prepare(`
-      SELECT u.id, u.username, u.display_name, u.role, u.active, u.created_at,
+      SELECT u.id, u.username, u.display_name, lower(u.role) as role, u.active, u.created_at,
              COALESCE(p.inv_add,0) AS inv_add,
              COALESCE(p.inv_edit,0) AS inv_edit,
              COALESCE(p.inv_delete,0) AS inv_delete,
@@ -56,11 +105,11 @@ module.exports = function makeUserRoutes(app, db, { requireSession, requireRole 
   });
 
   // CREATE user (owner)
-  app.post("/api/users", requireSession, requireRole("owner"), (req, res) => {
+  app.post("/api/users", requireUserAdminAccess, (req, res) => {
     const { username, password, role, display_name, active } = req.body || {};
     const uname = normalizeUsername(username);
     const dname = normalizeDisplayName(display_name);
-    const normalizedRole = String(role || "").toLowerCase().trim();
+    const normalizedRole = asCanonicalRole(role);
     const activeFlag = toFlag(active, 1);
 
     if (!uname || !password || !normalizedRole) {
@@ -68,6 +117,9 @@ module.exports = function makeUserRoutes(app, db, { requireSession, requireRole 
     }
     if (!VALID_ROLES.includes(normalizedRole)) {
       return res.status(400).json({ error: "Invalid role" });
+    }
+    if (asCanonicalRole(req.user.role) === "manager" && !managerCanTouchRole(normalizedRole)) {
+      return res.status(403).json({ error: "Managers can only create clerk/viewer users" });
     }
     if (password.length < 8) {
       return res.status(400).json({ error: "Password too short" });
@@ -80,14 +132,11 @@ module.exports = function makeUserRoutes(app, db, { requireSession, requireRole 
         VALUES (?, ?, ?, ?, datetime('now'), ?)
       `).run(uname, hash, normalizedRole, activeFlag, dname || null);
 
-      if (normalizedRole === "owner") {
-        db.prepare(`
-          INSERT INTO permissions (user_id,inv_add,inv_edit,inv_delete,cost_change,category_admin,user_admin,checkout,reports)
-          VALUES (?,1,1,1,1,1,1,1,1)
-        `).run(info.lastInsertRowid);
-      } else {
-        db.prepare("INSERT INTO permissions (user_id) VALUES (?)").run(info.lastInsertRowid);
-      }
+      const p = defaultPermsForRole(normalizedRole);
+      db.prepare(`
+        INSERT INTO permissions (user_id,inv_add,inv_edit,inv_delete,cost_change,category_admin,user_admin,checkout,reports)
+        VALUES (@id,@inv_add,@inv_edit,@inv_delete,@cost_change,@category_admin,@user_admin,@checkout,@reports)
+      `).run({ id: info.lastInsertRowid, ...p });
 
       res.json({ ok: true, id: info.lastInsertRowid });
     } catch (e) {
@@ -99,7 +148,7 @@ module.exports = function makeUserRoutes(app, db, { requireSession, requireRole 
   });
 
   // UPDATE user (owner): username / role / password (optional)
-  app.put("/api/users/:id", requireSession, requireRole("owner"), (req, res) => {
+  app.put("/api/users/:id", requireUserAdminAccess, (req, res) => {
     const id = Number(req.params.id);
     const { username, role, password, display_name, active } = req.body || {};
     const target = ensureUserExists(id, res);
@@ -107,7 +156,13 @@ module.exports = function makeUserRoutes(app, db, { requireSession, requireRole 
 
     const uname = normalizeUsername(username);
     const dname = normalizeDisplayName(display_name);
-    const normalizedRole = role ? String(role).toLowerCase().trim() : "";
+    const normalizedRole = role ? asCanonicalRole(role) : "";
+    const targetRole = asCanonicalRole(target.role);
+    const actorRole = asCanonicalRole(req.user && req.user.role);
+
+    if (actorRole === "manager" && !managerCanTouchRole(targetRole)) {
+      return res.status(403).json({ error: "Managers can only edit clerk/viewer users" });
+    }
 
     if (uname) {
       try {
@@ -139,10 +194,13 @@ module.exports = function makeUserRoutes(app, db, { requireSession, requireRole 
       if (!VALID_ROLES.includes(normalizedRole)) {
         return res.status(400).json({ error: "Invalid role" });
       }
-      if (target.role === "owner" && normalizedRole !== "owner" && ownerCount() <= 1) {
+      if (actorRole === "manager" && !managerCanTouchRole(normalizedRole)) {
+        return res.status(403).json({ error: "Managers can only assign clerk/viewer roles" });
+      }
+      if (targetRole === "owner" && normalizedRole !== "owner" && ownerCount() <= 1) {
         return res.status(400).json({ error: "Cannot demote the last owner" });
       }
-      if (req.user && Number(req.user.id) === id && target.role === "owner" && normalizedRole !== "owner") {
+      if (req.user && Number(req.user.id) === id && targetRole === "owner" && normalizedRole !== "owner") {
         return res.status(400).json({ error: "Owner cannot demote self" });
       }
 
@@ -171,16 +229,22 @@ module.exports = function makeUserRoutes(app, db, { requireSession, requireRole 
   });
 
   // UPDATE active status (owner)
-  app.put("/api/users/:id/active", requireSession, requireRole("owner"), (req, res) => {
+  app.put("/api/users/:id/active", requireUserAdminAccess, (req, res) => {
     const id = Number(req.params.id);
     const target = ensureUserExists(id, res);
     if (!target) return;
 
+    const targetRole = asCanonicalRole(target.role);
+    const actorRole = asCanonicalRole(req.user && req.user.role);
+    if (actorRole === "manager" && !managerCanTouchRole(targetRole)) {
+      return res.status(403).json({ error: "Managers can only activate/deactivate clerk/viewer users" });
+    }
+
     const nextActive = toFlag(req.body ? req.body.active : undefined, target.active ? 1 : 0);
-    if (target.role === "owner" && nextActive === 0 && ownerCount() <= 1) {
+    if (targetRole === "owner" && nextActive === 0 && ownerCount() <= 1) {
       return res.status(400).json({ error: "Cannot deactivate the last owner" });
     }
-    if (req.user && Number(req.user.id) === id && target.role === "owner" && nextActive === 0) {
+    if (req.user && Number(req.user.id) === id && targetRole === "owner" && nextActive === 0) {
       return res.status(400).json({ error: "Owner cannot deactivate self" });
     }
 
@@ -189,10 +253,15 @@ module.exports = function makeUserRoutes(app, db, { requireSession, requireRole 
   });
 
   // RESET password (owner)
-  app.put("/api/users/:id/password", requireSession, requireRole("owner"), (req, res) => {
+  app.put("/api/users/:id/password", requireUserAdminAccess, (req, res) => {
     const id = Number(req.params.id);
     const target = ensureUserExists(id, res);
     if (!target) return;
+    const targetRole = asCanonicalRole(target.role);
+    const actorRole = asCanonicalRole(req.user && req.user.role);
+    if (actorRole === "manager" && !managerCanTouchRole(targetRole)) {
+      return res.status(403).json({ error: "Managers can only reset password for clerk/viewer users" });
+    }
 
     const { password } = req.body || {};
     if (!password || password.length < 8) {
@@ -205,17 +274,22 @@ module.exports = function makeUserRoutes(app, db, { requireSession, requireRole 
   });
 
   // UPDATE permissions (owner)
-  app.put("/api/users/:id/permissions", requireSession, requireRole("owner"), (req, res) => {
+  app.put("/api/users/:id/permissions", requireUserAdminAccess, (req, res) => {
     const id = Number(req.params.id);
     const target = ensureUserExists(id, res);
     if (!target) return;
+    const targetRole = asCanonicalRole(target.role);
+    const actorRole = asCanonicalRole(req.user && req.user.role);
+    if (actorRole === "manager" && !managerCanTouchRole(targetRole)) {
+      return res.status(403).json({ error: "Managers can only edit permissions for clerk/viewer users" });
+    }
 
     const body = req.body || {};
     const vals = {};
     for (const k of PERM_KEYS) vals[k] = body[k] ? 1 : 0;
 
     // Owner account always keeps full permissions.
-    if (target.role === "owner") {
+    if (targetRole === "owner") {
       for (const k of PERM_KEYS) vals[k] = 1;
     }
 
@@ -238,15 +312,20 @@ module.exports = function makeUserRoutes(app, db, { requireSession, requireRole 
   });
 
   // DELETE user (owner)
-  app.delete("/api/users/:id", requireSession, requireRole("owner"), (req, res) => {
+  app.delete("/api/users/:id", requireUserAdminAccess, (req, res) => {
     const id = Number(req.params.id);
     const target = ensureUserExists(id, res);
     if (!target) return;
+    const targetRole = asCanonicalRole(target.role);
+    const actorRole = asCanonicalRole(req.user && req.user.role);
+    if (actorRole === "manager" && !managerCanTouchRole(targetRole)) {
+      return res.status(403).json({ error: "Managers can only delete clerk/viewer users" });
+    }
 
     if (req.user && Number(req.user.id) === id) {
       return res.status(400).json({ error: "Cannot delete currently signed-in owner" });
     }
-    if (target.role === "owner" && ownerCount() <= 1) {
+    if (targetRole === "owner" && ownerCount() <= 1) {
       return res.status(400).json({ error: "Cannot delete the last owner" });
     }
 

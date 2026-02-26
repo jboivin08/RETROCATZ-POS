@@ -508,8 +508,8 @@ async function init() {
     await loadUsers();
   } catch (err) {
     if (err && err.status === 403) {
-      document.getElementById("users-table").innerHTML = "<tr><td colspan=\"8\" class=\"muted\">Owner role is required to manage users.</td></tr>";
-      setNotice("Owner access required.", "error");
+      document.getElementById("users-table").innerHTML = "<tr><td colspan=\"8\" class=\"muted\">Owner or manager with User Admin permission is required to manage users.</td></tr>";
+      setNotice("User admin permission required.", "error");
       return;
     }
     setNotice(err.message || "Unable to load users.", "error");

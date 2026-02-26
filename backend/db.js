@@ -869,6 +869,24 @@ function ensurePermissionsForAllUsers(db) {
   for (const u of users) ins.run(u.id);
 }
 
+function normalizeUserRoles(db) {
+  if (!tableExists(db, "users") || !columnExists(db, "users", "role")) return;
+
+  // Legacy compatibility: "admin" role is equivalent to owner in this POS.
+  db.prepare(`
+    UPDATE users
+    SET role = 'owner'
+    WHERE lower(trim(role)) = 'admin'
+  `).run();
+
+  // Keep role values canonical/lowercase for consistent auth checks.
+  db.prepare(`
+    UPDATE users
+    SET role = lower(trim(role))
+    WHERE role IS NOT NULL
+  `).run();
+}
+
 function ensureUserColumns(db) {
   if (!tableExists(db, "users")) return;
   if (!columnExists(db, "users", "pw_hash")) {
@@ -980,6 +998,7 @@ function initDb() {
   ensureSaleItemColumns(db);
   ensureSaleColumns(db);
   ensureCustomerColumns(db);
+  normalizeUserRoles(db);
   ensurePermissionsForAllUsers(db);
 
   return db;
