@@ -206,3 +206,19 @@ Files touched: src/renderer/trade-in.html, backend/index.js, backend/providers/p
 - Files: src/renderer/inventory.html, CODEX_HANDOFF.md
 - Status: Completed
 - Notes/Ideas: Added print-time column toggles for Qty, Price, and Cost; table hides/shows selected columns live.
+
+## Overnight Continuation Protocol (UI Overhaul)
+- Owner Intent: Continue working unattended for several hours; commit and push milestone save points without pausing unless blocked by a critical product decision.
+- Safety Baseline Commit: `b8c6e40` (`checkpoint: pre-ui-overhaul baseline`) on `origin/master`.
+- Rollback: `git revert <commit>` for selective undo; full restore to baseline if explicitly requested.
+- Change Rule: Visual-only changes unless absolutely required for existing UI wiring; preserve IDs and JS hooks.
+- Scope Rule: Inventory body is frozen (no body changes). Add-Item body is mostly frozen; light polish allowed. POS header/top is primary target.
+- Communication Rule: Every milestone must append a handoff entry with files changed, status, and next step.
+
+## Entry
+- Timestamp: 2026-02-26 01:05:32
+- Window/Owner: This Codex window
+- Task: Establish unattended overnight workflow + checkpoint + full-page visual audit scope
+- Files: CODEX_HANDOFF.md, src/renderer/pos.html
+- Status: In progress
+- Notes/Ideas: Git initialized and pushed to GitHub (`https://github.com/jboivin08/RETROCATZ-POS`). Baseline checkpoint pushed at `b8c6e40`. Complete renderer audit scope confirmed (13 HTML pages). Planned execution order: 1) Header standardization pass (POS first), 2) Non-frozen body consistency pass, 3) QA sweep, with small pushable save-point commits throughout.
