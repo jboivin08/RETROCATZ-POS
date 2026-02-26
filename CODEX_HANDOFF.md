@@ -262,3 +262,11 @@ Files touched: src/renderer/trade-in.html, backend/index.js, backend/providers/p
 - Files: src/renderer/add-item.html, src/renderer/ai.html, src/renderer/customers.html, src/renderer/inventory.html, src/renderer/live-events.html, src/renderer/pos.html, src/renderer/sync.html, CODEX_HANDOFF.md
 - Status: Completed (committing/pushing now)
 - Notes/Ideas: Standardized renderer page titles to `Page - RetroCatz POS` format for consistency across tabs/windows. Inventory change is title-only (no body/behavior change).
+
+## Entry
+- Timestamp: 2026-02-26 12:39:47
+- Window/Owner: This Codex window
+- Task: UI cleanup micro-batch (header class naming consistency)
+- Files: src/renderer/users.html, src/renderer/settings.html, src/renderer/customers.html, CODEX_HANDOFF.md
+- Status: Completed (committing/pushing now)
+- Notes/Ideas: Renamed top-level header class hooks from `topbar` to `page-toolbar` (and `topbar-note` to `page-toolbar-note`) for clearer separation from internal section toolbars; no behavioral changes.
