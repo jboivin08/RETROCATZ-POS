@@ -12,7 +12,7 @@ function backToLogin(){ window.location.href = "../../public/index.html"; }
 const PERM_KEYS = ["inv_add","inv_edit","inv_delete","cost_change","category_admin","user_admin","checkout","reports"];
 
 document.getElementById("back-btn").onclick = () => {
-  window.location.href = "../index.html?sid=" + encodeURIComponent(sid());
+  window.location.href = "index.html?sid=" + encodeURIComponent(sid());
 };
 
 function rowHtml(u){
@@ -58,16 +58,19 @@ async function loadUsers(){
     b.onclick = async ()=>{
       const id = b.getAttribute("data-edit");
       const newName = prompt("New username (leave blank to skip):");
-      const newRole = prompt("New role (owner/manager/clerk, leave blank to skip):");
+      const newRole = prompt("New role (owner/manager/clerk/viewer, leave blank to skip):");
       const newPw = prompt("New password (min 8, leave blank to skip):");
       const body = {};
       if (newName) body.username = newName;
-      if (newRole) body.role = newRole;
+      if (newRole) body.role = String(newRole).trim().toLowerCase();
       if (newPw && newPw.length >= 8) body.password = newPw;
       if (Object.keys(body).length === 0) return;
       const rr = await fetch(`${API}/api/users/${id}`, { method:"PUT", headers: auth(), body: JSON.stringify(body) });
       if (rr.ok) loadUsers();
-      else alert(`Edit failed (${rr.status})`);
+      else {
+        const msg = await rr.text().catch(() => "");
+        alert(`Edit failed (${rr.status})${msg ? ": " + msg : ""}`);
+      }
     };
   });
 
@@ -81,6 +84,10 @@ async function loadUsers(){
         method:"PUT", headers: auth(), body: JSON.stringify({ password: pw })
       });
       if (rr.ok) alert("Password updated");
+      else {
+        const msg = await rr.text().catch(() => "");
+        alert(`Reset failed (${rr.status})${msg ? ": " + msg : ""}`);
+      }
     };
   });
 
@@ -91,7 +98,10 @@ async function loadUsers(){
       if (!confirm("Delete this user?")) return;
       const rr = await fetch(`${API}/api/users/${id}`, { method:"DELETE", headers: auth() });
       if (rr.ok) loadUsers();
-      else alert(`Delete failed (${rr.status})`);
+      else {
+        const msg = await rr.text().catch(() => "");
+        alert(`Delete failed (${rr.status})${msg ? ": " + msg : ""}`);
+      }
     };
   });
 }
