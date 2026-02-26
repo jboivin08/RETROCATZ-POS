@@ -1,4 +1,5 @@
 const API = "http://127.0.0.1:5175";
+window.__vaultcoreUsersJsLoaded = true;
 
 (function bootstrapSession() {
   const q = new URLSearchParams(location.search);

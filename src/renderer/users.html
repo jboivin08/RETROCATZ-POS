@@ -4,10 +4,10 @@
   <meta charset="UTF-8" />
   <title>Users & Permissions - VaultCore POS</title>
   <meta http-equiv="Content-Security-Policy"
-        content="default-src 'self';
-                 script-src 'self';
-                 connect-src 'self' http://127.0.0.1:5175 http://localhost:5175;
-                 style-src 'self' 'unsafe-inline'">
+        content="default-src 'self' file: data:;
+                 script-src 'self' 'unsafe-inline' file:;
+                 connect-src 'self' file: http://127.0.0.1:5175 http://localhost:5175;
+                 style-src 'self' 'unsafe-inline' file:">
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <style>
     :root {
@@ -276,7 +276,7 @@
       </div>
       <span class="header-spacer"></span>
       <button id="refresh-btn" class="btn">Refresh</button>
-      <button id="back-btn" class="btn">Back to Dashboard</button>
+      <a id="back-btn" class="btn" href="index.html" style="text-decoration:none; display:inline-flex; align-items:center;">Back to Dashboard</a>
     </header>
 
     <section class="cards">

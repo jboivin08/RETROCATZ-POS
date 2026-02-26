@@ -396,3 +396,11 @@ Files touched: src/renderer/trade-in.html, backend/index.js, backend/providers/p
 - Files: src/renderer/users.js, CODEX_HANDOFF.md
 - Status: Completed (committing/pushing now)
 - Notes/Ideas: Added defensive null-guards across all Users UI bindings and rendering paths, plus fatal in-page error reporting so JS init failures are visible instead of silently breaking all buttons. Smoke API was already green; this patch addresses frontend runtime fragility.
+
+## Entry
+- Timestamp: 2026-02-26 16:09:23
+- Window/Owner: This Codex window
+- Task: Users page hardening for non-executing JS symptoms
+- Files: src/renderer/users.html, src/renderer/users.js, CODEX_HANDOFF.md
+- Status: Completed (committing/pushing now)
+- Notes/Ideas: Updated Users page CSP to allow Electron file-context script loading and added non-JS fallback navigation by converting Back control to anchor link. Added runtime load marker window.__vaultcoreUsersJsLoaded for quick console verification.
