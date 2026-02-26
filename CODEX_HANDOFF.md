@@ -294,3 +294,11 @@ Files touched: src/renderer/trade-in.html, backend/index.js, backend/providers/p
 - Files: src/renderer/sync.html, CODEX_HANDOFF.md
 - Status: Completed (committing/pushing now)
 - Notes/Ideas: Replaced inline overflow wrappers with shared `.table-wrap` pattern (border/radius/overflow), matching table treatment used on Inventory/Reports style pages.
+
+## Entry
+- Timestamp: 2026-02-26 12:51:06
+- Window/Owner: This Codex window
+- Task: Body consistency micro-pass on Customers/Settings internals
+- Files: src/renderer/customers.html, src/renderer/settings.html, CODEX_HANDOFF.md
+- Status: Completed (committing/pushing now)
+- Notes/Ideas: Renamed Customers internal filter layout class from `toolbar` to `filter-toolbar` to avoid ambiguity with page-level headers; added Settings toggle label/checkbox alignment rules for cleaner control rhythm.

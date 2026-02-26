@@ -90,7 +90,7 @@
       letter-spacing: 0.08em;
       color: var(--muted);
     }
-    .toolbar {
+    .filter-toolbar {
       display: grid;
       grid-template-columns: 1fr 160px 140px 140px;
       gap: 8px;
@@ -233,10 +233,10 @@
     }
     @media (max-width: 1100px) {
       .layout { grid-template-columns: 1fr; }
-      .toolbar { grid-template-columns: 1fr 1fr; }
+      .filter-toolbar { grid-template-columns: 1fr 1fr; }
     }
     @media (max-width: 700px) {
-      .toolbar { grid-template-columns: 1fr; }
+      .filter-toolbar { grid-template-columns: 1fr; }
       .form-grid { grid-template-columns: 1fr; }
     }
   </style>
@@ -258,7 +258,7 @@
     <div class="layout">
       <section class="panel">
         <h2>Directory</h2>
-        <div class="toolbar">
+        <div class="filter-toolbar">
           <input id="custSearch" type="text" placeholder="Search name, phone, email, EIN" />
           <select id="custTypeFilter">
             <option value="">All Types</option>
