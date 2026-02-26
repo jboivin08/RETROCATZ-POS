@@ -14,8 +14,10 @@
     :root{--bg:#0b0b0d;--panel:#111827;--border:#374151;--text:#e5e7eb;--muted:#9ca3af;--blue:#2563eb}
     *{box-sizing:border-box}
     body{margin:16px;background:var(--bg);color:var(--text);font-family:system-ui,sans-serif}
-    .toolbar{display:flex;align-items:center;gap:8px;background:#091226;padding:12px;border-radius:8px;border:1px solid #0e1b36}
+    .toolbar{display:flex;align-items:center;gap:10px;background:#091226;padding:12px;border-radius:8px;border:1px solid #0e1b36;flex-wrap:wrap}
     .toolbar h1{margin:0;font-size:20px;font-weight:700}
+    .logo{height:22px;width:auto;display:block}
+    .toolbar-spacer{flex:1}
     .btn{padding:8px 12px;border:1px solid var(--border);border-radius:8px;background:#0c0c0f;color:var(--text);cursor:pointer;transition:background-color .15s,border-color .15s,box-shadow .15s,transform .05s}
     .btn:hover{border-color:#596274}
     .btn.primary{background:var(--blue);border-color:var(--blue)}
@@ -109,8 +111,11 @@
 </head>
 <body>
   <div class="toolbar">
+    <img class="logo" src="assets/retrocatz-logo.png" alt="RetroCatz" />
     <h1>Add New Item</h1>
     <button class="btn" onclick="location.href='index.html'">Back to Dashboard</button>
+    <span class="toolbar-spacer"></span>
+    <span class="small">Catalog intake and pricing</span>
   </div>
 
   <div class="card pad-right" id="addCard">

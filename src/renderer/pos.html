@@ -1289,7 +1289,7 @@
           <span class="key">F1 Scan</span>
           <span class="key">F2 Search</span>
           <span class="key">F12 Complete</span>
-          <button class="btn-inline" id="back">Back</button>
+          <button class="btn-inline" id="back">Back to Dashboard</button>
         </div>
       </div>
     </header>
@@ -1325,7 +1325,7 @@
             <div>Total<strong id="sumTotal">$0.00</strong></div>
           </div>
           <div class="receipt-preview" id="receiptPreview">
-            <div class="line"><span>Receipt preview</span><span>—</span></div>
+            <div class="line"><span>Receipt preview</span><span>-</span></div>
           </div>
           <div class="totals-card">
             <div class="totals-left">
@@ -2655,7 +2655,7 @@
           const lineTotal = (item.price || 0) * (item.qty || 1);
           return `<div class="line"><span>${item.title || item.sku || "Item"}</span><span>${formatMoney(lineTotal)}</span></div>`;
         }).join("");
-        receiptPreviewEl.innerHTML = lines || '<div class="line"><span>Receipt preview</span><span>—</span></div>';
+        receiptPreviewEl.innerHTML = lines || '<div class="line"><span>Receipt preview</span><span>-</span></div>';
       }
     }
 
@@ -3666,3 +3666,4 @@
   </script>
 </body>
 </html>
+

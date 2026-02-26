@@ -230,3 +230,11 @@ Files touched: src/renderer/trade-in.html, backend/index.js, backend/providers/p
 - Files: src/renderer/users.html, src/renderer/settings.html, src/renderer/customers.html, src/renderer/sync.html, CODEX_HANDOFF.md
 - Status: Completed (committing/pushing now)
 - Notes/Ideas: Normalized top bar pattern (logo/title/back/actions rhythm), aligned controls/panels to shared dark token set, preserved existing IDs and script hooks. No JS logic changes.
+
+## Entry
+- Timestamp: 2026-02-26 12:27:13
+- Window/Owner: This Codex window
+- Task: UI standardization batch 2 (header harmonization + text cleanup)
+- Files: src/renderer/add-item.html, src/renderer/ai.html, src/renderer/categories.html, src/renderer/live-events.html, src/renderer/pos.html, CODEX_HANDOFF.md
+- Status: Completed (committing/pushing now)
+- Notes/Ideas: Added/normalized toolbar structure on Add Item and Categories; aligned AI header controls/back-link/button treatment with shared toolbar/button style; corrected visible encoding artifacts in Live Events and POS labels. Preserved existing IDs and JS wiring.

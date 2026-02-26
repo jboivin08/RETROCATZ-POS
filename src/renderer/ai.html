@@ -29,9 +29,10 @@
       justify-content: space-between;
       gap: 16px;
       padding: 12px;
-      border-radius: 10px;
+      border-radius: 8px;
       background: #091226;
       border: 1px solid #0e1b36;
+      flex-wrap: wrap;
     }
     header h1 {
       margin: 0;
@@ -47,13 +48,15 @@
       align-items: center;
       gap: 8px;
       font-size: 0.9rem;
+      flex-wrap: wrap;
     }
     .brain-controls select {
-      background: #111827;
+      background: #000;
       color: #e5e7eb;
       border: 1px solid #374151;
-      border-radius: 6px;
-      padding: 4px 8px;
+      border-radius: 8px;
+      padding: 8px 10px;
+      font-size: 12px;
     }
     .live-status {
       font-size: 0.75rem;
@@ -160,10 +163,20 @@
       color: #9ca3af;
     }
     .back-link {
-      font-size: 0.8rem;
-      color: #9ca3af;
-      text-decoration: underline;
-      cursor: pointer;
+      padding:8px 12px;
+      border:1px solid #374151;
+      border-radius:8px;
+      background:#0c0c0f;
+      color:#e5e7eb;
+      cursor:pointer;
+      font-size:13px;
+      text-decoration:none;
+      transition:box-shadow 0.12s ease, transform 0.12s ease, border-color 0.12s ease;
+    }
+    .back-link:hover {
+      border-color:#596274;
+      box-shadow:0 0 0 1px rgba(148,163,184,.35);
+      transform:translateY(-0.5px);
     }
     .top-row-actions {
       display: flex;
@@ -171,16 +184,19 @@
       font-size: 0.8rem;
     }
     .top-row-actions button {
-      padding: 4px 10px;
-      border-radius: 999px;
+      padding: 8px 12px;
+      border-radius: 8px;
       border: 1px solid #374151;
-      background: #020617;
-      color: #9ca3af;
+      background: #0c0c0f;
+      color: #e5e7eb;
       cursor: pointer;
+      font-size: 12px;
+      transition:box-shadow 0.12s ease, transform 0.12s ease, border-color 0.12s ease;
     }
     .top-row-actions button:hover {
-      border-color: #6b7280;
-      color: #e5e7eb;
+      border-color:#596274;
+      box-shadow:0 0 0 1px rgba(148,163,184,.35);
+      transform:translateY(-0.5px);
     }
 
     /* RIGHT PANEL: mind window + chat */
