@@ -8,6 +8,16 @@ module.exports = function makeUserRoutes(app, db, { requireSession, requireRole 
   function normalizeUsername(v) {
     return String(v || "").trim();
   }
+  function normalizeDisplayName(v) {
+    return String(v || "").trim();
+  }
+  function toFlag(v, fallback = 1) {
+    if (v === undefined || v === null) return fallback;
+    if (typeof v === "boolean") return v ? 1 : 0;
+    if (typeof v === "number") return v ? 1 : 0;
+    const s = String(v).toLowerCase().trim();
+    return (s === "1" || s === "true" || s === "yes") ? 1 : 0;
+  }
 
   function getUserById(id) {
     return db.prepare("SELECT id, username, role, active FROM users WHERE id=?").get(id);
@@ -47,9 +57,11 @@ module.exports = function makeUserRoutes(app, db, { requireSession, requireRole 
 
   // CREATE user (owner)
   app.post("/api/users", requireSession, requireRole("owner"), (req, res) => {
-    const { username, password, role, display_name } = req.body || {};
+    const { username, password, role, display_name, active } = req.body || {};
     const uname = normalizeUsername(username);
+    const dname = normalizeDisplayName(display_name);
     const normalizedRole = String(role || "").toLowerCase().trim();
+    const activeFlag = toFlag(active, 1);
 
     if (!uname || !password || !normalizedRole) {
       return res.status(400).json({ error: "Missing fields" });
@@ -65,8 +77,8 @@ module.exports = function makeUserRoutes(app, db, { requireSession, requireRole 
       const hash = bcrypt.hashSync(password, 10);
       const info = db.prepare(`
         INSERT INTO users (username, pw_hash, role, active, created_at, display_name)
-        VALUES (?, ?, ?, 1, datetime('now'), ?)
-      `).run(uname, hash, normalizedRole, display_name || null);
+        VALUES (?, ?, ?, ?, datetime('now'), ?)
+      `).run(uname, hash, normalizedRole, activeFlag, dname || null);
 
       if (normalizedRole === "owner") {
         db.prepare(`
@@ -89,19 +101,38 @@ module.exports = function makeUserRoutes(app, db, { requireSession, requireRole 
   // UPDATE user (owner): username / role / password (optional)
   app.put("/api/users/:id", requireSession, requireRole("owner"), (req, res) => {
     const id = Number(req.params.id);
-    const { username, role, password, display_name } = req.body || {};
+    const { username, role, password, display_name, active } = req.body || {};
     const target = ensureUserExists(id, res);
     if (!target) return;
 
     const uname = normalizeUsername(username);
+    const dname = normalizeDisplayName(display_name);
     const normalizedRole = role ? String(role).toLowerCase().trim() : "";
 
     if (uname) {
-      db.prepare("UPDATE users SET username=? WHERE id=?").run(uname, id);
+      try {
+        db.prepare("UPDATE users SET username=? WHERE id=?").run(uname, id);
+      } catch (e) {
+        if (String(e).includes("UNIQUE")) {
+          return res.status(409).json({ error: "Username already exists" });
+        }
+        throw e;
+      }
     }
 
     if (display_name !== undefined) {
-      db.prepare("UPDATE users SET display_name=? WHERE id=?").run(display_name || null, id);
+      db.prepare("UPDATE users SET display_name=? WHERE id=?").run(dname || null, id);
+    }
+
+    if (active !== undefined) {
+      const nextActive = toFlag(active, target.active ? 1 : 0);
+      if (target.role === "owner" && nextActive === 0 && ownerCount() <= 1) {
+        return res.status(400).json({ error: "Cannot deactivate the last owner" });
+      }
+      if (req.user && Number(req.user.id) === id && target.role === "owner" && nextActive === 0) {
+        return res.status(400).json({ error: "Owner cannot deactivate self" });
+      }
+      db.prepare("UPDATE users SET active=? WHERE id=?").run(nextActive, id);
     }
 
     if (normalizedRole) {
@@ -136,6 +167,24 @@ module.exports = function makeUserRoutes(app, db, { requireSession, requireRole 
       db.prepare("UPDATE users SET pw_hash=? WHERE id=?").run(hash, id);
     }
 
+    res.json({ ok: true });
+  });
+
+  // UPDATE active status (owner)
+  app.put("/api/users/:id/active", requireSession, requireRole("owner"), (req, res) => {
+    const id = Number(req.params.id);
+    const target = ensureUserExists(id, res);
+    if (!target) return;
+
+    const nextActive = toFlag(req.body ? req.body.active : undefined, target.active ? 1 : 0);
+    if (target.role === "owner" && nextActive === 0 && ownerCount() <= 1) {
+      return res.status(400).json({ error: "Cannot deactivate the last owner" });
+    }
+    if (req.user && Number(req.user.id) === id && target.role === "owner" && nextActive === 0) {
+      return res.status(400).json({ error: "Owner cannot deactivate self" });
+    }
+
+    db.prepare("UPDATE users SET active=? WHERE id=?").run(nextActive, id);
     res.json({ ok: true });
   });
 

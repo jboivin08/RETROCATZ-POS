@@ -350,3 +350,11 @@ Files touched: src/renderer/trade-in.html, backend/index.js, backend/providers/p
 - Files: backend/db.js, backend/index.js, src/renderer/accounting.html, src/renderer/index.html, CODEX_HANDOFF.md
 - Status: Completed (backend restart required)
 - Notes/Ideas: Added expenses + tax center backend endpoints; add-item now auto-logs inventory intake expenses (amount=cost*qty) into new expenses table. New Accounting page with expense entry/list + tax summary and CSV exports. Dashboard now links to accounting.html. Tax summary uses completed sales + taxable flags; refunds not yet modeled for tax. Restart backend/app to pick up new endpoints and DB tables.
+
+## Entry
+- Timestamp: 2026-02-26 13:27:20
+- Window/Owner: This Codex window
+- Task: Full users page overhaul (working CRM-style user administration)
+- Files: backend/users.js, src/renderer/users.html, src/renderer/users.js, CODEX_HANDOFF.md
+- Status: Completed (local verification done, committing/pushing now)
+- Notes/Ideas: Replaced prompt-based Users UI with structured management console (create user form, search/filter, selectable user editor, role/status updates, permission matrix, password reset flow, and guarded delete). Added backend support for active-state edits (PUT /api/users/:id/active), creation with explicit active flag, unique-username conflict response on update, and owner safety rules for deactivate flows (cannot deactivate last owner or owner self).

@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Users - RetroCatz POS</title>
+  <title>Users & Permissions - RetroCatz POS</title>
   <meta http-equiv="Content-Security-Policy"
         content="default-src 'self';
                  script-src 'self';
@@ -11,138 +11,380 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <style>
     :root {
-      --bg: #0b0b0d;
-      --panel: #111827;
-      --border: #374151;
-      --text: #e5e7eb;
-      --muted: #9ca3af;
+      --bg: #070f1d;
+      --bg-soft: #0b1830;
+      --panel: #0e1f3d;
+      --panel-2: #11284f;
+      --line: #2a3f69;
+      --text: #e8edf8;
+      --muted: #9fb2d6;
+      --ok: #1f9e65;
+      --warn: #f59e0b;
+      --danger: #dc2626;
+      --accent: #2ec4ff;
+      --accent-2: #0ea5e9;
     }
     * { box-sizing: border-box; }
     body {
-      font-family: system-ui, sans-serif;
-      margin: 16px;
-      background: var(--bg);
+      margin: 0;
+      min-height: 100vh;
+      background:
+        radial-gradient(circle at 8% 12%, rgba(46, 196, 255, .18), transparent 35%),
+        radial-gradient(circle at 85% 0%, rgba(52, 211, 153, .1), transparent 42%),
+        linear-gradient(180deg, #050a15 0%, #081225 55%, #08142a 100%);
       color: var(--text);
+      font-family: "Trebuchet MS", "Segoe UI", sans-serif;
+      padding: 14px;
     }
     .page-shell {
-      max-width: 1380px;
+      max-width: 1480px;
       margin: 0 auto;
-      width: 100%;
-    }
-    .page-toolbar {
-      display:flex;
-      align-items:center;
-      gap:10px;
-      background:#091226;
-      padding:12px;
-      border-radius:8px;
-      border:1px solid #0e1b36;
-      flex-wrap:wrap;
-      margin-bottom:12px;
-    }
-    .page-toolbar h1 { margin:0; font-size:20px; font-weight:700; }
-    .logo { height:22px; width:auto; display:block; }
-    .toolbar-spacer { flex:1; }
-    .btn {
-      padding:8px 12px;
-      border:1px solid var(--border);
-      border-radius:8px;
-      background:#0c0c0f;
-      color:var(--text);
-      cursor:pointer;
-      transition:box-shadow 0.12s ease, transform 0.12s ease, border-color 0.12s ease;
-      font-size:13px;
-      white-space:nowrap;
-    }
-    .btn:hover{
-      border-color:#596274;
-      box-shadow:0 0 0 1px rgba(148,163,184,.35);
-      transform:translateY(-0.5px);
-    }
-    .row {
       display: grid;
-      gap: 8px;
-      grid-template-columns: 1fr 1fr 140px 1fr auto;
-      max-width: 980px;
+      gap: 12px;
     }
-    .panel {
-      background: var(--panel);
-      border: 1px solid var(--border);
+    .header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: linear-gradient(135deg, rgba(14,31,61,.95), rgba(10,24,48,.95));
+      padding: 12px;
+      box-shadow: 0 8px 26px rgba(0, 0, 0, .22);
+      flex-wrap: wrap;
+    }
+    .logo {
+      width: 34px;
+      height: 34px;
+      border-radius: 8px;
+      object-fit: contain;
+      background: rgba(255,255,255,.08);
+      border: 1px solid rgba(255,255,255,.16);
+      padding: 4px;
+    }
+    h1 { margin: 0; font-size: 22px; letter-spacing: .2px; }
+    .header-sub { color: var(--muted); font-size: 12px; }
+    .header-spacer { flex: 1; }
+
+    .btn {
+      border: 1px solid var(--line);
+      background: #0a1934;
+      color: var(--text);
+      border-radius: 10px;
+      padding: 9px 12px;
+      cursor: pointer;
+      font-size: 13px;
+      font-weight: 600;
+      transition: .12s ease;
+    }
+    .btn:hover { transform: translateY(-1px); border-color: #4e6ea5; }
+    .btn.primary { background: linear-gradient(180deg, var(--accent-2), #0284c7); border-color: #1b8ac3; color: #eaf7ff; }
+    .btn.warn { background: rgba(245,158,11,.16); border-color: rgba(245,158,11,.5); color: #ffe1a4; }
+    .btn.danger { background: rgba(220,38,38,.18); border-color: rgba(220,38,38,.5); color: #ffc0c0; }
+
+    .cards {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(140px, 1fr));
+      gap: 10px;
+    }
+    .card {
+      border: 1px solid var(--line);
       border-radius: 12px;
+      background: linear-gradient(165deg, rgba(14,31,61,.94), rgba(17,40,79,.94));
       padding: 12px;
     }
-    input, select, button {
-      padding: 8px;
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      background: #000;
-      color: var(--text);
+    .card .label { color: var(--muted); font-size: 11px; text-transform: uppercase; letter-spacing: .6px; }
+    .card .value { font-size: 23px; font-weight: 700; margin-top: 4px; }
+
+    .layout {
+      display: grid;
+      grid-template-columns: 380px minmax(0, 1fr);
+      gap: 12px;
+      align-items: start;
     }
-    table {
-      border-collapse: collapse;
+    .panel {
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: linear-gradient(160deg, rgba(14,31,61,.96), rgba(12,27,54,.94));
+      padding: 12px;
+    }
+    .panel h2 {
+      margin: 0 0 10px;
+      font-size: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+    .panel-sub { color: var(--muted); font-size: 12px; margin-bottom: 10px; }
+
+    label {
+      display: block;
+      font-size: 12px;
+      color: var(--muted);
+      margin: 10px 0 6px;
+    }
+    input, select {
       width: 100%;
-      margin-top: 16px;
-      font-size: 13px;
-      border: 1px solid var(--border);
+      border: 1px solid var(--line);
+      background: #081529;
+      color: var(--text);
+      border-radius: 9px;
+      padding: 9px;
+      outline: none;
     }
-    th, td { border-bottom: 1px solid #1f2937; padding: 8px; text-align: center; }
-    th { background:#0d0d10; color:#cbd5e1; }
-    th:first-child, td:first-child { text-align: left; }
-    .muted { color: var(--muted); font-size: 12px; }
-    input[type="checkbox"] { transform: scale(1.1); cursor: pointer; }
-    @media (max-width: 960px) { .row { grid-template-columns: 1fr 1fr; } }
-    @media (max-width: 640px) { .row { grid-template-columns: 1fr; } }
+    input:focus, select:focus { border-color: #5d83c2; }
+    .form-actions {
+      margin-top: 12px;
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .toolbar {
+      display: grid;
+      grid-template-columns: minmax(180px, 1fr) 180px auto;
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+
+    .table-wrap { overflow: auto; border: 1px solid var(--line); border-radius: 12px; }
+    table { width: 100%; border-collapse: collapse; min-width: 1200px; }
+    th, td {
+      border-bottom: 1px solid rgba(159,178,214,.16);
+      padding: 9px;
+      text-align: left;
+      font-size: 12px;
+      vertical-align: top;
+    }
+    th {
+      position: sticky;
+      top: 0;
+      z-index: 1;
+      background: #0b1a34;
+      color: #c5d7f7;
+      text-transform: uppercase;
+      letter-spacing: .4px;
+      font-size: 11px;
+    }
+    .muted { color: var(--muted); }
+    .status-pill {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 999px;
+      font-size: 11px;
+      border: 1px solid;
+      font-weight: 700;
+    }
+    .status-on { color: #b7f7d8; border-color: rgba(31,158,101,.55); background: rgba(31,158,101,.18); }
+    .status-off { color: #ffd2d2; border-color: rgba(220,38,38,.55); background: rgba(220,38,38,.18); }
+    .actions {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+    .btn-xs {
+      border: 1px solid var(--line);
+      background: #0a1a35;
+      color: var(--text);
+      border-radius: 8px;
+      padding: 5px 7px;
+      cursor: pointer;
+      font-size: 11px;
+      font-weight: 700;
+    }
+    .btn-xs:hover { border-color: #5d83c2; }
+    .btn-xs.danger { border-color: rgba(220,38,38,.6); color: #ffcaca; }
+
+    .perm-grid {
+      margin-top: 8px;
+      display: grid;
+      grid-template-columns: repeat(2, minmax(120px, 1fr));
+      gap: 8px;
+    }
+    .perm-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      border: 1px solid rgba(159,178,214,.2);
+      border-radius: 8px;
+      background: rgba(7,15,30,.55);
+      padding: 7px;
+      font-size: 12px;
+    }
+    .perm-item input { width: auto; }
+
+    #notice {
+      min-height: 20px;
+      font-size: 12px;
+      color: var(--muted);
+      margin-top: 8px;
+    }
+
+    @media (max-width: 1100px) {
+      .layout { grid-template-columns: 1fr; }
+      .cards { grid-template-columns: repeat(2, minmax(140px, 1fr)); }
+    }
+    @media (max-width: 620px) {
+      .cards { grid-template-columns: 1fr 1fr; }
+      .toolbar { grid-template-columns: 1fr; }
+    }
   </style>
 </head>
 <body>
   <div class="page-shell">
-    <div class="page-toolbar">
+    <header class="header">
       <img class="logo" src="assets/retrocatz-logo.png" alt="RetroCatz" />
-      <h1>Users</h1>
+      <div>
+        <h1>Users & Account Controls</h1>
+        <div class="header-sub">Owner-only administration for staff users, role security, and permissions</div>
+      </div>
+      <span class="header-spacer"></span>
+      <button id="refresh-btn" class="btn">Refresh</button>
       <button id="back-btn" class="btn">Back to Dashboard</button>
-      <span class="toolbar-spacer"></span>
-      <span class="muted">Role and permission controls</span>
-    </div>
+    </header>
 
-    <section class="panel">
-      <form id="user-form" class="row">
-        <input name="username" placeholder="Username" required />
-        <input name="display_name" placeholder="Display name (optional)" />
-        <select name="role">
-          <option value="clerk">clerk</option>
-          <option value="manager">manager</option>
-          <option value="owner">owner</option>
-          <option value="viewer">viewer</option>
-        </select>
-        <input name="password" type="password" placeholder="Password (min 8)" required />
-        <button type="submit">Add User</button>
-      </form>
+    <section class="cards">
+      <article class="card"><div class="label">Total Users</div><div class="value" id="metric-total">-</div></article>
+      <article class="card"><div class="label">Active Users</div><div class="value" id="metric-active">-</div></article>
+      <article class="card"><div class="label">Owners</div><div class="value" id="metric-owners">-</div></article>
+      <article class="card"><div class="label">Managers</div><div class="value" id="metric-managers">-</div></article>
+    </section>
 
-      <div id="debug" class="muted" style="margin-top:8px;"></div>
+    <section class="layout">
+      <aside class="panel">
+        <h2>Create User</h2>
+        <div class="panel-sub">New team member account with role defaults</div>
+        <form id="create-form">
+          <label for="create-username">Username</label>
+          <input id="create-username" name="username" required maxlength="64" />
 
-      <table>
-        <thead>
-          <tr>
-            <th>ID</th>
-            <th>Username</th>
-            <th>Role</th>
-            <th>Active</th>
-            <th>Created</th>
-            <th>inv_add</th>
-            <th>inv_edit</th>
-            <th>inv_delete</th>
-            <th>cost_change</th>
-            <th>category_admin</th>
-            <th>user_admin</th>
-            <th>checkout</th>
-            <th>reports</th>
-            <th>Actions</th>
-          </tr>
-        </thead>
-        <tbody id="users-table">
-          <tr><td colspan="14" class="muted">Loading...</td></tr>
-        </tbody>
-      </table>
+          <label for="create-display">Display name</label>
+          <input id="create-display" name="display_name" maxlength="120" placeholder="Optional" />
+
+          <label for="create-role">Role</label>
+          <select id="create-role" name="role">
+            <option value="clerk">Clerk</option>
+            <option value="manager">Manager</option>
+            <option value="viewer">Viewer</option>
+            <option value="owner">Owner</option>
+          </select>
+
+          <label for="create-password">Password</label>
+          <input id="create-password" name="password" type="password" required minlength="8" />
+
+          <label for="create-password2">Confirm password</label>
+          <input id="create-password2" name="password2" type="password" required minlength="8" />
+
+          <label>
+            <input id="create-active" name="active" type="checkbox" checked style="width:auto; margin-right:6px;" />
+            Active account
+          </label>
+
+          <div class="form-actions">
+            <button type="submit" class="btn primary">Create User</button>
+            <button type="button" id="clear-create" class="btn">Clear</button>
+          </div>
+        </form>
+      </aside>
+
+      <main class="panel">
+        <h2>
+          Manage Users
+          <span class="muted" id="active-editor-label">No user selected</span>
+        </h2>
+
+        <div class="toolbar">
+          <input id="search-input" placeholder="Search username or display name" />
+          <select id="role-filter">
+            <option value="">All roles</option>
+            <option value="owner">Owner</option>
+            <option value="manager">Manager</option>
+            <option value="clerk">Clerk</option>
+            <option value="viewer">Viewer</option>
+          </select>
+          <button id="new-selection" class="btn">Clear Selection</button>
+        </div>
+
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>User</th>
+                <th>Display Name</th>
+                <th>Role</th>
+                <th>Status</th>
+                <th>Created</th>
+                <th>Permissions</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="users-table">
+              <tr><td colspan="8" class="muted">Loading users...</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <section id="editor-panel" class="panel" style="margin-top:12px; display:none; padding:10px;">
+          <h2>Edit Selected User</h2>
+          <form id="edit-form">
+            <input type="hidden" name="id" />
+            <div class="toolbar" style="grid-template-columns: 1fr 1fr 180px; margin-bottom:0;">
+              <div>
+                <label for="edit-username">Username</label>
+                <input id="edit-username" name="username" required maxlength="64" />
+              </div>
+              <div>
+                <label for="edit-display">Display name</label>
+                <input id="edit-display" name="display_name" maxlength="120" />
+              </div>
+              <div>
+                <label for="edit-role">Role</label>
+                <select id="edit-role" name="role">
+                  <option value="owner">Owner</option>
+                  <option value="manager">Manager</option>
+                  <option value="clerk">Clerk</option>
+                  <option value="viewer">Viewer</option>
+                </select>
+              </div>
+            </div>
+
+            <label>
+              <input id="edit-active" name="active" type="checkbox" style="width:auto; margin-right:6px;" />
+              Active account
+            </label>
+
+            <div class="perm-grid" id="perm-grid"></div>
+
+            <div class="form-actions">
+              <button class="btn primary" type="submit">Save Profile & Permissions</button>
+              <button class="btn" type="button" id="reset-password-btn">Reset Password</button>
+              <button class="btn danger" type="button" id="delete-user-btn">Delete User</button>
+              <button class="btn" type="button" id="cancel-edit">Cancel</button>
+            </div>
+          </form>
+
+          <form id="password-form" style="display:none; margin-top:10px; border-top:1px solid rgba(159,178,214,.2); padding-top:10px;">
+            <div class="toolbar" style="grid-template-columns: 1fr 1fr auto; margin-bottom:0;">
+              <div>
+                <label for="pw1">New password</label>
+                <input id="pw1" name="pw1" type="password" minlength="8" required />
+              </div>
+              <div>
+                <label for="pw2">Confirm password</label>
+                <input id="pw2" name="pw2" type="password" minlength="8" required />
+              </div>
+              <div style="display:flex; align-items:flex-end; gap:8px;">
+                <button class="btn warn" type="submit">Update Password</button>
+                <button class="btn" type="button" id="cancel-password">Close</button>
+              </div>
+            </div>
+          </form>
+        </section>
+
+        <div id="notice" aria-live="polite"></div>
+      </main>
     </section>
   </div>
 
