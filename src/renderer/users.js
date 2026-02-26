@@ -58,6 +58,14 @@ function setNotice(message, level = "info") {
   else el.style.color = "#9fb2d6";
 }
 
+function setFatalError(message) {
+  const table = document.getElementById("users-table");
+  if (table) {
+    table.innerHTML = `<tr><td colspan="8" class="muted">${escapeHtml(message || "Users page failed to initialize.")}</td></tr>`;
+  }
+  setNotice(message || "Users page failed to initialize.", "error");
+}
+
 async function api(path, opts = {}) {
   const response = await fetch(`${API}${path}`, {
     ...opts,
@@ -128,15 +136,19 @@ function renderMetrics() {
   const active = users.filter(u => Number(u.active) === 1).length;
   const owners = users.filter(u => u.role === "owner").length;
   const managers = users.filter(u => u.role === "manager").length;
-
-  document.getElementById("metric-total").textContent = String(users.length);
-  document.getElementById("metric-active").textContent = String(active);
-  document.getElementById("metric-owners").textContent = String(owners);
-  document.getElementById("metric-managers").textContent = String(managers);
+  const metricTotal = document.getElementById("metric-total");
+  const metricActive = document.getElementById("metric-active");
+  const metricOwners = document.getElementById("metric-owners");
+  const metricManagers = document.getElementById("metric-managers");
+  if (metricTotal) metricTotal.textContent = String(users.length);
+  if (metricActive) metricActive.textContent = String(active);
+  if (metricOwners) metricOwners.textContent = String(owners);
+  if (metricManagers) metricManagers.textContent = String(managers);
 }
 
 function renderTable() {
   const tbody = document.getElementById("users-table");
+  if (!tbody) return;
   const rows = filteredUsers();
 
   if (!rows.length) {
@@ -191,6 +203,7 @@ function renderPermissionEditor(user) {
 function renderEditor() {
   const panel = document.getElementById("editor-panel");
   const label = document.getElementById("active-editor-label");
+  if (!panel || !label) return;
   const user = getSelectedUser();
 
   if (!user) {
@@ -247,6 +260,7 @@ async function loadUsers() {
 
 function attachTableHandlers() {
   const tbody = document.getElementById("users-table");
+  if (!tbody) return;
   tbody.addEventListener("click", async (e) => {
     const btn = e.target.closest("button[data-action]");
     if (!btn) return;
@@ -296,6 +310,7 @@ function attachTableHandlers() {
 function attachCreateForm() {
   const form = document.getElementById("create-form");
   const clearBtn = document.getElementById("clear-create");
+  if (!form) return;
   const modal = document.getElementById("create-user-modal");
   const openBtn = document.getElementById("open-create-modal");
   const closeBtn = document.getElementById("close-create-modal");
@@ -361,11 +376,13 @@ function attachCreateForm() {
     }
   });
 
-  clearBtn.addEventListener("click", () => {
-    form.reset();
-    form.elements.active.checked = true;
-    setNotice("");
-  });
+  if (clearBtn) {
+    clearBtn.addEventListener("click", () => {
+      form.reset();
+      form.elements.active.checked = true;
+      setNotice("");
+    });
+  }
 }
 
 function collectPermissionPayload() {
@@ -380,6 +397,7 @@ function collectPermissionPayload() {
 function attachEditForms() {
   const editForm = document.getElementById("edit-form");
   const pwForm = document.getElementById("password-form");
+  if (!editForm || !pwForm) return;
   const resetPwBtn = document.getElementById("reset-password-btn");
   const cancelPwBtn = document.getElementById("cancel-password");
   const cancelEditBtn = document.getElementById("cancel-edit");
@@ -421,14 +439,14 @@ function attachEditForms() {
     }
   });
 
-  resetPwBtn.addEventListener("click", () => {
+  if (resetPwBtn) resetPwBtn.addEventListener("click", () => {
     pwForm.style.display = pwForm.style.display === "none" ? "block" : "none";
     if (pwForm.style.display === "none") {
       pwForm.reset();
     }
   });
 
-  cancelPwBtn.addEventListener("click", () => {
+  if (cancelPwBtn) cancelPwBtn.addEventListener("click", () => {
     pwForm.reset();
     pwForm.style.display = "none";
   });
@@ -466,7 +484,7 @@ function attachEditForms() {
     }
   });
 
-  deleteBtn.addEventListener("click", async () => {
+  if (deleteBtn) deleteBtn.addEventListener("click", async () => {
     const user = getSelectedUser();
     if (!user) {
       setNotice("Select a user first.", "error");
@@ -490,14 +508,14 @@ function attachEditForms() {
     }
   });
 
-  clearSelectionBtn.addEventListener("click", () => {
+  if (clearSelectionBtn) clearSelectionBtn.addEventListener("click", () => {
     state.selectedId = null;
     renderTable();
     renderEditor();
     setNotice("Selection cleared.");
   });
 
-  cancelEditBtn.addEventListener("click", () => {
+  if (cancelEditBtn) cancelEditBtn.addEventListener("click", () => {
     state.selectedId = null;
     renderTable();
     renderEditor();
@@ -506,10 +524,12 @@ function attachEditForms() {
 }
 
 function attachHeaderHandlers() {
-  document.getElementById("back-btn").addEventListener("click", () => {
+  const backBtn = document.getElementById("back-btn");
+  if (backBtn) backBtn.addEventListener("click", () => {
     window.location.href = `index.html?sid=${encodeURIComponent(sid() || "")}`;
   });
-  document.getElementById("refresh-btn").addEventListener("click", async () => {
+  const refreshBtn = document.getElementById("refresh-btn");
+  if (refreshBtn) refreshBtn.addEventListener("click", async () => {
     try {
       await loadUsers();
       setNotice("User list refreshed.", "success");
@@ -521,17 +541,25 @@ function attachHeaderHandlers() {
   const runFilter = () => {
     renderTable();
   };
-  document.getElementById("search-input").addEventListener("input", runFilter);
-  document.getElementById("role-filter").addEventListener("change", runFilter);
+  const searchInput = document.getElementById("search-input");
+  const roleFilter = document.getElementById("role-filter");
+  if (searchInput) searchInput.addEventListener("input", runFilter);
+  if (roleFilter) roleFilter.addEventListener("change", runFilter);
 }
 
 async function init() {
-  attachTableHandlers();
-  attachCreateForm();
-  attachEditForms();
-  attachHeaderHandlers();
+  try {
+    attachTableHandlers();
+    attachCreateForm();
+    attachEditForms();
+    attachHeaderHandlers();
+  } catch (e) {
+    setFatalError(`Users UI binding error: ${e && e.message ? e.message : String(e)}`);
+    return;
+  }
 
   if (!sid()) {
+    setFatalError("No session found. Please log in again.");
     backToLogin();
     return;
   }
@@ -545,7 +573,7 @@ async function init() {
       setNotice("User admin permission required.", "error");
       return;
     }
-    setNotice(err.message || "Unable to load users.", "error");
+    setFatalError(err.message || "Unable to load users.");
     return;
   }
 }

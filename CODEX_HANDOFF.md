@@ -388,3 +388,11 @@ Files touched: src/renderer/trade-in.html, backend/index.js, backend/providers/p
 - Files: src/renderer/users.js, CODEX_HANDOFF.md
 - Status: Completed (committing/pushing now)
 - Notes/Ideas: Backend API smoke tests passed (login/list/create/update/delete all 200). Fixed client session bootstrap to always honor URL sid over stale localStorage session and moved UI handler attachment before API load so buttons stay responsive even when initial fetch fails.
+
+## Entry
+- Timestamp: 2026-02-26 16:05:57
+- Window/Owner: This Codex window
+- Task: Users page non-responsive buttons/no data visibility fix
+- Files: src/renderer/users.js, CODEX_HANDOFF.md
+- Status: Completed (committing/pushing now)
+- Notes/Ideas: Added defensive null-guards across all Users UI bindings and rendering paths, plus fatal in-page error reporting so JS init failures are visible instead of silently breaking all buttons. Smoke API was already green; this patch addresses frontend runtime fragility.
