@@ -380,3 +380,11 @@ Files touched: src/renderer/trade-in.html, backend/index.js, backend/providers/p
 - Files: src/renderer/*.html, src/renderer/inventory.html, src/components/Login.jsx, src/app.jsx, src/renderer/assets/VaultCore_Logo_White.png, CODEX_HANDOFF.md
 - Status: Completed
 - Notes/Ideas: Replaced RetroCatz branding with VaultCore across renderer titles/headers/buttons and login/app text. Swapped logo references from retrocatz-logo.png to VaultCore_Logo_White.png and copied the new logo into src/renderer/assets for local use. Data/storage keys left unchanged to avoid data resets.
+
+## Entry
+- Timestamp: 2026-02-26 15:58:29
+- Window/Owner: This Codex window
+- Task: Users page reliability fix after smoke test
+- Files: src/renderer/users.js, CODEX_HANDOFF.md
+- Status: Completed (committing/pushing now)
+- Notes/Ideas: Backend API smoke tests passed (login/list/create/update/delete all 200). Fixed client session bootstrap to always honor URL sid over stale localStorage session and moved UI handler attachment before API load so buttons stay responsive even when initial fetch fails.

@@ -3,7 +3,7 @@ const API = "http://127.0.0.1:5175";
 (function bootstrapSession() {
   const q = new URLSearchParams(location.search);
   const incoming = q.get("sid");
-  if (incoming && !localStorage.getItem("rc_session_id")) {
+  if (incoming) {
     localStorage.setItem("rc_session_id", incoming);
   }
 })();
@@ -526,6 +526,11 @@ function attachHeaderHandlers() {
 }
 
 async function init() {
+  attachTableHandlers();
+  attachCreateForm();
+  attachEditForms();
+  attachHeaderHandlers();
+
   if (!sid()) {
     backToLogin();
     return;
@@ -543,11 +548,6 @@ async function init() {
     setNotice(err.message || "Unable to load users.", "error");
     return;
   }
-
-  attachTableHandlers();
-  attachCreateForm();
-  attachEditForms();
-  attachHeaderHandlers();
 }
 
 document.addEventListener("DOMContentLoaded", init);
