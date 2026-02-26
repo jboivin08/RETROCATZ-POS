@@ -328,6 +328,14 @@ Files touched: src/renderer/trade-in.html, backend/index.js, backend/providers/p
 - Notes/Ideas: Applied non-functional visual parity tweaks to Accounting (panel heading rhythm + reusable table-wrap spacing class). Added accounting page to audit matrix/QA report so it is now part of the standardized renderer scope.
 
 ## Entry
+- Timestamp: 2026-02-26 13:08:51
+- Window/Owner: This Codex window
+- Task: Restore Users launch access from dashboard
+- Files: src/renderer/index.html, CODEX_HANDOFF.md
+- Status: Completed (committing/pushing now)
+- Notes/Ideas: Added `Users & Permissions` dashboard card linking to `users.html` so user/role management is reachable from the main launcher.
+
+## Entry
 - Timestamp: 2026-02-26 12:56:56
 - Window/Owner: This Codex window
 - Task: Accounting center + auto expenses on add-item
