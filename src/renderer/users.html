@@ -24,6 +24,11 @@
       background: var(--bg);
       color: var(--text);
     }
+    .page-shell {
+      max-width: 1380px;
+      margin: 0 auto;
+      width: 100%;
+    }
     .page-toolbar {
       display:flex;
       align-items:center;
@@ -90,53 +95,55 @@
   </style>
 </head>
 <body>
-  <div class="page-toolbar">
-    <img class="logo" src="assets/retrocatz-logo.png" alt="RetroCatz" />
-    <h1>Users</h1>
-    <button id="back-btn" class="btn">Back to Dashboard</button>
-    <span class="toolbar-spacer"></span>
-    <span class="muted">Role and permission controls</span>
+  <div class="page-shell">
+    <div class="page-toolbar">
+      <img class="logo" src="assets/retrocatz-logo.png" alt="RetroCatz" />
+      <h1>Users</h1>
+      <button id="back-btn" class="btn">Back to Dashboard</button>
+      <span class="toolbar-spacer"></span>
+      <span class="muted">Role and permission controls</span>
+    </div>
+
+    <section class="panel">
+      <form id="user-form" class="row">
+        <input name="username" placeholder="Username" required />
+        <input name="display_name" placeholder="Display name (optional)" />
+        <select name="role">
+          <option value="clerk">clerk</option>
+          <option value="manager">manager</option>
+          <option value="owner">owner</option>
+        </select>
+        <input name="password" type="password" placeholder="Password (min 8)" required />
+        <button type="submit">Add User</button>
+      </form>
+
+      <div id="debug" class="muted" style="margin-top:8px;"></div>
+
+      <table>
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Username</th>
+            <th>Role</th>
+            <th>Active</th>
+            <th>Created</th>
+            <th>inv_add</th>
+            <th>inv_edit</th>
+            <th>inv_delete</th>
+            <th>cost_change</th>
+            <th>category_admin</th>
+            <th>user_admin</th>
+            <th>checkout</th>
+            <th>reports</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody id="users-table">
+          <tr><td colspan="14" class="muted">Loading...</td></tr>
+        </tbody>
+      </table>
+    </section>
   </div>
-
-  <section class="panel">
-    <form id="user-form" class="row">
-      <input name="username" placeholder="Username" required />
-      <input name="display_name" placeholder="Display name (optional)" />
-      <select name="role">
-        <option value="clerk">clerk</option>
-        <option value="manager">manager</option>
-        <option value="owner">owner</option>
-      </select>
-      <input name="password" type="password" placeholder="Password (min 8)" required />
-      <button type="submit">Add User</button>
-    </form>
-
-    <div id="debug" class="muted" style="margin-top:8px;"></div>
-
-    <table>
-      <thead>
-        <tr>
-          <th>ID</th>
-          <th>Username</th>
-          <th>Role</th>
-          <th>Active</th>
-          <th>Created</th>
-          <th>inv_add</th>
-          <th>inv_edit</th>
-          <th>inv_delete</th>
-          <th>cost_change</th>
-          <th>category_admin</th>
-          <th>user_admin</th>
-          <th>checkout</th>
-          <th>reports</th>
-          <th>Actions</th>
-        </tr>
-      </thead>
-      <tbody id="users-table">
-        <tr><td colspan="14" class="muted">Loading...</td></tr>
-      </tbody>
-    </table>
-  </section>
 
   <script src="./users.js"></script>
 </body>
