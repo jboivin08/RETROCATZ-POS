@@ -8,6 +8,7 @@ Updated: 2026-02-26
 - `Header+Body`: broader visual consistency allowed
 
 ## Page Classification
+- `src/renderer/accounting.html`: Header+Body
 - `src/renderer/index.html`: Frozen (dashboard intentionally unique)
 - `src/renderer/inventory.html`: Frozen (title/header-only changes allowed)
 - `src/renderer/add-item.html`: Header-only
@@ -23,6 +24,7 @@ Updated: 2026-02-26
 - `src/renderer/categories.html`: Header+Body
 
 ## Completed Batches
+- Accounting onboarding: header/body parity alignment and shared page shell pattern
 - Batch 1: users/settings/customers/sync header + base visual token alignment
 - Batch 2: add-item/ai/categories header harmonization + live-events/pos top polish
 - Batch 3: ai/pos/trade-in top-bar parity refinement
@@ -34,4 +36,3 @@ Updated: 2026-02-26
 - Optional: deeper body rhythm pass for `customers/settings/users/sync/categories` (spacing, section density, table rhythm)
 - Optional: targeted text encoding cleanup on legacy mojibake strings in non-frozen pages (safe copy-only pass)
 - Optional: final visual QA sweep (desktop + narrow widths)
-

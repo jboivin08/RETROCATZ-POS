@@ -8,7 +8,7 @@ Generated: 2026-02-26
 - Back-navigation labels are standardized to `Back to Dashboard` across main views.
 
 ## Verified
-- 13 renderer HTML pages audited.
+- 14 renderer HTML pages audited (including `accounting.html`).
 - 12 dashboard-back labels present in renderer pages.
 - Page title format standardized to `Page - RetroCatz POS` on app pages.
 - Header patterns now use one of:
@@ -23,6 +23,8 @@ Generated: 2026-02-26
 ## Main Implemented Areas
 - Header/top-bar normalization across renderer pages.
 - Shared control rhythm (button sizing, border/radius, spacing parity).
+- Accounting page parity pass:
+  - `src/renderer/accounting.html`
 - Account/config area cleanup:
   - `users.html`
   - `settings.html`
@@ -41,4 +43,3 @@ Generated: 2026-02-26
 ## Optional Follow-Up
 - Run a manual viewport pass (desktop + narrow widths) in-app for final visual tuning.
 - If a new accounting page is added, apply the same header/body standard profile.
-

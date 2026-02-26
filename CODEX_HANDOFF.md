@@ -320,6 +320,14 @@ Files touched: src/renderer/trade-in.html, backend/index.js, backend/providers/p
 - Notes/Ideas: Added consolidated QA summary of completed standardization scope, frozen-page policy, verified consistency checks, and optional follow-up actions for future pages (including potential accounting view).
 
 ## Entry
+- Timestamp: 2026-02-26 13:03:35
+- Window/Owner: This Codex window
+- Task: Accounting page UI parity pass + docs alignment
+- Files: src/renderer/accounting.html, UI_AUDIT_MATRIX.md, UI_QA_REPORT.md, CODEX_HANDOFF.md
+- Status: Completed (committing/pushing now)
+- Notes/Ideas: Applied non-functional visual parity tweaks to Accounting (panel heading rhythm + reusable table-wrap spacing class). Added accounting page to audit matrix/QA report so it is now part of the standardized renderer scope.
+
+## Entry
 - Timestamp: 2026-02-26 12:56:56
 - Window/Owner: This Codex window
 - Task: Accounting center + auto expenses on add-item

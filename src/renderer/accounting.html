@@ -75,6 +75,13 @@
   .small { font-size:12px; color: var(--muted); }
 
   .panel { background: var(--panel); border:1px solid var(--border); border-radius:12px; padding:12px; margin-top:12px; }
+  .panel h2 {
+    margin:0 0 10px;
+    font-size:14px;
+    text-transform:uppercase;
+    letter-spacing:0.08em;
+    color:var(--muted);
+  }
   .section { border:1px solid var(--border); border-radius:10px; padding:10px; margin-top:10px; background: rgba(255,255,255,0.02); }
 
   .table-wrap {
@@ -83,6 +90,7 @@
     overflow-x:auto;
     overflow-y:hidden;
   }
+  .table-wrap.spaced { margin-top:10px; }
   table { width:100%; border-collapse:collapse; }
   thead th { text-align:left; font-weight:600; color:#cbd5e1; background:#0d0d10; padding:10px; border-bottom:1px solid #1f2937; user-select:none; }
   tbody td { padding:10px; }
@@ -217,7 +225,7 @@
 
       <div class="section">
         <div class="kpi" id="expenseSummary"></div>
-        <div class="table-wrap" style="margin-top:10px;">
+        <div class="table-wrap spaced">
           <table>
             <thead>
               <tr>
