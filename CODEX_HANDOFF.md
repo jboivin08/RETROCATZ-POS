@@ -238,3 +238,11 @@ Files touched: src/renderer/trade-in.html, backend/index.js, backend/providers/p
 - Files: src/renderer/add-item.html, src/renderer/ai.html, src/renderer/categories.html, src/renderer/live-events.html, src/renderer/pos.html, CODEX_HANDOFF.md
 - Status: Completed (committing/pushing now)
 - Notes/Ideas: Added/normalized toolbar structure on Add Item and Categories; aligned AI header controls/back-link/button treatment with shared toolbar/button style; corrected visible encoding artifacts in Live Events and POS labels. Preserved existing IDs and JS wiring.
+
+## Entry
+- Timestamp: 2026-02-26 12:30:27
+- Window/Owner: This Codex window
+- Task: UI standardization batch 3 (final top-bar parity pass)
+- Files: src/renderer/ai.html, src/renderer/pos.html, src/renderer/trade-in.html, CODEX_HANDOFF.md
+- Status: Completed (committing/pushing now)
+- Notes/Ideas: Added logo-brand grouping on AI header; moved POS back action out of status strip and normalized button sizing; aligned Trade-In top-right action/button density with app toolbar style and updated status-strip panel tone.
