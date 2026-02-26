@@ -278,3 +278,11 @@ Files touched: src/renderer/trade-in.html, backend/index.js, backend/providers/p
 - Files: UI_AUDIT_MATRIX.md, CODEX_HANDOFF.md
 - Status: Completed (committing/pushing now)
 - Notes/Ideas: Added explicit page classification (`Frozen`, `Header-only`, `Header+Body`), completed batch history, and remaining optional work list so any agent can continue without re-auditing.
+
+## Entry
+- Timestamp: 2026-02-26 12:45:34
+- Window/Owner: This Codex window
+- Task: Body consistency micro-pass on Users page
+- Files: src/renderer/users.html, CODEX_HANDOFF.md
+- Status: Completed (committing/pushing now)
+- Notes/Ideas: Wrapped user management form/table in a shared panel container to match page rhythm used elsewhere; preserved all existing form/table IDs and script hooks.
