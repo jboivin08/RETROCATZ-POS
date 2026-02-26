@@ -234,6 +234,38 @@ function logSaleEvent({ sale_id, action, user_id, metadata }) {
   }
 }
 
+function insertExpense(row) {
+  try {
+    db.prepare(`
+      INSERT INTO expenses
+        (expense_date, type, category, vendor, memo, amount, tax_amount, payment_method, receipt_path,
+         source, item_id, sku, title, qty, unit_cost, user_id)
+      VALUES
+        (@expense_date, @type, @category, @vendor, @memo, @amount, @tax_amount, @payment_method, @receipt_path,
+         @source, @item_id, @sku, @title, @qty, @unit_cost, @user_id)
+    `).run({
+      expense_date: row.expense_date,
+      type: row.type || "operating",
+      category: row.category || null,
+      vendor: row.vendor || null,
+      memo: row.memo || null,
+      amount: Number(row.amount || 0),
+      tax_amount: Number(row.tax_amount || 0),
+      payment_method: row.payment_method || null,
+      receipt_path: row.receipt_path || null,
+      source: row.source || null,
+      item_id: row.item_id || null,
+      sku: row.sku || null,
+      title: row.title || null,
+      qty: Number.isFinite(Number(row.qty)) ? Number(row.qty) : null,
+      unit_cost: Number.isFinite(Number(row.unit_cost)) ? Number(row.unit_cost) : null,
+      user_id: row.user_id || null
+    });
+  } catch (e) {
+    console.warn("[EXPENSE] Failed to insert:", e.message);
+  }
+}
+
 // --- WIX SYNC CONFIG & HELPERS ---------------------------------------------
 const WIX_SYNC_ENABLED = process.env.WIX_SYNC_ENABLED === "on";
 const WIX_API_KEY = process.env.WIX_API_KEY || "";
@@ -3310,6 +3342,25 @@ app.post("/api/items", requireAuth, requirePerm("inv_add"), (req, res) => {
         ).run(sku, title, platform, category, condition, "UNLINKED", qty, cost, price, now, externalBarcode, source || null);
 
         const row = db.prepare(`SELECT * FROM items WHERE sku=?`).get(sku);
+        if (cost > 0 && qty > 0) {
+          insertExpense({
+            expense_date: now,
+            type: "inventory",
+            category: "Inventory",
+            vendor: source || null,
+            memo: `Inventory intake: ${title}${platform ? " - " + platform : ""}`,
+            amount: Number((cost * qty).toFixed(2)),
+            tax_amount: 0,
+            payment_method: null,
+            source: "add-item",
+            item_id: row?.id || null,
+            sku: row?.sku || sku,
+            title: row?.title || title,
+            qty,
+            unit_cost: cost,
+            user_id: req.user?.id || null
+          });
+        }
         return { created: true, grouped: false, priceOverridden: false, item: row };
       }
 
@@ -3322,6 +3373,25 @@ app.post("/api/items", requireAuth, requirePerm("inv_add"), (req, res) => {
         ).run(sku, title, platform, category, condition, "", qty, cost, price, now, externalBarcode, source || null);
 
         const row = db.prepare(`SELECT * FROM items WHERE sku=?`).get(sku);
+        if (cost > 0 && qty > 0) {
+          insertExpense({
+            expense_date: now,
+            type: "inventory",
+            category: "Inventory",
+            vendor: source || null,
+            memo: `Inventory intake: ${title}${platform ? " - " + platform : ""}`,
+            amount: Number((cost * qty).toFixed(2)),
+            tax_amount: 0,
+            payment_method: null,
+            source: "add-item",
+            item_id: row?.id || null,
+            sku: row?.sku || sku,
+            title: row?.title || title,
+            qty,
+            unit_cost: cost,
+            user_id: req.user?.id || null
+          });
+        }
         return { created: true, grouped: true, priceOverridden: false, item: row };
       }
 
@@ -3339,6 +3409,25 @@ app.post("/api/items", requireAuth, requirePerm("inv_add"), (req, res) => {
         `
         ).run(price, newQty, newAvgCost, barcodeToPersist, sku);
         const row = db.prepare(`SELECT * FROM items WHERE sku=?`).get(sku);
+        if (cost > 0 && qty > 0) {
+          insertExpense({
+            expense_date: now,
+            type: "inventory",
+            category: "Inventory",
+            vendor: source || null,
+            memo: `Inventory intake: ${title}${platform ? " - " + platform : ""}`,
+            amount: Number((cost * qty).toFixed(2)),
+            tax_amount: 0,
+            payment_method: null,
+            source: "add-item",
+            item_id: row?.id || null,
+            sku: row?.sku || sku,
+            title: row?.title || title,
+            qty,
+            unit_cost: cost,
+            user_id: req.user?.id || null
+          });
+        }
         return { updated: true, grouped: true, priceOverridden: true, item: row };
       }
 
@@ -3352,6 +3441,25 @@ app.post("/api/items", requireAuth, requirePerm("inv_add"), (req, res) => {
       `
       ).run(newQty, newAvgCost, currentPrice, barcodeToPersist, sku);
       const row = db.prepare(`SELECT * FROM items WHERE sku=?`).get(sku);
+      if (cost > 0 && qty > 0) {
+        insertExpense({
+          expense_date: now,
+          type: "inventory",
+          category: "Inventory",
+          vendor: source || null,
+          memo: `Inventory intake: ${title}${platform ? " - " + platform : ""}`,
+          amount: Number((cost * qty).toFixed(2)),
+          tax_amount: 0,
+          payment_method: null,
+          source: "add-item",
+          item_id: row?.id || null,
+          sku: row?.sku || sku,
+          title: row?.title || title,
+          qty,
+          unit_cost: cost,
+          user_id: req.user?.id || null
+        });
+      }
       return { updated: true, grouped: true, priceOverridden: false, item: row };
     });
 
@@ -3874,6 +3982,225 @@ app.post("/api/items/:id/waste", requireAuth, requirePerm("inv_delete"), (req, r
   }
 });
 
+// ---------------------------------------------------------------------------
+// ACCOUNTING: Expenses + Tax Center
+// ---------------------------------------------------------------------------
+app.get("/api/accounting/expenses", requireAuth, requirePerm("reports"), (req, res) => {
+  try {
+    const { startDate, endDate } = parseOptionalDateRange(req, 30);
+    const type = String(req.query.type || "").trim().toLowerCase();
+    const category = String(req.query.category || "").trim();
+    const search = String(req.query.search || "").trim().toLowerCase();
+
+    const where = [`date(expense_date) BETWEEN date(@start) AND date(@end)`];
+    const params = { start: startDate, end: endDate };
+
+    if (type === "inventory" || type === "operating") {
+      where.push(`type = @type`);
+      params.type = type;
+    }
+    if (category) {
+      where.push(`category = @category`);
+      params.category = category;
+    }
+    if (search) {
+      where.push(`(
+        lower(COALESCE(vendor,'')) LIKE @q OR
+        lower(COALESCE(memo,'')) LIKE @q OR
+        lower(COALESCE(title,'')) LIKE @q OR
+        lower(COALESCE(sku,'')) LIKE @q
+      )`);
+      params.q = `%${search}%`;
+    }
+
+    const whereSql = where.length ? `WHERE ${where.join(" AND ")}` : "";
+
+    const rows = db.prepare(`
+      SELECT *
+      FROM expenses
+      ${whereSql}
+      ORDER BY datetime(expense_date) DESC, id DESC
+      LIMIT 5000
+    `).all(params);
+
+    const summary = db.prepare(`
+      SELECT
+        COALESCE(SUM(amount),0) AS amount,
+        COALESCE(SUM(tax_amount),0) AS tax_amount
+      FROM expenses
+      ${whereSql}
+    `).get(params) || { amount: 0, tax_amount: 0 };
+
+    res.json({
+      ok: true,
+      range: { start: startDate, end: endDate },
+      summary: {
+        amount: Number(summary.amount || 0),
+        tax_amount: Number(summary.tax_amount || 0),
+        total: Number((Number(summary.amount || 0) + Number(summary.tax_amount || 0)).toFixed(2))
+      },
+      rows
+    });
+  } catch (e) {
+    console.error("[API] /api/accounting/expenses failed:", e);
+    res.status(500).json({ ok: false, error: "expenses_failed" });
+  }
+});
+
+app.post("/api/accounting/expenses", requireAuth, requirePerm("reports"), (req, res) => {
+  try {
+    const body = req.body || {};
+    const expense_date = String(body.expense_date || "").trim();
+    const typeRaw = String(body.type || "operating").trim().toLowerCase();
+    const type = (typeRaw === "inventory" || typeRaw === "operating") ? typeRaw : "operating";
+    const category = String(body.category || "").trim() || null;
+    const vendor = String(body.vendor || "").trim() || null;
+    const memo = String(body.memo || "").trim() || null;
+    const payment_method = String(body.payment_method || "").trim() || null;
+    const receipt_path = String(body.receipt_path || "").trim() || null;
+    const amount = Number(body.amount || 0);
+    const tax_amount = Number(body.tax_amount || 0);
+
+    if (!expense_date) {
+      return res.status(400).json({ ok: false, error: "missing_expense_date" });
+    }
+    if (!Number.isFinite(amount) || amount <= 0) {
+      return res.status(400).json({ ok: false, error: "invalid_amount" });
+    }
+
+    const info = db.prepare(`
+      INSERT INTO expenses
+        (expense_date, type, category, vendor, memo, amount, tax_amount, payment_method, receipt_path, source, user_id)
+      VALUES
+        (@expense_date, @type, @category, @vendor, @memo, @amount, @tax_amount, @payment_method, @receipt_path, @source, @user_id)
+    `).run({
+      expense_date,
+      type,
+      category,
+      vendor,
+      memo,
+      amount,
+      tax_amount: Number.isFinite(tax_amount) ? tax_amount : 0,
+      payment_method,
+      receipt_path,
+      source: "manual",
+      user_id: req.user?.id || null
+    });
+
+    res.json({ ok: true, id: info.lastInsertRowid });
+  } catch (e) {
+    console.error("[API] /api/accounting/expenses create failed:", e);
+    res.status(500).json({ ok: false, error: "expense_create_failed" });
+  }
+});
+
+app.delete("/api/accounting/expenses/:id", requireAuth, requirePerm("reports"), (req, res) => {
+  try {
+    const id = Number(req.params.id);
+    if (!Number.isFinite(id)) return res.status(400).json({ ok: false, error: "invalid_id" });
+    const info = db.prepare(`DELETE FROM expenses WHERE id=?`).run(id);
+    if (!info.changes) return res.status(404).json({ ok: false, error: "not_found" });
+    res.json({ ok: true });
+  } catch (e) {
+    console.error("[API] /api/accounting/expenses delete failed:", e);
+    res.status(500).json({ ok: false, error: "expense_delete_failed" });
+  }
+});
+
+app.get("/api/accounting/tax-summary", requireAuth, requirePerm("reports"), (req, res) => {
+  const range = parseDateRange(req);
+  if (range.error) return res.status(400).json({ ok: false, error: range.error });
+  const { startDate, endDate } = range;
+
+  try {
+    const totals = db.prepare(`
+      SELECT
+        COALESCE(SUM(total),0) AS total_sales,
+        COALESCE(SUM(tax),0) AS tax_collected,
+        COALESCE(SUM(subtotal),0) AS subtotal
+      FROM sales
+      WHERE date(created_at) BETWEEN date(@start) AND date(@end)
+        AND status = 'completed'
+    `).get({ start: startDate, end: endDate }) || {};
+
+    const taxables = db.prepare(`
+      SELECT
+        COALESCE(SUM(CASE WHEN si.taxable = 1 THEN si.line_total ELSE 0 END),0) AS taxable_sales,
+        COALESCE(SUM(CASE WHEN si.taxable = 0 THEN si.line_total ELSE 0 END),0) AS exempt_sales
+      FROM sale_items si
+      JOIN sales s ON s.id = si.sale_id
+      WHERE date(s.created_at) BETWEEN date(@start) AND date(@end)
+        AND s.status = 'completed'
+    `).get({ start: startDate, end: endDate }) || {};
+
+    const dailySales = db.prepare(`
+      SELECT
+        date(created_at) AS day,
+        COALESCE(SUM(total),0) AS total_sales,
+        COALESCE(SUM(tax),0) AS tax_collected
+      FROM sales
+      WHERE date(created_at) BETWEEN date(@start) AND date(@end)
+        AND status = 'completed'
+      GROUP BY date(created_at)
+      ORDER BY date(created_at) ASC
+    `).all({ start: startDate, end: endDate });
+
+    const dailyTaxable = db.prepare(`
+      SELECT
+        date(s.created_at) AS day,
+        COALESCE(SUM(CASE WHEN si.taxable = 1 THEN si.line_total ELSE 0 END),0) AS taxable_sales,
+        COALESCE(SUM(CASE WHEN si.taxable = 0 THEN si.line_total ELSE 0 END),0) AS exempt_sales
+      FROM sale_items si
+      JOIN sales s ON s.id = si.sale_id
+      WHERE date(s.created_at) BETWEEN date(@start) AND date(@end)
+        AND s.status = 'completed'
+      GROUP BY date(s.created_at)
+      ORDER BY date(s.created_at) ASC
+    `).all({ start: startDate, end: endDate });
+
+    const dailyMap = new Map();
+    for (const d of dailySales) {
+      dailyMap.set(d.day, {
+        day: d.day,
+        total_sales: Number(d.total_sales || 0),
+        tax_collected: Number(d.tax_collected || 0),
+        taxable_sales: 0,
+        exempt_sales: 0
+      });
+    }
+    for (const d of dailyTaxable) {
+      const row = dailyMap.get(d.day) || {
+        day: d.day,
+        total_sales: 0,
+        tax_collected: 0,
+        taxable_sales: 0,
+        exempt_sales: 0
+      };
+      row.taxable_sales = Number(d.taxable_sales || 0);
+      row.exempt_sales = Number(d.exempt_sales || 0);
+      dailyMap.set(d.day, row);
+    }
+
+    const rows = Array.from(dailyMap.values()).sort((a, b) => a.day.localeCompare(b.day));
+
+    res.json({
+      ok: true,
+      range: { start: startDate, end: endDate },
+      summary: {
+        total_sales: Number(totals.total_sales || 0),
+        subtotal: Number(totals.subtotal || 0),
+        tax_collected: Number(totals.tax_collected || 0),
+        taxable_sales: Number(taxables.taxable_sales || 0),
+        exempt_sales: Number(taxables.exempt_sales || 0)
+      },
+      rows
+    });
+  } catch (e) {
+    console.error("[API] /api/accounting/tax-summary failed:", e);
+    res.status(500).json({ ok: false, error: "tax_summary_failed" });
+  }
+});
+
 // REPORTS: Sales summary (supports single date OR range)
 // GET /api/reports/daily-sales?date=YYYY-MM-DD
 // OR  /api/reports/daily-sales?start=YYYY-MM-DD&end=YYYY-MM-DD
@@ -3899,6 +4226,22 @@ function parseDateRange(req) {
   } else {
     return { error: "missing_date_or_range" };
   }
+  return { startDate, endDate };
+}
+
+function parseOptionalDateRange(req, defaultDays = 30) {
+  const single = String(req.query.date || "").trim();
+  const start = String(req.query.start || "").trim();
+  const end = String(req.query.end || "").trim();
+
+  if (start && end) return { startDate: start, endDate: end };
+  if (single) return { startDate: single, endDate: single };
+
+  const today = new Date();
+  const endDate = today.toISOString().slice(0, 10);
+  const startDateObj = new Date(today);
+  startDateObj.setDate(startDateObj.getDate() - (defaultDays - 1));
+  const startDate = startDateObj.toISOString().slice(0, 10);
   return { startDate, endDate };
 }
 

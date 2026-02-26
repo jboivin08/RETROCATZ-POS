@@ -318,3 +318,11 @@ Files touched: src/renderer/trade-in.html, backend/index.js, backend/providers/p
 - Files: UI_QA_REPORT.md, CODEX_HANDOFF.md
 - Status: Completed (committing/pushing now)
 - Notes/Ideas: Added consolidated QA summary of completed standardization scope, frozen-page policy, verified consistency checks, and optional follow-up actions for future pages (including potential accounting view).
+
+## Entry
+- Timestamp: 2026-02-26 12:56:56
+- Window/Owner: This Codex window
+- Task: Accounting center + auto expenses on add-item
+- Files: backend/db.js, backend/index.js, src/renderer/accounting.html, src/renderer/index.html, CODEX_HANDOFF.md
+- Status: Completed (backend restart required)
+- Notes/Ideas: Added expenses + tax center backend endpoints; add-item now auto-logs inventory intake expenses (amount=cost*qty) into new expenses table. New Accounting page with expense entry/list + tax summary and CSV exports. Dashboard now links to accounting.html. Tax summary uses completed sales + taxable flags; refunds not yet modeled for tax. Restart backend/app to pick up new endpoints and DB tables.

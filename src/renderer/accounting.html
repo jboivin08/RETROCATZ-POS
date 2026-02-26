@@ -1,0 +1,562 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>Accounting - RetroCatz POS</title>
+<meta http-equiv="Content-Security-Policy"
+      content="default-src 'self' file:;
+               img-src 'self' file: data: http://127.0.0.1:5175 http://localhost:5175;
+               script-src 'self' 'unsafe-inline';
+               connect-src 'self' http://127.0.0.1:5175 http://localhost:5175;
+               style-src 'self' 'unsafe-inline'">
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<style>
+  :root {
+    --bg: #0b0b0d;
+    --panel: #111827;
+    --panel-2: #0f172a;
+    --border: #374151;
+    --text: #e5e7eb;
+    --muted: #9ca3af;
+    --blue: #2563eb;
+    --green: #22c55e;
+    --danger: #7f1d1d;
+    --row-hover: #14161b;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 16px; background: var(--bg); color: var(--text); font-family: system-ui, sans-serif; }
+  .page-shell { max-width: 1380px; margin: 0 auto; width: 100%; }
+
+  .toolbar {
+    display:flex;
+    align-items:center;
+    gap:10px;
+    background:#091226;
+    padding:12px;
+    border-radius:8px;
+    border:1px solid #0e1b36;
+    flex-wrap:wrap;
+  }
+  .toolbar h1 { margin:0; font-size:20px; font-weight:700; }
+  .logo { height:22px; width:auto; display:block; }
+  .toolbar-spacer { flex:1; }
+
+  .btn {
+    padding:8px 12px;
+    border:1px solid var(--border);
+    border-radius:8px;
+    background:#0c0c0f;
+    color:var(--text);
+    cursor:pointer;
+    transition:box-shadow 0.12s ease, transform 0.12s ease, border-color 0.12s ease;
+    font-size:13px;
+    white-space:nowrap;
+  }
+  .btn:hover{
+    border-color:#596274;
+    box-shadow:0 0 0 1px rgba(148,163,184,.35);
+    transform:translateY(-0.5px);
+  }
+  .btn.primary{ background: var(--blue); border-color: var(--blue); }
+  .btn.primary:hover{ filter:brightness(1.1); }
+  .btn.ghost{ background:transparent; }
+
+  .input, .select, textarea {
+    padding:8px 10px;
+    border:1px solid var(--border);
+    border-radius:8px;
+    background:#000;
+    color:var(--text);
+  }
+  textarea { resize: vertical; }
+
+  .row { display:flex; gap:8px; flex-wrap:wrap; align-items:center; margin:10px 0 12px; }
+  .muted { color: var(--muted); }
+  .small { font-size:12px; color: var(--muted); }
+
+  .panel { background: var(--panel); border:1px solid var(--border); border-radius:12px; padding:12px; margin-top:12px; }
+  .section { border:1px solid var(--border); border-radius:10px; padding:10px; margin-top:10px; background: rgba(255,255,255,0.02); }
+
+  .table-wrap {
+    border:1px solid var(--border);
+    border-radius:10px;
+    overflow-x:auto;
+    overflow-y:hidden;
+  }
+  table { width:100%; border-collapse:collapse; }
+  thead th { text-align:left; font-weight:600; color:#cbd5e1; background:#0d0d10; padding:10px; border-bottom:1px solid #1f2937; user-select:none; }
+  tbody td { padding:10px; }
+  tbody tr { border-bottom:1px solid rgba(148,163,184,0.10); }
+  tbody tr:nth-child(even) { background:rgba(255,255,255,0.015); }
+  tbody tr:hover { background:var(--row-hover); }
+  .right { text-align:right; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono","Courier New", monospace; }
+
+  .kpi {
+    display:grid;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap:10px;
+  }
+  .kpi-card {
+    border:1px solid var(--border);
+    border-radius:10px;
+    padding:10px;
+    background:#0c1017;
+  }
+  .kpi-card .label { font-size:11px; color: var(--muted); }
+  .kpi-card .value { font-size:16px; font-weight:700; margin-top:4px; }
+
+  .grid-2 {
+    display:grid;
+    grid-template-columns: repeat(2, minmax(0,1fr));
+    gap:10px;
+  }
+  .grid-3 {
+    display:grid;
+    grid-template-columns: repeat(3, minmax(0,1fr));
+    gap:10px;
+  }
+  @media (max-width: 1000px) { .grid-2, .grid-3 { grid-template-columns: 1fr; } }
+
+  .pill {
+    display:inline-flex;
+    align-items:center;
+    gap:6px;
+    padding:2px 8px;
+    border-radius:999px;
+    font-size:11px;
+    border:1px solid var(--border);
+    color:#cbd5e1;
+    background:#0b1224;
+  }
+  .pill.good { border-color: rgba(34,197,94,0.6); color:#bbf7d0; }
+</style>
+</head>
+<body>
+  <div class="page-shell">
+    <div class="toolbar">
+      <img class="logo" src="assets/retrocatz-logo.png" alt="RetroCatz" />
+      <h1>Accounting</h1>
+      <button class="btn" id="btnBack">Back to Dashboard</button>
+      <span class="toolbar-spacer"></span>
+      <span class="small" id="statusText">Ready</span>
+    </div>
+
+    <div class="panel">
+      <div class="row">
+        <label class="small">Start</label>
+        <input class="input" type="date" id="startDate" />
+        <label class="small">End</label>
+        <input class="input" type="date" id="endDate" />
+        <button class="btn primary" id="btnRefresh">Refresh</button>
+        <button class="btn ghost" id="btnExportExpenses">Export Expenses CSV</button>
+        <button class="btn ghost" id="btnExportTax">Export Tax CSV</button>
+      </div>
+      <div class="small muted">Expense and tax reports use the selected date range.</div>
+    </div>
+
+    <div class="panel">
+      <h2>Expenses</h2>
+      <div class="section">
+        <div class="grid-3">
+        <div>
+          <label class="small">Date</label>
+          <input class="input" type="date" id="expenseDate" />
+        </div>
+        <div>
+          <label class="small">Type</label>
+          <select class="select" id="expenseType">
+            <option value="operating">Operating</option>
+            <option value="inventory">Inventory</option>
+          </select>
+        </div>
+        <div>
+          <label class="small">Category</label>
+          <select class="select" id="expenseCategory">
+            <option value="">(select)</option>
+            <option>Inventory</option>
+            <option>Shipping Supplies</option>
+            <option>Packaging</option>
+            <option>Office</option>
+            <option>Utilities</option>
+            <option>Rent</option>
+            <option>Repairs</option>
+            <option>Marketing</option>
+            <option>Software</option>
+            <option>Fees</option>
+            <option>Insurance</option>
+            <option>Travel</option>
+            <option>Other</option>
+          </select>
+        </div>
+        <div>
+          <label class="small">Vendor</label>
+          <input class="input" id="expenseVendor" placeholder="Vendor / store" />
+        </div>
+        <div>
+          <label class="small">Amount</label>
+          <input class="input" id="expenseAmount" inputmode="decimal" placeholder="0.00" />
+        </div>
+        <div>
+          <label class="small">Tax Paid</label>
+          <input class="input" id="expenseTax" inputmode="decimal" placeholder="0.00" />
+        </div>
+        <div>
+          <label class="small">Payment Method</label>
+          <input class="input" id="expensePay" placeholder="Cash / Card / ACH" />
+        </div>
+        <div style="grid-column: span 2;">
+          <label class="small">Memo</label>
+          <input class="input" id="expenseMemo" placeholder="Notes (shipping boxes, tape, etc.)" />
+        </div>
+        </div>
+        <div class="row" style="margin-top:12px;">
+          <button class="btn primary" id="btnAddExpense">Add Expense</button>
+          <span class="small muted">Inventory adds from Add Item are logged automatically.</span>
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="kpi" id="expenseSummary"></div>
+        <div class="table-wrap" style="margin-top:10px;">
+          <table>
+            <thead>
+              <tr>
+                <th>Date</th>
+                <th>Type</th>
+                <th>Category</th>
+                <th>Vendor</th>
+                <th>Memo</th>
+                <th class="right">Amount</th>
+                <th class="right">Tax</th>
+                <th class="right">Total</th>
+                <th>Source</th>
+                <th>SKU</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody id="expensesBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <h2>Tax Center</h2>
+      <div class="kpi" id="taxSummary"></div>
+      <div class="section">
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Date</th>
+                <th class="right">Taxable Sales</th>
+                <th class="right">Exempt Sales</th>
+                <th class="right">Tax Collected</th>
+                <th class="right">Total Sales</th>
+              </tr>
+            </thead>
+            <tbody id="taxBody"></tbody>
+          </table>
+        </div>
+        <div class="small muted" style="margin-top:8px;">
+          Tax refunds are not tracked separately yet. This report uses completed sales only.
+        </div>
+      </div>
+    </div>
+  </div>
+
+<script>
+(() => {
+  const API_BASE = 'http://127.0.0.1:5175';
+  const fmt$ = (n) => `$${(Number(n||0)).toFixed(2)}`;
+  const statusText = document.getElementById('statusText');
+
+  const startDate = document.getElementById('startDate');
+  const endDate = document.getElementById('endDate');
+  const btnRefresh = document.getElementById('btnRefresh');
+  const btnBack = document.getElementById('btnBack');
+  const btnExportExpenses = document.getElementById('btnExportExpenses');
+  const btnExportTax = document.getElementById('btnExportTax');
+
+  const expenseDate = document.getElementById('expenseDate');
+  const expenseType = document.getElementById('expenseType');
+  const expenseCategory = document.getElementById('expenseCategory');
+  const expenseVendor = document.getElementById('expenseVendor');
+  const expenseAmount = document.getElementById('expenseAmount');
+  const expenseTax = document.getElementById('expenseTax');
+  const expensePay = document.getElementById('expensePay');
+  const expenseMemo = document.getElementById('expenseMemo');
+  const btnAddExpense = document.getElementById('btnAddExpense');
+
+  const expenseSummary = document.getElementById('expenseSummary');
+  const expensesBody = document.getElementById('expensesBody');
+
+  const taxSummary = document.getElementById('taxSummary');
+  const taxBody = document.getElementById('taxBody');
+
+  function getHeaders() {
+    const sid = localStorage.getItem('rc_session_id') || '';
+    return { 'Content-Type': 'application/json', 'rc_session_id': sid };
+  }
+
+  async function apiGet(path) {
+    const res = await fetch(API_BASE + path, { headers: getHeaders() });
+    if (res.status === 401) {
+      localStorage.removeItem('rc_session_id');
+      window.location.href = 'login.html';
+      throw new Error('session_invalid');
+    }
+    if (!res.ok) {
+      const text = await res.text().catch(() => '');
+      throw new Error(`${res.status} ${text}`.trim());
+    }
+    return res.json();
+  }
+
+  async function apiPost(path, body) {
+    const res = await fetch(API_BASE + path, {
+      method: 'POST',
+      headers: getHeaders(),
+      body: JSON.stringify(body || {})
+    });
+    if (res.status === 401) {
+      localStorage.removeItem('rc_session_id');
+      window.location.href = 'login.html';
+      throw new Error('session_invalid');
+    }
+    if (!res.ok) {
+      const text = await res.text().catch(() => '');
+      throw new Error(`${res.status} ${text}`.trim());
+    }
+    return res.json();
+  }
+
+  async function apiDelete(path) {
+    const res = await fetch(API_BASE + path, { method: 'DELETE', headers: getHeaders() });
+    if (res.status === 401) {
+      localStorage.removeItem('rc_session_id');
+      window.location.href = 'login.html';
+      throw new Error('session_invalid');
+    }
+    if (!res.ok) {
+      const text = await res.text().catch(() => '');
+      throw new Error(`${res.status} ${text}`.trim());
+    }
+    return res.json();
+  }
+
+  function setStatus(msg) { statusText.textContent = msg; }
+
+  function setDefaultDates() {
+    const today = new Date();
+    const end = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+    const start = new Date(end);
+    start.setDate(start.getDate() - 29);
+    const toInput = (d) => d.toISOString().slice(0,10);
+    startDate.value = toInput(start);
+    endDate.value = toInput(end);
+    expenseDate.value = toInput(end);
+  }
+
+  function kpiCard(label, value) {
+    const div = document.createElement('div');
+    div.className = 'kpi-card';
+    div.innerHTML = `<div class="label">${label}</div><div class="value">${value}</div>`;
+    return div;
+  }
+
+  function toCSV(rows) {
+    const esc = (v) => {
+      const s = String(v ?? '');
+      if (s.includes('"') || s.includes(',') || s.includes('\n')) {
+        return `"${s.replace(/"/g, '""')}"`;
+      }
+      return s;
+    };
+    return rows.map(r => r.map(esc).join(',')).join('\n');
+  }
+
+  async function loadExpenses() {
+    const start = startDate.value;
+    const end = endDate.value;
+    const data = await apiGet(`/api/accounting/expenses?start=${encodeURIComponent(start)}&end=${encodeURIComponent(end)}`);
+
+    expenseSummary.innerHTML = '';
+    expenseSummary.appendChild(kpiCard('Amount', fmt$(data.summary.amount)));
+    expenseSummary.appendChild(kpiCard('Tax Paid', fmt$(data.summary.tax_amount)));
+    expenseSummary.appendChild(kpiCard('Total', fmt$(data.summary.total)));
+
+    expensesBody.innerHTML = '';
+    if (!data.rows || !data.rows.length) {
+      const tr = document.createElement('tr');
+      tr.innerHTML = `<td colspan="11" class="muted">No expenses in range</td>`;
+      expensesBody.appendChild(tr);
+      return;
+    }
+
+    for (const r of data.rows) {
+      const total = Number(r.amount || 0) + Number(r.tax_amount || 0);
+      const source = r.source || '';
+      const badge = source === 'add-item' ? '<span class="pill good">auto</span>' : '';
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td>${(r.expense_date || '').slice(0,10)}</td>
+        <td>${r.type || ''}</td>
+        <td>${r.category || ''}</td>
+        <td>${r.vendor || ''}</td>
+        <td>${r.memo || r.title || ''}</td>
+        <td class="right">${fmt$(r.amount)}</td>
+        <td class="right">${fmt$(r.tax_amount)}</td>
+        <td class="right">${fmt$(total)}</td>
+        <td>${badge} ${source}</td>
+        <td>${r.sku || ''}</td>
+        <td><button class="btn ghost" data-id="${r.id}">Delete</button></td>
+      `;
+      tr.querySelector('button').addEventListener('click', async () => {
+        if (!confirm('Delete this expense?')) return;
+        await apiDelete(`/api/accounting/expenses/${r.id}`);
+        await loadExpenses();
+      });
+      expensesBody.appendChild(tr);
+    }
+  }
+
+  async function loadTaxSummary() {
+    const start = startDate.value;
+    const end = endDate.value;
+    const data = await apiGet(`/api/accounting/tax-summary?start=${encodeURIComponent(start)}&end=${encodeURIComponent(end)}`);
+
+    taxSummary.innerHTML = '';
+    taxSummary.appendChild(kpiCard('Taxable Sales', fmt$(data.summary.taxable_sales)));
+    taxSummary.appendChild(kpiCard('Exempt Sales', fmt$(data.summary.exempt_sales)));
+    taxSummary.appendChild(kpiCard('Tax Collected', fmt$(data.summary.tax_collected)));
+    taxSummary.appendChild(kpiCard('Total Sales', fmt$(data.summary.total_sales)));
+
+    taxBody.innerHTML = '';
+    if (!data.rows || !data.rows.length) {
+      const tr = document.createElement('tr');
+      tr.innerHTML = `<td colspan="5" class="muted">No sales in range</td>`;
+      taxBody.appendChild(tr);
+      return;
+    }
+    for (const r of data.rows) {
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td>${r.day}</td>
+        <td class="right">${fmt$(r.taxable_sales)}</td>
+        <td class="right">${fmt$(r.exempt_sales)}</td>
+        <td class="right">${fmt$(r.tax_collected)}</td>
+        <td class="right">${fmt$(r.total_sales)}</td>
+      `;
+      taxBody.appendChild(tr);
+    }
+  }
+
+  async function refreshAll() {
+    try {
+      setStatus('Loading accounting...');
+      await Promise.all([loadExpenses(), loadTaxSummary()]);
+      setStatus('Accounting loaded');
+    } catch (e) {
+      console.error(e);
+      setStatus('Accounting load failed');
+      alert('Accounting load failed. Check server connectivity and session.');
+    }
+  }
+
+  btnAddExpense.addEventListener('click', async () => {
+    const payload = {
+      expense_date: expenseDate.value,
+      type: expenseType.value,
+      category: expenseCategory.value,
+      vendor: expenseVendor.value,
+      amount: expenseAmount.value,
+      tax_amount: expenseTax.value,
+      payment_method: expensePay.value,
+      memo: expenseMemo.value
+    };
+    try {
+      await apiPost('/api/accounting/expenses', payload);
+      expenseVendor.value = '';
+      expenseAmount.value = '';
+      expenseTax.value = '';
+      expensePay.value = '';
+      expenseMemo.value = '';
+      await loadExpenses();
+      setStatus('Expense saved');
+    } catch (e) {
+      alert('Failed to save expense: ' + e.message);
+    }
+  });
+
+  btnExportExpenses.addEventListener('click', async () => {
+    const start = startDate.value;
+    const end = endDate.value;
+    const data = await apiGet(`/api/accounting/expenses?start=${encodeURIComponent(start)}&end=${encodeURIComponent(end)}`);
+    const rows = [
+      ['date','type','category','vendor','memo','amount','tax','total','source','sku','title']
+    ];
+    for (const r of data.rows || []) {
+      rows.push([
+        (r.expense_date || '').slice(0,10),
+        r.type || '',
+        r.category || '',
+        r.vendor || '',
+        r.memo || '',
+        Number(r.amount || 0).toFixed(2),
+        Number(r.tax_amount || 0).toFixed(2),
+        (Number(r.amount || 0) + Number(r.tax_amount || 0)).toFixed(2),
+        r.source || '',
+        r.sku || '',
+        r.title || ''
+      ]);
+    }
+    const csv = toCSV(rows);
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `expenses_${start}_to_${end}.csv`;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
+  });
+
+  btnExportTax.addEventListener('click', async () => {
+    const start = startDate.value;
+    const end = endDate.value;
+    const data = await apiGet(`/api/accounting/tax-summary?start=${encodeURIComponent(start)}&end=${encodeURIComponent(end)}`);
+    const rows = [
+      ['date','taxable_sales','exempt_sales','tax_collected','total_sales']
+    ];
+    for (const r of data.rows || []) {
+      rows.push([
+        r.day,
+        Number(r.taxable_sales || 0).toFixed(2),
+        Number(r.exempt_sales || 0).toFixed(2),
+        Number(r.tax_collected || 0).toFixed(2),
+        Number(r.total_sales || 0).toFixed(2)
+      ]);
+    }
+    const csv = toCSV(rows);
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `tax_${start}_to_${end}.csv`;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
+  });
+
+  btnRefresh.addEventListener('click', refreshAll);
+  btnBack.addEventListener('click', () => { window.location.href = 'index.html'; });
+
+  setDefaultDates();
+  refreshAll();
+})();
+</script>
+</body>
+</html>

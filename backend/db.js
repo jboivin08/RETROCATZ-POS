@@ -732,6 +732,50 @@ function ensureCoreSchema(db) {
     )
   `);
 
+  ensureTable(db, `
+    CREATE TABLE IF NOT EXISTS expenses (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      created_at TEXT NOT NULL DEFAULT (datetime('now')),
+      expense_date TEXT NOT NULL,
+      type TEXT NOT NULL CHECK(type IN ('inventory','operating')) DEFAULT 'operating',
+      category TEXT,
+      vendor TEXT,
+      memo TEXT,
+      amount REAL NOT NULL DEFAULT 0,
+      tax_amount REAL NOT NULL DEFAULT 0,
+      payment_method TEXT,
+      receipt_path TEXT,
+      source TEXT,
+      item_id INTEGER,
+      sku TEXT,
+      title TEXT,
+      qty INTEGER,
+      unit_cost REAL,
+      user_id INTEGER,
+      FOREIGN KEY(item_id) REFERENCES items(id),
+      FOREIGN KEY(user_id) REFERENCES users(id)
+    )
+  `);
+  db.exec(`CREATE INDEX IF NOT EXISTS idx_expenses_date ON expenses(expense_date);`);
+  db.exec(`CREATE INDEX IF NOT EXISTS idx_expenses_type ON expenses(type);`);
+
+  ensureTable(db, `
+    CREATE TABLE IF NOT EXISTS tax_filings (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      created_at TEXT NOT NULL DEFAULT (datetime('now')),
+      updated_at TEXT NOT NULL DEFAULT (datetime('now')),
+      period_start TEXT NOT NULL,
+      period_end TEXT NOT NULL,
+      status TEXT NOT NULL DEFAULT 'draft',
+      amount_due REAL NOT NULL DEFAULT 0,
+      amount_paid REAL NOT NULL DEFAULT 0,
+      filed_at TEXT,
+      notes TEXT,
+      user_id INTEGER,
+      FOREIGN KEY(user_id) REFERENCES users(id)
+    )
+  `);
+
   // -------------------------------------------------------------------------
   // Trade-in quotes + settings
   // -------------------------------------------------------------------------
