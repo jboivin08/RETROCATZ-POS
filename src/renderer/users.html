@@ -147,6 +147,12 @@
       gap: 8px;
       margin-bottom: 10px;
     }
+    .toolbar-actions {
+      display: flex;
+      gap: 8px;
+      justify-content: flex-end;
+      flex-wrap: wrap;
+    }
 
     .table-wrap { overflow: auto; border: 1px solid var(--line); border-radius: 12px; }
     table { width: 100%; border-collapse: collapse; min-width: 1200px; }
@@ -221,6 +227,35 @@
       margin-top: 8px;
     }
 
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(2, 6, 23, .72);
+      backdrop-filter: blur(3px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 60;
+      padding: 14px;
+    }
+    .modal-backdrop.open { display: flex; }
+    .modal-card {
+      width: min(560px, 96vw);
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: linear-gradient(160deg, rgba(14,31,61,.98), rgba(10,24,48,.98));
+      padding: 14px;
+      box-shadow: 0 24px 48px rgba(0,0,0,.45);
+    }
+    .modal-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      margin-bottom: 6px;
+    }
+    .modal-title { margin: 0; font-size: 18px; }
+
     @media (max-width: 1100px) {
       .layout { grid-template-columns: 1fr; }
       .cards { grid-template-columns: repeat(2, minmax(140px, 1fr)); }
@@ -251,43 +286,7 @@
       <article class="card"><div class="label">Managers</div><div class="value" id="metric-managers">-</div></article>
     </section>
 
-    <section class="layout">
-      <aside class="panel">
-        <h2>Create User</h2>
-        <div class="panel-sub">New team member account with role defaults</div>
-        <form id="create-form">
-          <label for="create-username">Username</label>
-          <input id="create-username" name="username" required maxlength="64" />
-
-          <label for="create-display">Display name</label>
-          <input id="create-display" name="display_name" maxlength="120" placeholder="Optional" />
-
-          <label for="create-role">Role</label>
-          <select id="create-role" name="role">
-            <option value="clerk">Clerk</option>
-            <option value="manager">Manager</option>
-            <option value="viewer">Viewer</option>
-            <option value="owner">Owner</option>
-          </select>
-
-          <label for="create-password">Password</label>
-          <input id="create-password" name="password" type="password" required minlength="8" />
-
-          <label for="create-password2">Confirm password</label>
-          <input id="create-password2" name="password2" type="password" required minlength="8" />
-
-          <label>
-            <input id="create-active" name="active" type="checkbox" checked style="width:auto; margin-right:6px;" />
-            Active account
-          </label>
-
-          <div class="form-actions">
-            <button type="submit" class="btn primary">Create User</button>
-            <button type="button" id="clear-create" class="btn">Clear</button>
-          </div>
-        </form>
-      </aside>
-
+    <section class="layout" style="grid-template-columns: 1fr;">
       <main class="panel">
         <h2>
           Manage Users
@@ -303,7 +302,10 @@
             <option value="clerk">Clerk</option>
             <option value="viewer">Viewer</option>
           </select>
-          <button id="new-selection" class="btn">Clear Selection</button>
+          <div class="toolbar-actions">
+            <button id="open-create-modal" class="btn primary">Add User</button>
+            <button id="new-selection" class="btn">Clear Selection</button>
+          </div>
         </div>
 
         <div class="table-wrap">
@@ -386,6 +388,47 @@
         <div id="notice" aria-live="polite"></div>
       </main>
     </section>
+  </div>
+
+  <div id="create-user-modal" class="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="create-user-title">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3 id="create-user-title" class="modal-title">Add New User</h3>
+        <button id="close-create-modal" class="btn">Close</button>
+      </div>
+      <div class="panel-sub">Create a user account and assign initial role/access.</div>
+      <form id="create-form">
+        <label for="create-username">Username</label>
+        <input id="create-username" name="username" required maxlength="64" />
+
+        <label for="create-display">Display name</label>
+        <input id="create-display" name="display_name" maxlength="120" placeholder="Optional" />
+
+        <label for="create-role">Role</label>
+        <select id="create-role" name="role">
+          <option value="clerk">Clerk</option>
+          <option value="manager">Manager</option>
+          <option value="viewer">Viewer</option>
+          <option value="owner">Owner</option>
+        </select>
+
+        <label for="create-password">Password</label>
+        <input id="create-password" name="password" type="password" required minlength="8" />
+
+        <label for="create-password2">Confirm password</label>
+        <input id="create-password2" name="password2" type="password" required minlength="8" />
+
+        <label>
+          <input id="create-active" name="active" type="checkbox" checked style="width:auto; margin-right:6px;" />
+          Active account
+        </label>
+
+        <div class="form-actions">
+          <button type="submit" class="btn primary">Create User</button>
+          <button type="button" id="clear-create" class="btn">Clear</button>
+        </div>
+      </form>
+    </div>
   </div>
 
   <script src="./users.js"></script>

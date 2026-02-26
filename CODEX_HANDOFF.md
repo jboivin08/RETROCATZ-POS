@@ -366,3 +366,11 @@ Files touched: src/renderer/trade-in.html, backend/index.js, backend/providers/p
 - Files: backend/db.js, backend/auth_mw.js, backend/users.js, backend/index.js, src/renderer/users.html, src/renderer/users.js, CODEX_HANDOFF.md
 - Status: Completed (local verification done, committing/pushing now)
 - Notes/Ideas: Added legacy role normalization (dmin -> owner) at DB init and auth middleware fallback mapping; expanded user-management access to manager accounts with user_admin permission (owner still full control) and constrained manager actions to clerk/viewer targets only. Added role-based default permission sets on user creation (manager now includes user_admin). Backend now clears sessions on startup to require fresh login after backend/app restart.
+
+## Entry
+- Timestamp: 2026-02-26 14:19:08
+- Window/Owner: This Codex window
+- Task: Users page add-user button flow (modal) + create handler reliability
+- Files: src/renderer/users.html, src/renderer/users.js, CODEX_HANDOFF.md
+- Status: Completed (committing/pushing now)
+- Notes/Ideas: Replaced inline create panel with in-page Add User button opening modal; create form now uses orm.elements access to avoid fragile field binding issues and closes modal on successful creation.

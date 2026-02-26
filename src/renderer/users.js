@@ -296,15 +296,42 @@ function attachTableHandlers() {
 function attachCreateForm() {
   const form = document.getElementById("create-form");
   const clearBtn = document.getElementById("clear-create");
+  const modal = document.getElementById("create-user-modal");
+  const openBtn = document.getElementById("open-create-modal");
+  const closeBtn = document.getElementById("close-create-modal");
+
+  const openModal = () => {
+    if (!modal) return;
+    modal.classList.add("open");
+    setTimeout(() => {
+      const first = form && form.elements && form.elements.username;
+      if (first && typeof first.focus === "function") first.focus();
+    }, 0);
+  };
+  const closeModal = () => {
+    if (!modal) return;
+    modal.classList.remove("open");
+  };
+
+  if (openBtn) openBtn.addEventListener("click", openModal);
+  if (closeBtn) closeBtn.addEventListener("click", closeModal);
+  if (modal) {
+    modal.addEventListener("click", (e) => {
+      if (e.target === modal) closeModal();
+    });
+  }
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape") closeModal();
+  });
 
   form.addEventListener("submit", async (e) => {
     e.preventDefault();
-    const username = form.username.value.trim();
-    const display_name = form.display_name.value.trim();
-    const role = form.role.value;
-    const password = form.password.value;
-    const password2 = form.password2.value;
-    const active = form.active.checked ? 1 : 0;
+    const username = (form.elements.username.value || "").trim();
+    const display_name = (form.elements.display_name.value || "").trim();
+    const role = form.elements.role.value;
+    const password = form.elements.password.value || "";
+    const password2 = form.elements.password2.value || "";
+    const active = form.elements.active.checked ? 1 : 0;
 
     if (!username) {
       setNotice("Username is required.", "error");
@@ -325,7 +352,8 @@ function attachCreateForm() {
         body: JSON.stringify({ username, display_name, role, password, active })
       });
       form.reset();
-      form.active.checked = true;
+      form.elements.active.checked = true;
+      closeModal();
       setNotice("User created.", "success");
       await loadUsers();
     } catch (err) {
@@ -335,7 +363,7 @@ function attachCreateForm() {
 
   clearBtn.addEventListener("click", () => {
     form.reset();
-    form.active.checked = true;
+    form.elements.active.checked = true;
     setNotice("");
   });
 }
