@@ -1,0 +1,85 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>Add Item • RetroCatz POS</title>
+  <meta http-equiv="Content-Security-Policy"
+        content="default-src 'self' file:;
+                 img-src 'self' file: data:;
+                 style-src 'self' 'unsafe-inline';
+                 script-src 'self' 'unsafe-inline';
+                 connect-src 'self' http://127.0.0.1:5175 http://localhost:5175;">
+  <style>
+    body { font-family: system-ui, Arial; background:#111; color:#eee; padding:24px; }
+    form { max-width:600px; margin:auto; display:grid; gap:12px; }
+    input, select, button { padding:8px; font-size:15px; border-radius:6px; border:1px solid #333; background:#222; color:#eee; }
+    button { background:#2563eb; cursor:pointer; }
+  </style>
+</head>
+<body>
+  <h1>Add Inventory Item</h1>
+  <form id="add-form">
+    <input name="title" placeholder="Game Title" required />
+    <select name="platform" required>
+      <option value="">Platform</option>
+      <option>NES</option>
+      <option>SNES</option>
+      <option>N64</option>
+      <option>GameCube</option>
+      <option>PS1</option>
+      <option>PS2</option>
+      <option>PS3</option>
+      <option>Xbox</option>
+      <option>Xbox 360</option>
+    </select>
+    <select name="condition">
+      <option value="">Condition</option>
+      <option>Loose</option>
+      <option>Complete</option>
+      <option>Sealed</option>
+      <option>Box Only</option>
+    </select>
+    <input name="variant" placeholder="Variant (optional)" />
+    <input name="qty" type="number" placeholder="Quantity" value="1" min="1" />
+    <input name="cost" type="number" step="0.01" placeholder="Cost" />
+    <input name="price" type="number" step="0.01" placeholder="List Price" />
+    <button type="submit">Save Item</button>
+  </form>
+
+  <script>
+    (async () => {
+      // redirect to login if session invalid
+      if (!window.api.hasSession()) return window.location.href = 'login.html';
+      try { await window.api.me(); } catch { return window.location.href = 'login.html'; }
+    })();
+
+    function generateSku(platform) {
+      const pad = n => String(n).padStart(4, '0');
+      const d = new Date();
+      const yymmdd = String(d.getFullYear()).slice(2) + String(d.getMonth()+1).padStart(2,'0') + String(d.getDate()).padStart(2,'0');
+      const key = `skuCounter:${platform}:${yymmdd}`;
+      const n = (parseInt(localStorage.getItem(key) || '0', 10) + 1);
+      localStorage.setItem(key, String(n));
+      return `${platform}-${yymmdd}-${pad(n)}`.toUpperCase();
+    }
+
+    document.getElementById('add-form').addEventListener('submit', async e => {
+      e.preventDefault();
+      const f = e.target;
+      const item = {
+        sku: generateSku(f.platform.value),
+        title: f.title.value.trim(),
+        platform: f.platform.value,
+        condition: f.condition.value,
+        variant: f.variant.value,
+        qty: +f.qty.value || 1,
+        cost: +f.cost.value || 0,
+        price: +f.price.value || 0,
+        createdAt: new Date().toISOString()
+      };
+      await window.api.addItem(item);
+      window.location.href = 'inventory.html';
+    });
+  </script>
+</body>
+</html>

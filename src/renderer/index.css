@@ -1,0 +1,475 @@
+/* index.css — RetroCatz POS styling */
+/* ------------------------------------------ */
+/* Base POS styling (login, tables, etc.) */
+
+* {
+  box-sizing: border-box;
+  font-family: system-ui, Segoe UI, Roboto, Arial;
+}
+
+body {
+  margin: 0;
+  background: #0b0d12;
+  color: #e8eef6;
+}
+
+/* Header bar */
+header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  background: #111827;
+  border-bottom: 1px solid #1f2937;
+  position: relative;
+  z-index: 2;
+}
+
+header h1 {
+  margin: 0;
+  font-size: 22px;
+}
+
+.logo {
+  height: 36px;
+}
+
+/* Navigation buttons (other pages) */
+nav {
+  display: flex;
+  gap: 8px;
+  padding: 8px 16px;
+  background: #0f172a;
+  border-bottom: 1px solid #1f2937;
+  position: sticky;
+  top: 0;
+  z-index: 2;
+}
+
+nav button {
+  background: #1f2937;
+  border: 0;
+  color: #e8eef6;
+  padding: 8px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+nav button:hover {
+  background: #374151;
+}
+
+/* Main layout (for index + others using <main>) */
+main {
+  padding: 16px;
+  position: relative;
+  z-index: 1;
+}
+
+/* Sign-in card (login page, etc.) */
+.card {
+  background: #0f172a;
+  padding: 16px;
+  border: 1px solid #1f2937;
+  border-radius: 12px;
+  max-width: 320px;
+  margin: 64px auto;
+  text-align: center;
+}
+
+/* Inputs & buttons */
+input,
+select,
+button,
+textarea {
+  padding: 8px;
+  border-radius: 8px;
+  border: 1px solid #334155;
+  background: #0b1220;
+  color: #e8eef6;
+}
+
+textarea {
+  resize: vertical;
+}
+
+.row {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  margin: 8px 0;
+}
+
+.hidden {
+  display: none;
+}
+
+/* Tables */
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+th,
+td {
+  border-bottom: 1px solid #1f2937;
+  padding: 8px;
+  text-align: left;
+}
+
+/* Cart quantity input */
+#cart td input {
+  width: 72px;
+}
+
+/* Modal styling */
+dialog {
+  max-width: 560px;
+  background: #0f172a;
+  color: #e8eef6;
+  border: 1px solid #334155;
+  border-radius: 12px;
+  padding: 0;
+}
+
+dialog form {
+  padding: 16px;
+}
+
+menu {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+/* Small text hint */
+.hint {
+  opacity: 0.7;
+  font-size: 0.85em;
+}
+
+/* -------------------------------------------------- */
+/* DASHBOARD (index.html)                            */
+/* -------------------------------------------------- */
+
+/* Subtle background layer for the dashboard page */
+#dashboard-bg {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  background:
+    radial-gradient(circle at top left, rgba(31,41,55,0.7) 0, transparent 55%),
+    radial-gradient(circle at bottom right, rgba(15,23,42,0.7) 0, transparent 55%),
+    url("../../assets/Logo_Outline.png.png") center/420px no-repeat,
+    linear-gradient(135deg, #020617 0%, #020617 25%, #0b0d12 70%, #020617 100%);
+  opacity: 0.3;
+}
+
+/* Shell keeps content centered and off the edges */
+.dashboard-shell {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+/* HERO ROW */
+.dashboard-hero {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 12px;
+  margin: 16px 0 20px;
+}
+
+.hero-item {
+  background: rgba(15, 23, 42, 0.96);
+  border-radius: 10px;
+  padding: 10px 12px;
+  border: 1px solid #1f2937;
+}
+
+.hero-label {
+  display: block;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: #9ca3af;
+  margin-bottom: 4px;
+}
+
+.hero-value {
+  display: block;
+  font-size: 1.2rem;
+  font-weight: 600;
+}
+
+.hero-sub {
+  display: block;
+  font-size: 0.8rem;
+  color: #9ca3af;
+}
+
+/* TOP ROW: scan + quick actions + stats card */
+.dashboard-top-row {
+  display: grid;
+  grid-template-columns: minmax(0, 2.3fr) minmax(260px, 1.3fr);
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+@media (max-width: 900px) {
+  .dashboard-top-row {
+    grid-template-columns: 1fr;
+  }
+}
+
+.top-left {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.quick-scan-card {
+  background: rgba(15, 23, 42, 0.98);
+  border-radius: 10px;
+  padding: 12px;
+  border: 1px solid #1f2937;
+}
+
+.quick-scan-label {
+  display: block;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin-bottom: 6px;
+  color: #9ca3af;
+}
+
+.quick-scan-card input {
+  width: 100%;
+  margin-bottom: 4px;
+}
+
+.quick-scan-result {
+  margin-top: 6px;
+  font-size: 0.85rem;
+}
+
+.quick-scan-result span {
+  display: block;
+}
+
+/* Quick actions */
+.quick-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.quick-btn {
+  flex: 1 1 140px;
+  background: #111827;
+  border: 1px solid #1f2937;
+  color: #e8eef6;
+  padding: 8px 10px;
+  border-radius: 999px;
+  font-size: 0.85rem;
+  cursor: pointer;
+  text-align: center;
+}
+
+.quick-btn:hover {
+  background: #1f2937;
+}
+
+/* Stats card */
+.stats-card {
+  background: rgba(15, 23, 42, 0.98);
+  border-radius: 10px;
+  padding: 12px 14px;
+  border: 1px solid #1f2937;
+}
+
+.stats-card h2 {
+  margin: 0 0 10px;
+  font-size: 1rem;
+}
+
+.stats-row {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 6px;
+  font-size: 0.9rem;
+}
+
+.stats-row span {
+  color: #9ca3af;
+}
+
+/* MAIN AREA: buttons + sidebar */
+.dashboard-main {
+  display: grid;
+  grid-template-columns: minmax(0, 2.2fr) minmax(260px, 1.2fr);
+  gap: 16px;
+  align-items: flex-start;
+}
+
+@media (max-width: 1024px) {
+  .dashboard-main {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Buttons grid (existing .grid is also applied) */
+.dashboard-buttons {
+  margin-bottom: 8px;
+}
+
+.dashboard-buttons .btn-label {
+  display: block;
+  margin-bottom: 4px;
+  font-size: 1rem;
+}
+
+/* Right sidebar */
+.dashboard-aside {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.panel {
+  background: rgba(15, 23, 42, 0.98);
+  border-radius: 10px;
+  padding: 10px 12px;
+  border: 1px solid #1f2937;
+}
+
+.panel h2 {
+  margin: 0 0 8px;
+  font-size: 0.95rem;
+}
+
+/* Activity list */
+.activity-list,
+.hot-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  font-size: 0.85rem;
+}
+
+.activity-list li,
+.hot-list li {
+  padding: 4px 0;
+  border-bottom: 1px solid rgba(31, 41, 55, 0.6);
+}
+
+.activity-list li:last-child,
+.hot-list li:last-child {
+  border-bottom: none;
+}
+
+/* Notes panel */
+.notes-panel textarea {
+  width: 100%;
+}
+
+/* Layout selector */
+.layout-selector {
+  position: relative;
+  z-index: 1;
+  max-width: 1200px;
+  margin: 20px auto 8px;
+  padding-top: 14px;
+  border-top: 1px solid #1f2937;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  font-size: 0.9rem;
+  color: #9ca3af;
+}
+
+.layout-selector label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.layout-selector select {
+  padding: 6px 10px;
+  background: #020617;
+  color: #e8eef6;
+  border-radius: 6px;
+  border: 1px solid #334155;
+  font-size: 0.9rem;
+}
+
+/* -------------------------------------------------- */
+/* Dashboard layout modes (1–5)                       */
+/* These tweak the button grid mainly                 */
+/* -------------------------------------------------- */
+
+/* Layout 1 – default responsive tile grid */
+body[data-layout="1"] .dashboard-buttons.grid {
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 16px;
+}
+
+/* Layout 2 – wider tiles, row-feel */
+body[data-layout="2"] .dashboard-buttons.grid {
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 20px;
+}
+
+body[data-layout="2"] .dashboard-buttons.grid .btn {
+  text-align: left;
+}
+
+/* Layout 3 – three-column console-style grid (when possible) */
+body[data-layout="3"] .dashboard-buttons.grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 18px;
+}
+
+@media (max-width: 900px) {
+  body[data-layout="3"] .dashboard-buttons.grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 640px) {
+  body[data-layout="3"] .dashboard-buttons.grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Layout 4 – stacked list */
+body[data-layout="4"] .dashboard-buttons.grid {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  max-width: 720px;
+}
+
+body[data-layout="4"] .dashboard-buttons.grid .btn {
+  text-align: left;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+/* Layout 5 – compact two-column big buttons */
+body[data-layout="5"] .dashboard-buttons.grid {
+  grid-template-columns: repeat(2, minmax(240px, 1fr));
+  gap: 18px;
+}
+
+@media (max-width: 720px) {
+  body[data-layout="5"] .dashboard-buttons.grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+body[data-layout="5"] .dashboard-buttons.grid .btn {
+  transform: scale(1.02);
+}

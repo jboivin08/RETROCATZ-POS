@@ -1,0 +1,19 @@
+appId: com.retrocatz.pos
+productName: RetroCatz POS
+files:
+  - "**/*"
+extraResources:
+  - from: db
+    to: db
+  - from: assets
+    to: assets
+  - from: barcodes
+    to: barcodes
+win:
+  target:
+    - nsis
+nsis:
+  oneClick: true
+  perMachine: false
+  allowToChangeInstallationDirectory: false
+  artifactName: "${productName}-Setup-${version}.exe"

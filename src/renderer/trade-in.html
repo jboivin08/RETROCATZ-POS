@@ -1,0 +1,2844 @@
+<!-- src/renderer/trade-in.html -->
+<!doctype html>
+<html lang="en">
+<head>
+  <title>Trade-In - RetroCatz POS</title>
+  <meta http-equiv="Content-Security-Policy"
+        content="default-src 'self' file:;
+                 img-src 'self' file: data: http://127.0.0.1:5175 http://localhost:5175;
+                 script-src 'self' 'unsafe-inline';
+                 connect-src 'self' http://127.0.0.1:5175 http://localhost:5175;
+                 style-src 'self' 'unsafe-inline'">
+  <link rel="stylesheet" href="index.css" />
+  <style>
+    :root {
+      --bg: #0b0b0d;
+      --panel-bg: #0c0c0f;
+      --panel: #111827;
+      --panel-2: #0f172a;
+      --panel-soft: #0f172a;
+      --border: #374151;
+      --accent: #2563eb;
+      --accent-soft: rgba(37,99,235,0.18);
+      --accent-strong: rgba(37,99,235,0.35);
+      --danger: #7f1d1d;
+      --text: #e5e7eb;
+      --muted: #9ca3af;
+      --toolbar-bg: #091226;
+      --row-hover: #14161b;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 10px;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+    }
+
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 20px;
+      padding: 10px;
+      border-radius: 8px;
+      background: var(--toolbar-bg);
+      border: 1px solid #0e1b36;
+    }
+
+    .logo-title {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .logo-circle {
+      height: 22px;
+      width: auto;
+      display: block;
+    }
+
+    .title-text {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .title-text h1 {
+      margin: 0;
+      font-size: 20px;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+    }
+
+    .title-text span {
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+
+    .status-strip {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 10px;
+      border-radius: 8px;
+      border: 1px solid #1f2a45;
+      background: #050814;
+      color: var(--muted);
+      font-size: 11px;
+      letter-spacing: 0.02em;
+      flex-wrap: wrap;
+    }
+    .status-strip strong {
+      color: var(--text);
+      font-weight: 600;
+    }
+    .status-strip .divider {
+      width: 1px;
+      height: 12px;
+      background: rgba(148,163,184,0.4);
+    }
+
+    a.btn-link {
+      text-decoration: none;
+      color: var(--muted);
+      font-size: 13px;
+      padding: 6px 10px;
+      border-radius: 999px;
+      border: 1px solid #1f2a45;
+      background: #050814;
+    }
+
+    a.btn-link:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr);
+      gap: 10px;
+      align-items: start;
+    }
+
+    @media (max-width: 1100px) {
+      .layout {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .main-col,
+    .side-col {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      min-width: 0;
+    }
+
+    .sticky {
+      position: sticky;
+      top: 12px;
+      align-self: start;
+    }
+
+    .panel {
+      background: var(--panel-bg);
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      padding: 10px;
+      display: flex;
+      flex-direction: column;
+      min-height: 0;
+    }
+
+    .panel-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 8px;
+      padding-bottom: 6px;
+      border-bottom: 1px solid #1f2a45;
+    }
+
+    .panel-header h2 {
+      font-size: 13px;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: #e5e7eb;
+      margin: 0;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .panel-header h2 span.accent-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 999px;
+      background: var(--accent);
+      box-shadow: 0 0 12px rgba(56,189,248,0.8);
+    }
+
+    .panel-header .subtext {
+      font-size: 11px;
+      color: var(--muted);
+    }
+
+    .panel-body {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      min-height: 0;
+    }
+
+    .field-row {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 8px;
+      flex-wrap: wrap;
+    }
+
+    .field {
+      flex: 1;
+      min-width: 120px;
+    }
+
+    .field.sm { max-width: 130px; }
+    .field.xs { max-width: 90px; }
+    .field.lg { flex: 2; }
+
+    label {
+      display: block;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--muted);
+      margin-bottom: 4px;
+    }
+
+    input[type="text"],
+    input[type="number"],
+    select,
+    textarea {
+      width: 100%;
+      background: #000;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      padding: 7px 9px;
+      font-size: 13px;
+      color: var(--text);
+      outline: none;
+    }
+
+    input:focus,
+    select:focus,
+    textarea:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 1px var(--accent-soft);
+    }
+
+    textarea {
+      min-height: 60px;
+      resize: vertical;
+    }
+
+    .totals-card {
+      margin-top: 8px;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      background: #0c0c0f;
+      padding: 8px 10px;
+      display: grid;
+      grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
+      gap: 10px;
+    }
+
+    @media (max-width: 900px) {
+      .totals-card {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .totals-left, .totals-right {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .totals-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .totals-row .value {
+      color: var(--text);
+      font-weight: 600;
+    }
+
+    .total-big {
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      background: #0b0b0d;
+      padding: 10px 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      align-items: flex-start;
+    }
+
+    .total-big .label {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--muted);
+    }
+
+    .total-big .value {
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--accent);
+    }
+
+    .total-label {
+      color: var(--muted);
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    .list {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .list-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      padding: 8px 10px;
+      border: 1px solid var(--border);
+      background: #0c0c0f;
+      border-radius: 10px;
+      font-size: 12px;
+      cursor: pointer;
+    }
+
+    .list-item:hover {
+      border-color: var(--accent);
+    }
+
+    .inline-badge {
+      font-size: 11px;
+      color: var(--muted);
+    }
+
+    .inline-badge strong {
+      color: var(--text);
+      font-weight: 600;
+    }
+
+    .quote-actions {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .quote-id {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size: 11px;
+      color: var(--muted);
+    }
+
+    .button-row {
+      display: flex;
+      gap: 8px;
+      margin-top: 6px;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      padding: 8px 12px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background: #0c0c0f;
+      color: var(--text);
+      cursor: pointer;
+      transition: box-shadow 0.12s ease, transform 0.12s ease, border-color 0.12s ease;
+      font-size: 13px;
+      white-space: nowrap;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .btn:hover{
+      border-color:#596274;
+      box-shadow:0 0 0 1px rgba(148,163,184,.35);
+      transform:translateY(-0.5px);
+    }
+
+    .btn-primary{ background: var(--accent); border-color: var(--accent); }
+    .btn-primary:hover{ filter:brightness(1.1); }
+    .btn-danger{ border-color:var(--danger); background:var(--danger); color:#fee2e2; }
+    .btn-soft{ background:transparent; color:var(--muted); }
+    .btn-mini { padding: 4px 8px; font-size: 11px; border-radius: 6px; }
+
+    .table-wrap {
+      margin-top: 6px;
+      max-height: 420px;
+      overflow-y: auto;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      background: var(--panel-bg);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 12px;
+    }
+
+    thead th {
+      position: sticky;
+      top: 0;
+      background: #0d0d10;
+      color: var(--muted);
+      font-size: 11px;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      padding: 6px 8px;
+      border-bottom: 1px solid #1f2937;
+      text-align: left;
+      z-index: 2;
+    }
+
+    tbody td {
+      padding: 6px 8px;
+      border-bottom: 1px solid #1f2937;
+    }
+
+    tbody tr:nth-child(odd) {
+      background: rgba(255,255,255,0.015);
+    }
+
+    tbody tr:nth-child(even) {
+      background: rgba(255,255,255,0.01);
+    }
+
+    tbody tr:hover {
+      background: var(--row-hover);
+    }
+
+    button:disabled {
+      opacity: 0.5;
+      cursor: default;
+    }
+
+    .items-header {
+      display: none;
+    }
+
+    /* Photo intake */
+    .photo-intake {
+      margin-bottom: 12px;
+    }
+
+    .photo-intake-label {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--muted);
+      margin-bottom: 4px;
+    }
+
+    .drop-zone {
+      border-radius: 12px;
+      border: 1px dashed rgba(55,65,81,0.9);
+      background: rgba(15,23,42,0.85);
+      padding: 10px;
+      font-size: 12px;
+      color: var(--muted);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      cursor: pointer;
+      transition: border-color 0.15s ease, background 0.15s ease;
+    }
+
+    .drop-zone:hover {
+      border-color: var(--accent);
+    }
+
+    .drop-zone.dragover {
+      border-color: var(--accent);
+      background: rgba(56,189,248,0.08);
+    }
+
+    .drop-zone-main {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .drop-zone-main strong { color: var(--accent); }
+
+    .drop-zone-hint {
+      font-size: 10px;
+      color: var(--muted);
+    }
+
+    .drop-zone-counter {
+      font-size: 11px;
+      padding: 4px 8px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      background: rgba(15,23,42,0.9);
+      color: var(--muted);
+      white-space: nowrap;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 12px;
+      margin-top: 4px;
+    }
+
+    th, td {
+      padding: 6px 6px;
+      text-align: left;
+      border-bottom: 1px solid rgba(31,41,55,0.65);
+    }
+
+    th {
+      font-size: 11px;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+
+    tr:last-child td {
+      border-bottom: none;
+    }
+
+    tr.highlight {
+      background: rgba(15,23,42,0.9);
+    }
+
+    td input[type="number"] {
+      max-width: 70px;
+    }
+
+    .badge {
+      padding: 2px 7px;
+      border-radius: 999px;
+      font-size: 11px;
+      border: 1px solid rgba(55,65,81,0.9);
+      color: var(--muted);
+    }
+
+    .badge.ok {
+      border-color: rgba(34,197,94,0.7);
+      color: #bbf7d0;
+    }
+
+    .badge.warn {
+      border-color: rgba(234,179,8,0.7);
+      color: #facc15;
+    }
+
+    .status-line {
+      margin-top: 8px;
+      font-size: 11px;
+      color: var(--muted);
+    }
+
+    .status-line strong { color: var(--accent); }
+    .status-line.error { color: #fecaca; }
+
+    /* Printable offer "check" */
+    #print-offer {
+      margin-top: 14px;
+      padding: 12px 16px;
+      border-radius: 12px;
+      border: 1px dashed rgba(55,65,81,0.9);
+      background: radial-gradient(circle at top right, #111827 0, #020617 55%, #000 100%);
+      font-size: 12px;
+    }
+
+    #print-offer-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+
+    #print-offer-logo {
+      font-weight: 700;
+      font-size: 16px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+    }
+
+    #print-offer-id {
+      font-size: 11px;
+      color: var(--muted);
+    }
+
+    #print-offer-main {
+      display: grid;
+      grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr);
+      gap: 12px;
+      margin-bottom: 10px;
+    }
+
+    #print-amount-big {
+      font-size: 24px;
+      font-weight: 700;
+      color: var(--accent);
+    }
+
+    #print-amount-words {
+      font-size: 11px;
+      margin-top: 4px;
+      color: var(--muted);
+    }
+
+    #print-offer-right {
+      font-size: 11px;
+      color: var(--muted);
+    }
+
+    #print-offer-right div { margin-bottom: 4px; }
+
+    #print-offer-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+      margin-top: 8px;
+      font-size: 10px;
+      color: var(--muted);
+    }
+
+    .sig-line {
+      flex: 1;
+      border-top: 1px solid rgba(55,65,81,0.9);
+      padding-top: 3px;
+      text-align: center;
+    }
+
+        /* Register alignment overrides */
+    :root {
+      --bg: #0b0b0d;
+      --bg-elevated: #111827;
+      --bg-soft: #0f172a;
+      --border: #374151;
+      --accent: #2563eb;
+      --accent-soft: rgba(37,99,235,0.14);
+      --accent-strong: rgba(37,99,235,0.3);
+      --danger: #7f1d1d;
+      --success: #4ade80;
+      --text: #e5e7eb;
+      --muted: #9ca3af;
+      --font-base: 14px;
+      --radius-lg: 10px;
+      --radius-xl: 12px;
+      --shadow-soft: none;
+      --panel-bg: #0c0c0f;
+      --toolbar-bg: #091226;
+      --toolbar-border: #0e1b36;
+      --row-hover: #14161b;
+    }
+
+    body {
+      margin: 16px;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      font-size: var(--font-base);
+      min-height: 100vh;
+      height: auto;
+      display: flex;
+      flex-direction: column;
+      overflow-y: auto;
+    }
+
+    .app-shell {
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+      height: auto;
+      max-width: 1440px;
+      margin: 0 auto;
+      padding: 0;
+      gap: 8px;
+    }
+
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 16px;
+      background: var(--toolbar-bg);
+      border-radius: var(--radius-xl);
+      border: 1px solid var(--toolbar-border);
+      box-shadow: var(--shadow-soft);
+      gap: 10px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .brand-logo {
+      height: 22px;
+      width: auto;
+      display: block;
+    }
+
+    .brand-title {
+      display: flex;
+      flex-direction: column;
+      line-height: 1.1;
+    }
+
+    .brand-title span:first-child {
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      font-size: 12px;
+      color: #e5e7eb;
+    }
+
+    .brand-title span:last-child {
+      font-size: 11px;
+      color: var(--muted);
+    }
+
+    .header-right {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 12px;
+      color: var(--muted);
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+
+    .status-strip {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 10px;
+      border-radius: 8px;
+      border: 1px solid #1f2a45;
+      background: #050814;
+      color: var(--muted);
+      font-size: 11px;
+      letter-spacing: 0.02em;
+      flex-wrap: wrap;
+    }
+    .status-strip strong {
+      color: var(--text);
+      font-weight: 600;
+    }
+    .status-strip .divider {
+      width: 1px;
+      height: 12px;
+      background: rgba(148,163,184,0.4);
+    }
+
+    main {
+      flex: 1 1 auto;
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+      min-height: 0;
+      align-content: start;
+      grid-auto-rows: minmax(0, auto);
+      overflow: visible;
+      margin-top: 4px;
+    }
+
+    @media (max-width: 1200px) {
+      main {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 1000px) {
+      header {
+        flex-wrap: wrap;
+        gap: 8px;
+      }
+      .header-right {
+        width: 100%;
+        justify-content: space-between;
+      }
+    }
+
+    .side-col {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      min-width: 0;
+    }
+
+    .trade-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr);
+      gap: 12px;
+      min-height: 0;
+      align-items: start;
+    }
+
+    @media (max-width: 1200px) {
+      .trade-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    #customer-panel {
+      margin-bottom: 6px;
+    }
+
+    #offer-panel {
+      margin-top: auto;
+    }
+
+    .sticky {
+      position: sticky;
+      top: 12px;
+      align-self: start;
+    }
+
+    .panel {
+      background: var(--bg-elevated);
+      border-radius: var(--radius-xl);
+      border: 1px solid var(--border);
+      padding: 10px;
+      box-shadow: var(--shadow-soft);
+      display: flex;
+      flex-direction: column;
+      min-height: 0;
+      overflow: visible;
+    }
+
+    .panel-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 8px;
+      padding-bottom: 6px;
+      border-bottom: 1px solid #1f2a45;
+      gap: 8px;
+    }
+
+    .panel-header h2 {
+      font-size: 13px;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: #e5e7eb;
+      margin: 0;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .panel-header h2 span.accent-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 999px;
+      background: var(--accent);
+      box-shadow: 0 0 12px rgba(56,189,248,0.8);
+    }
+
+    .panel-header .subtext {
+      font-size: 11px;
+      color: var(--muted);
+    }
+
+    .panel-body {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      min-height: 0;
+      overflow: visible;
+    }
+
+    label {
+      display: block;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--muted);
+      margin-bottom: 4px;
+    }
+
+    input[type="text"],
+    input[type="number"],
+    select,
+    textarea {
+      width: 100%;
+      background: #000;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      padding: 5px 7px;
+      font-size: 12px;
+      color: var(--text);
+      outline: none;
+    }
+
+    input:focus,
+    select:focus,
+    textarea:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 1px rgba(56,189,248,0.6);
+    }
+
+    .field-row {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .field {
+      flex: 1;
+      min-width: 120px;
+    }
+
+    .field.sm {
+      max-width: 180px;
+    }
+
+    .field.xs {
+      max-width: 90px;
+    }
+
+    .field.lg {
+      flex: 2;
+    }
+
+    .quick-add {
+      display: grid;
+      grid-template-columns: 1.4fr 0.9fr 0.8fr 0.6fr 0.8fr auto;
+      gap: 8px;
+      align-items: end;
+    }
+
+    @media (max-width: 900px) {
+      .quick-add {
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+
+    .toolbar-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      margin-top: 2px;
+    }
+
+    .toolbar-actions {
+      display: flex;
+      gap: 6px;
+    }
+
+    .btn {
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      background: #0c0c0f;
+      color: var(--text);
+      font-size: 11px;
+      padding: 6px 10px;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      cursor: pointer;
+      transition: background 0.1s ease, transform 0.05s ease, box-shadow 0.1s ease, border-color 0.1s ease;
+      user-select: none;
+      white-space: nowrap;
+      text-decoration: none;
+    }
+
+    .btn-mini {
+      padding: 4px 8px;
+      font-size: 10px;
+      border-radius: 6px;
+    }
+
+    .btn:hover {
+      border-color:#596274;
+      box-shadow:0 0 0 1px rgba(148,163,184,.35);
+      transform:translateY(-0.5px);
+    }
+
+    .btn-primary {
+      border-color: var(--accent);
+      background: var(--accent);
+      box-shadow: 0 0 0 1px rgba(37,99,235,0.4);
+    }
+
+    .btn-primary:hover {
+      filter: brightness(1.1);
+    }
+
+    .btn-danger {
+      border-color: var(--danger);
+      background: var(--danger);
+      box-shadow: none;
+    }
+
+    .btn-soft {
+      background: rgba(15,23,42,0.9);
+    }
+
+    .btn:active {
+      transform: translateY(1px) scale(0.99);
+      box-shadow: none;
+    }
+
+    .btn:disabled {
+      opacity: 0.4;
+      cursor: default;
+      box-shadow: none;
+    }
+
+    .cart-table-wrapper {
+      flex: 1;
+      min-height: 0;
+      max-height: 100%;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      background: #0c0c0f;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .cart-table-wrapper table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 12px;
+    }
+
+    .cart-table-wrapper thead th {
+      position: sticky;
+      top: 0;
+      background: #0d0d10;
+      color: var(--muted);
+      font-size: 11px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      padding: 6px 8px;
+      border-bottom: 1px solid #1f2937;
+      text-align: left;
+      z-index: 2;
+    }
+
+    .cart-table-wrapper tbody td {
+      padding: 6px 8px;
+      border-bottom: 1px solid #1f2937;
+    }
+
+    .cart-table-wrapper tbody tr:nth-child(odd) {
+      background: rgba(255,255,255,0.015);
+    }
+
+    .cart-table-wrapper tbody tr:nth-child(even) {
+      background: rgba(255,255,255,0.01);
+    }
+
+    .cart-table-wrapper tbody tr:hover {
+      background: var(--row-hover);
+    }
+
+    .cart-table-wrapper tbody tr.selected {
+      box-shadow: inset 0 0 0 1px var(--accent), 0 0 12px rgba(56,189,248,0.5);
+      background: radial-gradient(circle at left, rgba(56,189,248,0.15), rgba(15,23,42,0.98));
+    }
+
+    .cart-table-wrapper tbody tr.highlight {
+      background: rgba(15,23,42,0.6);
+    }
+
+    .cart-table-wrapper input[type="number"] {
+      max-width: 80px;
+      padding: 2px 4px;
+      border-radius: 8px;
+      border: 1px solid rgba(148,163,184,0.6);
+      background: #020617;
+      color: var(--text);
+      font-size: 12px;
+    }
+
+    .cart-summary-strip {
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background: #0c0c0f;
+      padding: 8px 10px;
+      display: grid;
+      grid-template-columns: 1.2fr 1fr 1fr 1fr 1fr;
+      gap: 6px;
+      font-size: 11px;
+      color: var(--muted);
+      margin-top: 8px;
+    }
+
+    .cart-summary-strip strong {
+      color: var(--text);
+      font-weight: 600;
+      display: block;
+    }
+
+    .list {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .list-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      padding: 8px 10px;
+      border: 1px solid var(--border);
+      background: #0c0c0f;
+      border-radius: 10px;
+      font-size: 12px;
+      cursor: pointer;
+    }
+
+    .list-item:hover {
+      border-color: var(--accent);
+    }
+
+    .market-stats {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      padding: 6px 8px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: #0c0c0f;
+      font-size: 11px;
+      color: var(--muted);
+    }
+
+    .market-stats strong {
+      color: var(--text);
+      font-weight: 600;
+    }
+
+    .market-row {
+      display: grid;
+      grid-template-columns: 1.4fr 1.2fr auto;
+      gap: 8px;
+      align-items: center;
+      width: 100%;
+    }
+
+    .market-row .meta {
+      font-size: 11px;
+      color: var(--muted);
+    }
+
+    .variant-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 2px 8px;
+      border-radius: 999px;
+      border: 1px solid rgba(148,163,184,0.35);
+      background: rgba(15,23,42,0.9);
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      color: #cbd5e1;
+      margin-left: 6px;
+    }
+
+    .totals-card {
+      margin-top: 8px;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      background: #0c0c0f;
+      padding: 8px 10px;
+      display: grid;
+      grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
+      gap: 10px;
+    }
+
+    @media (max-width: 900px) {
+      .totals-card {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .totals-left, .totals-right {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .totals-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 12px;
+    }
+
+    .totals-row label {
+      color: var(--muted);
+    }
+
+    .totals-row .value {
+      font-variant-numeric: tabular-nums;
+    }
+
+    .total-big {
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      background: #0c0c0f;
+      padding: 10px 12px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 14px;
+      font-weight: 600;
+      margin-bottom: 6px;
+    }
+
+    .total-big .label {
+      color: var(--muted);
+      font-size: 11px;
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+    .total-big .value {
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--accent);
+      font-variant-numeric: tabular-nums;
+    }
+
+    .quote-actions {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .button-row {
+      display: flex;
+      gap: 8px;
+      margin-top: 6px;
+      flex-wrap: wrap;
+    }
+
+    .inline-badge {
+      font-size: 11px;
+      color: var(--muted);
+    }
+
+    .inline-badge strong {
+      color: var(--text);
+      font-weight: 600;
+    }
+
+    .status-line {
+      margin-top: 8px;
+      font-size: 11px;
+      color: var(--muted);
+    }
+
+    .status-line strong {
+      color: var(--accent);
+    }
+
+    .drawer {
+      display: none;
+    }
+
+    .drawer.open {
+      display: flex;
+    }
+
+    .comps-panel {
+      display: none;
+    }
+
+    .comps-panel.open {
+      display: flex;
+    }
+
+    .market-panel {
+      display: none;
+    }
+
+    .market-panel.open {
+      display: flex;
+    }
+
+    #photo-panel .panel-body {
+      display: none;
+    }
+
+    #photo-panel.open .panel-body {
+      display: flex;
+    }
+
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,.5);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 9999;
+    }
+
+    .modal-backdrop.open {
+      display: flex;
+    }
+
+    .modal {
+      background: #12151b;
+      border: 1px solid #2a3342;
+      border-radius: 12px;
+      padding: 16px;
+      min-width: 440px;
+      color: var(--text);
+      max-height: 85vh;
+      overflow-y: auto;
+    }
+@media print {
+      body * {
+        visibility: hidden;
+      }
+      #print-offer, #print-offer * {
+        visibility: visible;
+      }
+      #print-offer {
+        position: absolute;
+        inset: 0;
+        margin: 24px;
+        border-radius: 0;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="app-shell">
+    <header>
+      <div class="brand">
+        <img class="brand-logo" src="assets/retrocatz-logo.png" alt="RetroCatz" />
+        <div class="brand-title">
+          <span>RetroCatz POS</span>
+          <span>Trade-In Workbench</span>
+        </div>
+      </div>
+      <div class="header-right">
+        <div class="status-strip">
+          Session: <strong id="session-label">Draft</strong>
+          <span class="divider"></span>
+          Mode: <strong>Trade-In Quote</strong>
+        </div>
+        <button class="btn btn-soft btn-mini" id="btn-open-quotes">Quotes</button>
+        <button class="btn btn-soft btn-mini" id="btn-open-settings">Settings</button>
+        <a href="index.html" class="btn btn-soft btn-mini">Back to Dashboard</a>
+      </div>
+    </header>
+
+    <main>
+      <section class="panel" id="customer-panel">
+          <div class="panel-header">
+            <h2><span class="accent-dot"></span>Customer</h2>
+            <div class="subtext">Selected: <strong id="selected-customer">Walk-in</strong></div>
+          </div>
+          <div class="panel-body">
+            <div class="field-row">
+              <div class="field lg">
+                <label for="customer-search">Search</label>
+                <input id="customer-search" type="text" placeholder="Name, phone, email" />
+              </div>
+              <div class="field sm">
+                <label>&nbsp;</label>
+                <button id="btn-customer-search" class="btn">Find</button>
+              </div>
+            </div>
+            <div id="customer-results" class="list"></div>
+            <div class="field-row">
+              <div class="field">
+                <label for="customer-name">Name</label>
+                <input id="customer-name" type="text" placeholder="Walk-in, John D" />
+              </div>
+            </div>
+            <div class="field-row">
+              <div class="field">
+                <label for="customer-phone">Phone</label>
+                <input id="customer-phone" type="text" placeholder="555-123-4567" />
+              </div>
+              <div class="field">
+                <label for="customer-email">Email</label>
+                <input id="customer-email" type="text" placeholder="name@email.com" />
+              </div>
+            </div>
+            <div class="field-row">
+              <div class="field">
+                <label for="session-notes">Trade Notes</label>
+                <input id="session-notes" type="text" placeholder="Totes of PS2, OEM controllers" />
+              </div>
+            </div>
+            <div class="button-row">
+              <button id="btn-customer-save" class="btn btn-soft">Save</button>
+              <button id="btn-customer-clear" class="btn btn-soft">Clear</button>
+            </div>
+            <div id="customer-status" class="status-line">No customer selected.</div>
+          </div>
+        </section>
+
+      <div class="trade-grid">
+        <section class="panel" id="items-panel">
+        <div class="panel-header">
+          <h2><span class="accent-dot"></span>Items in Trade</h2>
+          <div class="subtext"><span id="items-count">0 items</span></div>
+        </div>
+        <div class="panel-body">
+          <div class="quick-add">
+            <div class="field">
+              <label for="item-title">Title / Scan</label>
+              <input id="item-title" type="text" placeholder="Scan barcode or type title" list="item-title-suggestions" />
+            </div>
+            <div class="field sm">
+              <label for="item-platform">Platform</label>
+              <input id="item-platform" type="text" placeholder="PS2, SNES" list="platform-suggestions" />
+            </div>
+            <div class="field sm">
+              <label for="item-condition">Condition</label>
+              <select id="item-condition">
+                <option>Good</option>
+                <option>Very Good</option>
+                <option>Like New</option>
+                <option>Fair</option>
+                <option>Poor</option>
+              </select>
+            </div>
+            <div class="field xs">
+              <label for="item-qty">Qty</label>
+              <input id="item-qty" type="number" min="1" value="1" />
+            </div>
+            <div class="field sm">
+              <label for="item-retail">Target Retail</label>
+              <input id="item-retail" type="number" min="0" step="0.01" placeholder="0.00" />
+            </div>
+            <button id="btn-add-item" class="btn btn-primary">Add Line</button>
+          </div>
+
+          <datalist id="item-title-suggestions"></datalist>
+          <datalist id="platform-suggestions"></datalist>
+
+          <div class="toolbar-row">
+            <div class="subtext" id="items-status">Ready.</div>
+            <div class="toolbar-actions">
+              <button id="btn-ai-all" class="btn btn-mini btn-soft">AI for All</button>
+            </div>
+          </div>
+
+          <div class="cart-table-wrapper">
+            <table>
+              <thead>
+                <tr>
+                  <th>Keep</th>
+                  <th>Item</th>
+                  <th>Condition</th>
+                  <th>Qty</th>
+                  <th>Retail</th>
+                  <th>Credit</th>
+                  <th>Cash</th>
+                  <th>Margin</th>
+                  <th colspan="3">Actions</th>
+                </tr>
+              </thead>
+              <tbody id="items-body"></tbody>
+            </table>
+          </div>
+
+          <div class="cart-summary-strip">
+            <span>Items <strong id="inline-items">0</strong></span>
+            <span>Retail <strong id="inline-retail">$0.00</strong></span>
+            <span>Credit <strong id="inline-credit">$0.00</strong></span>
+            <span>Cash <strong id="inline-cash">$0.00</strong></span>
+            <span>Quote <strong id="inline-quote-id">--</strong></span>
+          </div>
+        </div>
+      </section>
+
+      <div class="side-col">
+<section class="panel drawer" id="settings-drawer">
+          <div class="panel-header">
+            <h2><span class="accent-dot"></span>Policy & Approval</h2>
+            <div class="subtext">Expiry: <strong id="policy-expiry-days">30</strong> days</div>
+          </div>
+          <div class="panel-body">
+            <div class="field-row">
+              <div class="field sm">
+                <label for="policy-credit-retail">Credit % Retail</label>
+                <input id="policy-credit-retail" type="number" min="0" max="100" step="1" value="50" />
+              </div>
+              <div class="field sm">
+                <label for="policy-cash-from-credit">Cash % Credit</label>
+                <input id="policy-cash-from-credit" type="number" min="0" max="100" step="1" value="80" />
+              </div>
+            </div>
+            <div class="field-row">
+              <div class="inline-badge">Cash approval: <strong id="approval-cash-limit">$0.00</strong></div>
+              <div class="inline-badge">Credit approval: <strong id="approval-credit-limit">$0.00</strong></div>
+            </div>
+            <div class="field-row">
+              <div class="field sm">
+                <label for="settings-expiry-days">Quote Expiry (days)</label>
+                <input id="settings-expiry-days" type="number" min="1" max="365" step="1" value="30" />
+              </div>
+              <div class="field sm">
+                <label for="settings-cash-limit">Cash Approval $</label>
+                <input id="settings-cash-limit" type="number" min="0" step="0.01" placeholder="200.00" />
+              </div>
+              <div class="field sm">
+                <label for="settings-credit-limit">Credit Approval $</label>
+                <input id="settings-credit-limit" type="number" min="0" step="0.01" placeholder="300.00" />
+              </div>
+              <div class="field sm">
+                <label>&nbsp;</label>
+                <button id="btn-save-settings" class="btn btn-soft">Save Settings</button>
+              </div>
+            </div>
+            <div id="approval-status" class="status-line">Approval status will appear here.</div>
+          </div>
+        </section>
+<section class="panel comps-panel" id="comps-panel">
+          <div class="panel-header">
+            <h2><span class="accent-dot"></span>Comps</h2>
+            <div class="subtext">Selected: <strong id="comps-selected">None</strong></div>
+          </div>
+          <div class="panel-body">
+<div class="market-v" id="market-qty">0</div></div>
+              <div class="market-stat"><div class="market-k">Avg Cost</div><div class="market-v" id="market-avg-cost">$0.00</div></div>
+              <div class="market-stat"><div class="market-k">Avg Price</div><div class="market-v" id="market-avg-price">$0.00</div></div>
+              <div class="market-stat"><div class="market-k">Sold Avg</div><div class="market-v" id="market-sold-avg">$0.00</div></div>
+              <div class="market-stat"><div class="market-k">Sold Count</div><div class="market-v" id="market-sold-count">0</div></div>
+            </div>
+            <div class="button-row">
+              <button id="btn-comps-sold" class="btn btn-mini btn-soft">Sold</button>
+              <button id="btn-comps-active" class="btn btn-mini btn-soft">Active</button>
+            </div>
+            <div class="field-row">
+              <div class="field sm">
+                <label for="manual-comp-price">Manual Price</label>
+                <input id="manual-comp-price" type="number" step="0.01" min="0" placeholder="49.99" />
+              </div>
+              <div class="field">
+                <label for="manual-comp-url">URL</label>
+                <input id="manual-comp-url" type="text" placeholder="https://..." />
+              </div>
+            </div>
+            <div class="field-row">
+              <div class="field">
+                <label for="manual-comp-notes">Notes</label>
+                <input id="manual-comp-notes" type="text" placeholder="Local sale, sealed, etc" />
+              </div>
+              <div class="field sm">
+                <label>&nbsp;</label>
+                <button id="btn-add-manual-comp" class="btn">Add Manual</button>
+              </div>
+            </div>
+            <div id="comps-status" class="status-line">Select a line to view comps.</div>
+            <div id="comps-list" class="list"></div>
+          </div>
+        </section>
+<section class="panel market-panel" id="market-panel">
+          <div class="panel-header">
+            <h2><span class="accent-dot"></span>Market View</h2>
+            <div class="subtext">Selected: <strong id="market-selected">None</strong></div>
+          </div>
+          <div class="panel-body">
+            <div class="market-stats">
+              On Hand: <strong id="market-qty">0</strong>
+              Avg Cost: <strong id="market-avg-cost">$0.00</strong>
+              Avg Price: <strong id="market-avg-price">$0.00</strong>
+              Sold Avg: <strong id="market-sold-avg">$0.00</strong>
+              Sold Count: <strong id="market-sold-count">0</strong>
+            </div>
+            <div class="button-row">
+              <button id="btn-fetch-pricecharting" class="btn btn-mini btn-soft">Fetch PriceCharting</button>
+              <button id="btn-open-pricecharting" class="btn btn-mini btn-soft">Open PriceCharting</button>
+              <button id="btn-open-ebay-sold" class="btn btn-mini btn-soft">Open eBay Sold</button>
+              <button id="btn-open-ebay-active" class="btn btn-mini btn-soft">Open eBay Active</button>
+            </div>
+            <div id="market-status" class="status-line">Select a line to view market data.</div>
+            <div id="market-list" class="list"></div>
+          </div>
+        </section>
+<section class="panel" id="photo-panel">
+          <div class="panel-header">
+            <h2><span class="accent-dot"></span>AI Photo Intake</h2>
+            <button id="btn-toggle-photo" class="btn btn-mini btn-soft">Toggle</button>
+          </div>
+          <div class="panel-body">
+            <div class="photo-intake">
+              <div class="drop-zone" id="drop-zone">
+                <div class="drop-zone-main">
+                  <strong>Drop items photo</strong>
+                  <div class="drop-zone-hint">AI will suggest titles + platforms + condition</div>
+                </div>
+                <div class="drop-zone-counter" id="photo-count">0 photos added</div>
+              </div>
+              <input id="photo-input" type="file" accept="image/*" multiple style="display:none;" />
+            </div>
+          </div>
+        </section>
+<section class="panel" id="offer-panel">
+          <div class="panel-header">
+            <h2><span class="accent-dot"></span>Offer</h2>
+            <div class="subtext">Expiry: <span id="quote-expiry">--</span></div>
+          </div>
+          <div class="panel-body">
+            <div class="total-big">
+              <div class="label">Total Cash Offer</div>
+              <div class="value" id="total-cash">$0.00</div>
+            </div>
+            <div class="totals-card">
+              <div class="totals-left">
+                <div class="totals-row"><label>Store Credit</label><span class="value" id="total-credit">$0.00</span></div>
+                <div class="totals-row"><label>Total Retail</label><span class="value" id="total-retail">$0.00</span></div>
+                <div class="totals-row"><label>Approval</label><span class="value" id="quote-approval">Not required</span></div>
+              </div>
+              <div class="totals-right">
+                <div class="totals-row"><label>Status</label><span class="value" id="quote-status">Draft</span></div>
+                <div class="totals-row"><label>Quote #</label><span class="value" id="quote-id">--</span></div>
+              </div>
+            </div>
+            <div class="quote-actions">
+              <button id="btn-accept-quote" class="btn btn-primary">Accept Trade</button>
+              <button id="btn-present-quote" class="btn btn-soft">Present</button>
+              <button id="btn-save-quote" class="btn btn-soft">Save Draft</button>
+              <button id="btn-decline-quote" class="btn btn-danger">Decline</button>
+            </div>
+            <div class="button-row">
+              <button id="btn-print-offer" class="btn btn-soft">Print Offer</button>
+              <button id="btn-clear" class="btn btn-soft">New Quote</button>
+            </div>
+            <div id="session-status" class="status-line">Ready.</div>
+
+            <div id="print-offer">
+              <div id="print-offer-header">
+                <div id="print-offer-logo">RETROCATZ GAMES</div>
+                <div id="print-offer-id">Offer ID: <span id="offer-id">--</span></div>
+              </div>
+              <div id="print-offer-main">
+                <div>
+                  <div class="total-label">Total Cash Offer</div>
+                  <div id="print-amount-big">$0.00</div>
+                  <div id="print-amount-words">Zero Dollars</div>
+                </div>
+                <div id="print-offer-right">
+                  <div>Customer: <strong id="offer-customer">Walk-in</strong></div>
+                  <div>Trade Date: <strong id="offer-date">--</strong></div>
+                  <div>Expiry: <strong id="offer-expiry">--</strong></div>
+                  <div>Items: <strong id="offer-items-count">0</strong></div>
+                  <div>Store Credit: <strong id="offer-credit">$0.00</strong></div>
+                  <div>Cash Offer: <strong id="offer-cash">$0.00</strong></div>
+                </div>
+              </div>
+              <div id="print-offer-footer">
+                <div class="sig-line">Customer Signature</div>
+                <div class="sig-line">Associate Signature</div>
+              </div>
+            </div>
+          </div>
+        </section>
+</div></div>
+    </div>
+    </main>
+  </div>
+
+  <div id="quotes-drawer" class="modal-backdrop">
+    <div class="modal">
+      <div class="panel-header">
+        <h2><span class="accent-dot"></span>Saved Quotes</h2>
+        <button class="btn btn-mini btn-soft" id="btn-close-quotes">Close</button>
+      </div>
+      <div class="panel-body">
+        <div class="field-row">
+          <div class="field">
+            <label for="quote-search">Search</label>
+            <input id="quote-search" type="text" placeholder="Name or status" />
+          </div>
+          <div class="field sm">
+            <label>&nbsp;</label>
+            <button id="btn-quote-search" class="btn">Search</button>
+          </div>
+        </div>
+        <div id="quote-list" class="list"></div>
+        <div id="quote-list-status" class="status-line"></div>
+      </div>
+    </div>
+  </div>
+<script>
+    const API_BASE = "http://127.0.0.1:5175";
+
+    function $(id) { return document.getElementById(id); }
+
+    function getAuthHeaders() {
+      const sid = localStorage.getItem("rc_session_id") || "";
+      return sid ? { "rc_session_id": sid } : {};
+    }
+
+    function fmt$(n) {
+      const v = Number(n || 0);
+      return `$${v.toFixed(2)}`;
+    }
+
+    function escapeHtml(value) {
+      return String(value ?? "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#39;");
+    }
+
+    const els = {
+      sessionLabel: $("session-label"),
+      selectedCustomer: $("selected-customer"),
+      customerSearch: $("customer-search"),
+      customerResults: $("customer-results"),
+      customerName: $("customer-name"),
+      customerPhone: $("customer-phone"),
+      customerEmail: $("customer-email"),
+      customerStatus: $("customer-status"),
+      sessionNotes: $("session-notes"),
+      btnCustomerSearch: $("btn-customer-search"),
+      btnCustomerSave: $("btn-customer-save"),
+      btnCustomerClear: $("btn-customer-clear"),
+      policyCreditRetail: $("policy-credit-retail"),
+      policyCashFromCredit: $("policy-cash-from-credit"),
+      approvalCashLimit: $("approval-cash-limit"),
+      approvalCreditLimit: $("approval-credit-limit"),
+      approvalStatus: $("approval-status"),
+      policyExpiryDays: $("policy-expiry-days"),
+      settingsExpiryDays: $("settings-expiry-days"),
+      settingsCashLimit: $("settings-cash-limit"),
+      settingsCreditLimit: $("settings-credit-limit"),
+      btnSaveSettings: $("btn-save-settings"),
+      itemsBody: $("items-body"),
+      itemsCount: $("items-count"),
+      itemsStatus: $("items-status"),
+      inlineItems: $("inline-items"),
+      inlineRetail: $("inline-retail"),
+      inlineCredit: $("inline-credit"),
+      inlineCash: $("inline-cash"),
+      inlineQuoteId: $("inline-quote-id"),
+      dropZone: $("drop-zone"),
+      photoInput: $("photo-input"),
+      photoCount: $("photo-count"),
+      itemTitle: $("item-title"),
+      itemPlatform: $("item-platform"),
+      itemQty: $("item-qty"),
+      itemCondition: $("item-condition"),
+      itemRetail: $("item-retail"),
+      btnAddItem: $("btn-add-item"),
+      btnAiAll: $("btn-ai-all"),
+      compsSelected: $("comps-selected"),
+      btnCompsSold: $("btn-comps-sold"),
+      btnCompsActive: $("btn-comps-active"),
+      manualCompPrice: $("manual-comp-price"),
+      manualCompUrl: $("manual-comp-url"),
+      manualCompNotes: $("manual-comp-notes"),
+      btnAddManualComp: $("btn-add-manual-comp"),
+      compsList: $("comps-list"),
+      compsStatus: $("comps-status"),
+      totalRetail: $("total-retail"),
+      totalCredit: $("total-credit"),
+      totalCash: $("total-cash"),
+      quoteId: $("quote-id"),
+      quoteStatus: $("quote-status"),
+      quoteExpiry: $("quote-expiry"),
+      quoteApproval: $("quote-approval"),
+      btnSaveQuote: $("btn-save-quote"),
+      btnPresentQuote: $("btn-present-quote"),
+      btnAcceptQuote: $("btn-accept-quote"),
+      btnDeclineQuote: $("btn-decline-quote"),
+      btnPrintOffer: $("btn-print-offer"),
+      btnClear: $("btn-clear"),
+      quoteSearch: $("quote-search"),
+      btnQuoteSearch: $("btn-quote-search"),
+      quoteList: $("quote-list"),
+      quoteListStatus: $("quote-list-status"),
+      offerId: $("offer-id"),
+      offerCustomer: $("offer-customer"),
+      offerDate: $("offer-date"),
+      offerExpiry: $("offer-expiry"),
+      offerCredit: $("offer-credit"),
+      offerCash: $("offer-cash"),
+      offerItemsCount: $("offer-items-count"),
+      printAmountBig: $("print-amount-big"),
+      printAmountWords: $("print-amount-words"),
+      sessionStatus: $("session-status"),
+      btnOpenSettings: $("btn-open-settings"),
+      btnOpenQuotes: $("btn-open-quotes"),
+      btnCloseQuotes: $("btn-close-quotes"),
+      settingsDrawer: $("settings-drawer"),
+      quotesDrawer: $("quotes-drawer"),
+      photoPanel: $("photo-panel"),
+      btnTogglePhoto: $("btn-toggle-photo"),
+      compsPanel: $("comps-panel"),
+      marketPanel: $("market-panel"),
+      marketSelected: $("market-selected"),
+      marketStatus: $("market-status"),
+      marketList: $("market-list"),
+      btnFetchPricecharting: $("btn-fetch-pricecharting"),
+      btnOpenPricecharting: $("btn-open-pricecharting"),
+      btnOpenEbaySold: $("btn-open-ebay-sold"),
+      btnOpenEbayActive: $("btn-open-ebay-active"),
+      marketQty: $("market-qty"),
+      marketAvgCost: $("market-avg-cost"),
+      marketAvgPrice: $("market-avg-price"),
+      marketSoldAvg: $("market-sold-avg"),
+      marketSoldCount: $("market-sold-count"),
+      titleSuggestions: $("item-title-suggestions"),
+      platformSuggestions: $("platform-suggestions")
+    };
+
+    let items = [];
+    let selectedItemIndex = -1;
+    let currentQuoteId = "";
+    let currentQuoteStatus = "draft";
+    let currentQuoteExpiry = "";
+    let requiresApproval = false;
+    let selectedCustomer = null;
+    let tradeSettings = null;
+    let currentUser = null;
+    let inventoryTitles = [];
+    let inventoryIndex = new Map();
+
+    const ALL_PLATFORMS = [
+      'NES','SNES','N64','GameCube','Wii','Wii U','Switch',
+      'Game Boy','Game Boy Color','Game Boy Advance','Nintendo DS','Nintendo 3DS',
+      'PlayStation','PlayStation 2','PlayStation 3','PlayStation 4','PlayStation 5','PSP','PS Vita',
+      'Xbox','Xbox 360','Xbox One','Xbox Series X/S',
+      'Sega Genesis','Sega Dreamcast','Atari 2600','Game Gear','Neo Geo Pocket','Atari Lynx',
+      'VHS','DVD','Blu-ray','4K UHD','LaserDisc','HD-DVD',
+      'CD','Vinyl','Cassette','8-Track','MiniDisc','Reel-to-Reel',
+      'Other'
+    ];
+
+    function setStatus(msg) {
+      if (els.sessionStatus) els.sessionStatus.textContent = msg || "";
+    }
+
+    function updateSessionLabel() {
+      const label = currentQuoteStatus ? currentQuoteStatus.toUpperCase() : "DRAFT";
+      if (els.sessionLabel) els.sessionLabel.textContent = label;
+      if (els.quoteStatus) els.quoteStatus.textContent = label.charAt(0) + label.slice(1).toLowerCase();
+    }
+
+    function computeTotals() {
+      let totalItems = 0;
+      let totalRetail = 0;
+      let totalCredit = 0;
+      let totalCash = 0;
+      items.forEach((it) => {
+        if (it.keep === false) return;
+        const qty = Number(it.qty || 0);
+        totalItems += qty;
+        totalRetail += Number(it.retailPrice || 0) * qty;
+        totalCredit += Number(it.creditOffer || 0) * qty;
+        totalCash += Number(it.cashOffer || 0) * qty;
+      });
+      return { totalItems, totalRetail, totalCredit, totalCash };
+    }
+
+    function updateTotalsUI() {
+      const totals = computeTotals();
+      els.totalRetail.textContent = fmt$(totals.totalRetail);
+      els.totalCredit.textContent = fmt$(totals.totalCredit);
+      els.totalCash.textContent = fmt$(totals.totalCash);
+      els.itemsCount.textContent = items.length + (items.length === 1 ? " item" : " items");
+      if (els.inlineItems) els.inlineItems.textContent = String(totals.totalItems);
+      if (els.inlineRetail) els.inlineRetail.textContent = fmt$(totals.totalRetail);
+      if (els.inlineCredit) els.inlineCredit.textContent = fmt$(totals.totalCredit);
+      if (els.inlineCash) els.inlineCash.textContent = fmt$(totals.totalCash);
+      if (els.inlineQuoteId) els.inlineQuoteId.textContent = els.quoteId?.textContent || "--";
+      updateApprovalUI(totals);
+      updatePrintOffer(totals);
+    }
+
+    function updateApprovalUI(totals) {
+      if (!tradeSettings) return;
+      const cashLimit = Number(tradeSettings.resolved?.approval_cash_limit_cents || 0) / 100;
+      const creditLimit = Number(tradeSettings.resolved?.approval_credit_limit_cents || 0) / 100;
+      const cashNeeds = totals.totalCash > cashLimit;
+      const creditNeeds = totals.totalCredit > creditLimit;
+      requiresApproval = cashNeeds || creditNeeds;
+      els.quoteApproval.textContent = requiresApproval ? "Required" : "Not required";
+      els.approvalStatus.textContent = requiresApproval
+        ? "Approval required for this quote."
+        : "Within approval thresholds.";
+    }
+
+    function updatePrintOffer(totals) {
+      const name = (els.customerName.value || "Walk-in").trim() || "Walk-in";
+      const today = new Date();
+      const dateLabel = today.toLocaleDateString();
+      els.offerCustomer.textContent = name;
+      els.offerDate.textContent = dateLabel;
+      els.offerExpiry.textContent = currentQuoteExpiry ? new Date(currentQuoteExpiry).toLocaleDateString() : "--";
+      els.offerCredit.textContent = fmt$(totals.totalCredit);
+      els.offerCash.textContent = fmt$(totals.totalCash);
+      els.offerItemsCount.textContent = totals.totalItems;
+      els.printAmountBig.textContent = fmt$(totals.totalCash);
+      els.printAmountWords.textContent = "";
+    }
+
+    function marginBadge(item) {
+      if (!item.retailPrice || !item.creditOffer) {
+        return '<span class="badge">n/a</span>';
+      }
+      const effCost = item.cashOffer || item.creditOffer;
+      if (!effCost) return '<span class="badge">n/a</span>';
+      const pct = Math.round((1 - effCost / item.retailPrice) * 100);
+      if (isNaN(pct)) return '<span class="badge">n/a</span>';
+      if (pct >= 50) {
+        return '<span class="badge ok">' + pct + '%</span>';
+      }
+      return '<span class="badge warn">' + pct + '%</span>';
+    }
+
+    function renderItems() {
+      els.itemsBody.innerHTML = "";
+      items.forEach((item, index) => {
+        const tr = document.createElement("tr");
+        if (item.keep) tr.classList.add("highlight");
+        if (index === selectedItemIndex) tr.classList.add("selected");
+        tr.dataset.index = String(index);
+
+        tr.innerHTML = `
+          <td><input type="checkbox" ${item.keep ? "checked" : ""} data-role="keep" data-index="${index}"></td>
+          <td>
+            <div style="font-size:12px;font-weight:500;">${escapeHtml(item.title || "(untitled)")}</div>
+            <div style="font-size:11px;color:#9ca3af;">${escapeHtml(item.platform || "")}</div>
+          </td>
+          <td>${escapeHtml(item.condition || "")}</td>
+          <td><input type="number" min="1" value="${item.qty || 1}" data-role="qty" data-index="${index}" /></td>
+          <td><input type="number" step="0.01" min="0" value="${item.retailPrice ?? ""}" data-role="retail" data-index="${index}" /></td>
+          <td><input type="number" step="0.01" min="0" value="${item.creditOffer ?? ""}" data-role="credit" data-index="${index}" /></td>
+          <td><input type="number" step="0.01" min="0" value="${item.cashOffer ?? ""}" data-role="cash" data-index="${index}" /></td>
+          <td>${marginBadge(item)}</td>
+          <td><button class="btn btn-mini btn-soft" data-role="ai" data-index="${index}">AI</button></td>
+          <td><button class="btn btn-mini btn-soft" data-role="comps" data-index="${index}">Comps</button></td>
+          <td><button class="btn btn-mini btn-danger" data-role="remove" data-index="${index}">X</button></td>
+        `;
+
+        els.itemsBody.appendChild(tr);
+      });
+
+      updateTotalsUI();
+      renderComps();
+      renderMarket();
+    }
+
+    function setSelectedItem(index) {
+      selectedItemIndex = index;
+      renderComps();
+      renderMarket();
+    }
+
+    function renderComps() {
+      els.compsList.innerHTML = "";
+      if (selectedItemIndex < 0 || selectedItemIndex >= items.length) {
+        els.compsSelected.textContent = "None";
+        els.compsStatus.textContent = "Select a line to view comps.";
+        if (els.compsPanel) els.compsPanel.classList.remove("open");
+        return;
+      }
+      if (els.compsPanel) els.compsPanel.classList.add("open");
+      const item = items[selectedItemIndex];
+      els.compsSelected.textContent = item.title || "(untitled)";
+      const comps = Array.isArray(item.comps) ? item.comps : [];
+      if (!comps.length) {
+        els.compsStatus.textContent = "No comps yet. Fetch sold or active comps, or add manual.";
+        return;
+      }
+      els.compsStatus.textContent = `Showing ${comps.length} comps.`;
+      comps.forEach((c) => {
+        const div = document.createElement("div");
+        div.className = "list-item";
+        const price = Number(c.price || 0);
+        const source = c.source || "manual";
+        const url = c.url ? ` - ${escapeHtml(c.url)}` : "";
+        div.innerHTML = `<span>${escapeHtml(c.title || c.notes || source)}${url}</span><strong>${fmt$(price)}</strong>`;
+        els.compsList.appendChild(div);
+      });
+    }
+
+    function normalizeTitle(t) {
+      return String(t || "").trim().toLowerCase();
+    }
+
+    function buildInventoryIndex(rows) {
+      const map = new Map();
+      const titles = [];
+      rows.forEach((r) => {
+        const title = String(r.title || "").trim();
+        if (!title) return;
+        const key = normalizeTitle(title);
+        if (!map.has(key)) {
+          map.set(key, []);
+          titles.push(title);
+        }
+        map.get(key).push(r);
+      });
+      inventoryTitles = titles;
+      inventoryIndex = map;
+    }
+
+    function refreshTitleSuggestions() {
+      if (!els.titleSuggestions) return;
+      els.titleSuggestions.innerHTML = "";
+      const q = normalizeTitle(els.itemTitle?.value || "");
+      const filtered = q
+        ? inventoryTitles.filter(t => normalizeTitle(t).startsWith(q))
+        : inventoryTitles;
+      filtered.slice(0, 200).forEach((t) => {
+        const opt = document.createElement("option");
+        opt.value = t;
+        els.titleSuggestions.appendChild(opt);
+      });
+    }
+
+    function maybeAutofillPlatformForTitle() {
+      if (!els.itemTitle || !els.itemPlatform) return;
+      if ((els.itemPlatform.value || "").trim()) return;
+      const key = normalizeTitle(els.itemTitle.value);
+      if (!key) return;
+      const matches = inventoryIndex.get(key) || [];
+      if (!matches.length) return;
+      const counts = new Map();
+      matches.forEach((m) => {
+        const p = String(m.platform || "").trim();
+        if (!p) return;
+        counts.set(p, (counts.get(p) || 0) + 1);
+      });
+      if (!counts.size) return;
+      const top = Array.from(counts.entries()).sort((a, b) => b[1] - a[1])[0][0];
+      els.itemPlatform.value = top;
+    }
+
+    function populatePlatformSuggestions() {
+      if (!els.platformSuggestions) return;
+      els.platformSuggestions.innerHTML = "";
+      ALL_PLATFORMS.forEach((p) => {
+        const opt = document.createElement("option");
+        opt.value = p;
+        els.platformSuggestions.appendChild(opt);
+      });
+    }
+
+    async function fetchInventoryStats(item) {
+      if (!item || !item.title) return;
+      const qs = new URLSearchParams({
+        title: item.title || "",
+        platform: item.platform || ""
+      }).toString();
+      try {
+        const res = await fetch(`${API_BASE}/api/trade/inventory-stats?${qs}`, { headers: getAuthHeaders() });
+        const data = await res.json();
+        if (!res.ok || !data.ok) return;
+        if (els.marketQty) els.marketQty.textContent = String(data.qty || 0);
+        if (els.marketAvgCost) els.marketAvgCost.textContent = fmt$(Number(data.avg_cost || 0));
+        if (els.marketAvgPrice) els.marketAvgPrice.textContent = fmt$(Number(data.avg_price || 0));
+        if (els.marketSoldAvg) els.marketSoldAvg.textContent = fmt$(Number(data.sold_avg || 0));
+        if (els.marketSoldCount) els.marketSoldCount.textContent = String(data.sold_count || 0);
+      } catch {}
+    }
+
+    function buildMarketQuery(item) {
+      return [item.title, item.platform].filter(Boolean).join(" ");
+    }
+
+    function buildPricechartingUrl(item) {
+      const q = buildMarketQuery(item);
+      return `https://www.pricecharting.com/search-products?type=prices&q=${encodeURIComponent(q)}`;
+    }
+
+    function buildEbayUrl(item, mode = "sold") {
+      const q = buildMarketQuery(item);
+      const base = `https://www.ebay.com/sch/i.html?_nkw=${encodeURIComponent(q)}&_sacat=0&rt=nc`;
+      if (mode === "sold") {
+        return `${base}&LH_Sold=1&LH_Complete=1`;
+      }
+      return base;
+    }
+
+    function openExternal(url) {
+      if (!url) return;
+      try {
+        if (window.api && typeof window.api.openExternal === "function") {
+          window.api.openExternal(url);
+          return;
+        }
+      } catch {}
+      window.open(url, "_blank");
+    }
+
+    function renderMarket() {
+      if (!els.marketList || !els.marketStatus || !els.marketSelected) return;
+      els.marketList.innerHTML = "";
+      if (selectedItemIndex < 0 || selectedItemIndex >= items.length) {
+        els.marketSelected.textContent = "None";
+        els.marketStatus.textContent = "Select a line to view market data.";
+        if (els.marketPanel) els.marketPanel.classList.remove("open");
+        if (els.marketQty) els.marketQty.textContent = "0";
+        if (els.marketAvgCost) els.marketAvgCost.textContent = "$0.00";
+        if (els.marketAvgPrice) els.marketAvgPrice.textContent = "$0.00";
+        if (els.marketSoldAvg) els.marketSoldAvg.textContent = "$0.00";
+        if (els.marketSoldCount) els.marketSoldCount.textContent = "0";
+        return;
+      }
+      if (els.marketPanel) els.marketPanel.classList.add("open");
+      const item = items[selectedItemIndex];
+      els.marketSelected.textContent = item.title || "(untitled)";
+      fetchInventoryStats(item);
+      const pc = item.pricecharting;
+      if (!pc || !Array.isArray(pc.results) || !pc.results.length) {
+        els.marketStatus.textContent = "No PriceCharting snapshot yet. Fetch to view.";
+        return;
+      }
+      const cachedLabel = pc.cached ? " (cached)" : "";
+      els.marketStatus.textContent = `PriceCharting results${cachedLabel}.`;
+      pc.results.forEach((r) => {
+        const div = document.createElement("div");
+        div.className = "list-item";
+        const prices = [r.loose, r.cib, r.new, r.graded].filter(Boolean).join(" • ");
+        const volume = r.volume ? `Sales: ${r.volume}` : "";
+        const meta = [prices, volume].filter(Boolean).join(" • ");
+        const primary = r.loose || r.cib || r.new || r.graded || "";
+        const variant = detectVariantLabel(r.title || "");
+        div.innerHTML = `
+          <div class="market-row">
+            <div>
+              <div>
+                <strong>${escapeHtml(r.title || "")}</strong>${r.platform ? " - " + escapeHtml(r.platform) : ""}
+                ${variant ? `<span class="variant-pill">${escapeHtml(variant)}</span>` : ""}
+              </div>
+              <div class="meta">${escapeHtml(meta || "")}</div>
+            </div>
+            <div>${escapeHtml(primary)}</div>
+            <div>${r.url ? '<button class="btn btn-mini btn-soft" data-role="open-market">Open</button>' : ""}</div>
+          </div>
+        `;
+        if (r.url) {
+          const btn = div.querySelector('[data-role="open-market"]');
+          if (btn) btn.addEventListener("click", (e) => {
+            e.stopPropagation();
+            openExternal(r.url);
+          });
+        }
+        els.marketList.appendChild(div);
+      });
+    }
+
+    function detectVariantLabel(titleRaw) {
+      const t = String(titleRaw || "").toLowerCase();
+      if (!t) return "";
+      if (t.includes("japan") || t.includes("jp") || t.includes("(jp)") || t.includes("jpn")) return "JP";
+      if (t.includes("pal") || t.includes("europe") || t.includes("uk") || t.includes("eu")) return "PAL";
+      if (t.includes("us") || t.includes("usa") || t.includes("(us)") || t.includes("ntsc")) return "US";
+      if (t.includes("player's choice") || t.includes("players choice")) return "Players Choice";
+      if (t.includes("not for resale") || t.includes("nfr")) return "NFR";
+      if (t.includes("collector") || t.includes("collector's")) return "Collector";
+      if (t.includes("limited") || t.includes("limited edition")) return "Limited";
+      if (t.includes("greatest hits")) return "Greatest Hits";
+      if (t.includes("platinum hits")) return "Platinum Hits";
+      return "";
+    }
+
+    async function loadSettings() {
+      const res = await fetch(`${API_BASE}/api/trade/settings`, { headers: getAuthHeaders() });
+      const data = await res.json();
+      tradeSettings = data;
+      const cashLimit = Number(data.resolved?.approval_cash_limit_cents || 0) / 100;
+      const creditLimit = Number(data.resolved?.approval_credit_limit_cents || 0) / 100;
+      els.approvalCashLimit.textContent = fmt$(cashLimit);
+      els.approvalCreditLimit.textContent = fmt$(creditLimit);
+      els.policyExpiryDays.textContent = data.resolved?.quote_expiry_days || 30;
+      if (els.settingsExpiryDays) els.settingsExpiryDays.value = data.base?.quote_expiry_days || 30;
+      if (els.settingsCashLimit) els.settingsCashLimit.value = cashLimit.toFixed(2);
+      if (els.settingsCreditLimit) els.settingsCreditLimit.value = creditLimit.toFixed(2);
+    }
+
+    async function loadMe() {
+      const res = await fetch(`${API_BASE}/api/me`, { headers: getAuthHeaders() });
+      if (!res.ok) return;
+      const data = await res.json();
+      currentUser = data.user || null;
+      const isManager = currentUser && (currentUser.role === "manager" || currentUser.role === "owner");
+      if (els.btnSaveSettings) els.btnSaveSettings.disabled = !isManager;
+    }
+
+    async function saveTradeSettings() {
+      const expiry = Number(els.settingsExpiryDays.value || 30);
+      const cash = Math.round(Number(els.settingsCashLimit.value || 0) * 100);
+      const credit = Math.round(Number(els.settingsCreditLimit.value || 0) * 100);
+      const res = await fetch(`${API_BASE}/api/trade/settings`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json", ...getAuthHeaders() },
+        body: JSON.stringify({
+          quote_expiry_days: expiry,
+          approval_cash_limit_cents: cash,
+          approval_credit_limit_cents: credit
+        })
+      });
+      if (!res.ok) {
+        setStatus(`Settings update failed (${res.status}).`);
+        return;
+      }
+      await loadSettings();
+      setStatus("Settings updated.");
+    }
+
+    async function searchCustomers() {
+      const q = (els.customerSearch.value || "").trim();
+      if (!q) return;
+      els.customerResults.innerHTML = "";
+      const res = await fetch(`${API_BASE}/api/customers?search=${encodeURIComponent(q)}&limit=10`, { headers: getAuthHeaders() });
+      const data = await res.json();
+      const rows = Array.isArray(data.rows) ? data.rows : [];
+      if (!rows.length) {
+        els.customerResults.innerHTML = '<div class="list-item">No matches</div>';
+        return;
+      }
+      rows.forEach((c) => {
+        const div = document.createElement("div");
+        div.className = "list-item";
+        div.dataset.id = c.id;
+        div.innerHTML = `<span>${escapeHtml(c.name)}${c.phone ? " - " + escapeHtml(c.phone) : ""}</span><strong>#${c.id}</strong>`;
+        div.addEventListener("click", () => selectCustomer(c));
+        els.customerResults.appendChild(div);
+      });
+    }
+
+    function selectCustomer(c) {
+      selectedCustomer = c;
+      els.customerName.value = c.name || "";
+      els.customerPhone.value = c.phone || "";
+      els.customerEmail.value = c.email || "";
+      els.selectedCustomer.textContent = c.name || "Walk-in";
+      els.customerStatus.textContent = `Selected customer #${c.id}`;
+    }
+
+    async function saveCustomer() {
+      const name = (els.customerName.value || "").trim();
+      if (!name) {
+        els.customerStatus.textContent = "Enter a customer name first.";
+        return;
+      }
+      const payload = {
+        name,
+        phone: (els.customerPhone.value || "").trim(),
+        email: (els.customerEmail.value || "").trim()
+      };
+      const res = await fetch(`${API_BASE}/api/customers`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", ...getAuthHeaders() },
+        body: JSON.stringify(payload)
+      });
+      if (!res.ok) {
+        els.customerStatus.textContent = `Failed to save customer (${res.status}).`;
+        return;
+      }
+      const data = await res.json();
+      if (data.customer) {
+        selectCustomer(data.customer);
+      } else {
+        selectCustomer({
+          id: data.customer_id || data.id || null,
+          name,
+          phone: payload.phone,
+          email: payload.email
+        });
+      }
+      els.customerStatus.textContent = "Customer saved.";
+    }
+
+    function clearCustomer() {
+      selectedCustomer = null;
+      els.customerName.value = "";
+      els.customerPhone.value = "";
+      els.customerEmail.value = "";
+      els.selectedCustomer.textContent = "Walk-in";
+      els.customerStatus.textContent = "No customer selected.";
+    }
+
+    function buildQuotePayload() {
+      return {
+        customer_id: selectedCustomer?.id || null,
+        customer_name: (els.customerName.value || "").trim(),
+        customer_phone: (els.customerPhone.value || "").trim(),
+        customer_email: (els.customerEmail.value || "").trim(),
+        customer_notes: "",
+        policy_credit_percent: Number(els.policyCreditRetail.value || 50),
+        policy_cash_percent: Number(els.policyCashFromCredit.value || 80),
+        notes: (els.sessionNotes.value || "").trim(),
+        items: items.map((it) => ({
+          title: it.title,
+          platform: it.platform,
+          category: it.category || "",
+          condition: it.condition,
+          qty: it.qty,
+          retailPrice: it.retailPrice,
+          creditOffer: it.creditOffer,
+          cashOffer: it.cashOffer,
+          keep: it.keep !== false,
+          comps: it.comps || []
+        }))
+      };
+    }
+
+    async function saveQuote(statusOverride) {
+      const payload = buildQuotePayload();
+      if (statusOverride) payload.status = statusOverride;
+      let res;
+      if (currentQuoteId) {
+        res = await fetch(`${API_BASE}/api/trade/quotes/${encodeURIComponent(currentQuoteId)}`, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json", ...getAuthHeaders() },
+          body: JSON.stringify(payload)
+        });
+      } else {
+        res = await fetch(`${API_BASE}/api/trade/quotes`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json", ...getAuthHeaders() },
+          body: JSON.stringify(payload)
+        });
+      }
+      const data = await res.json();
+      if (!res.ok) {
+        setStatus(data.error || "Quote save failed.");
+        return;
+      }
+      currentQuoteId = data.quote_id || currentQuoteId;
+      await loadQuote(currentQuoteId);
+      setStatus("Quote saved.");
+    }
+
+    async function loadQuoteList() {
+      const q = (els.quoteSearch.value || "").trim();
+      const res = await fetch(`${API_BASE}/api/trade/quotes?search=${encodeURIComponent(q)}&limit=20`, { headers: getAuthHeaders() });
+      const data = await res.json();
+      const rows = Array.isArray(data.rows) ? data.rows : [];
+      els.quoteList.innerHTML = "";
+      if (!rows.length) {
+        els.quoteListStatus.textContent = "No quotes found.";
+        return;
+      }
+      els.quoteListStatus.textContent = "";
+      rows.forEach((q) => {
+        const div = document.createElement("div");
+        div.className = "list-item";
+        div.innerHTML = `<span>${escapeHtml(q.customer_name || "Walk-in")} - ${escapeHtml(q.status || "draft")}</span><strong>${fmt$(q.total_cash || 0)}</strong>`;
+        div.addEventListener("click", () => loadQuote(q.quote_id));
+        els.quoteList.appendChild(div);
+      });
+    }
+
+    async function loadQuote(quoteId) {
+      const res = await fetch(`${API_BASE}/api/trade/quotes/${encodeURIComponent(quoteId)}`, { headers: getAuthHeaders() });
+      if (!res.ok) {
+        setStatus("Failed to load quote.");
+        return;
+      }
+      const data = await res.json();
+      const quote = data.quote;
+      currentQuoteId = quote.quote_id;
+      currentQuoteStatus = quote.status || "draft";
+      currentQuoteExpiry = quote.expires_at || "";
+
+      els.quoteId.textContent = `${currentQuoteId}`;
+      if (els.inlineQuoteId) els.inlineQuoteId.textContent = `${currentQuoteId}`;
+      els.offerId.textContent = currentQuoteId;
+      els.quoteExpiry.textContent = currentQuoteExpiry ? new Date(currentQuoteExpiry).toLocaleDateString() : "--";
+      updateSessionLabel();
+
+      selectedCustomer = quote.customer_id
+        ? { id: quote.customer_id, name: quote.customer_name || "" }
+        : null;
+      els.customerName.value = quote.customer_name || "";
+      els.customerPhone.value = quote.customer_phone || "";
+      els.customerEmail.value = quote.customer_email || "";
+      els.sessionNotes.value = quote.notes || "";
+      els.selectedCustomer.textContent = quote.customer_name || "Walk-in";
+
+      els.policyCreditRetail.value = quote.policy_credit_percent || 50;
+      els.policyCashFromCredit.value = quote.policy_cash_percent || 80;
+
+      items = (data.items || []).map((it) => {
+        let comps = [];
+        if (it.comps_json) {
+          try { comps = JSON.parse(it.comps_json); } catch {}
+        }
+        return {
+          title: it.title || "",
+          platform: it.platform || "",
+          category: it.category || "",
+          condition: it.condition || "Good",
+          qty: it.qty || 1,
+          retailPrice: it.retail_price || 0,
+          creditOffer: it.credit_offer || 0,
+          cashOffer: it.cash_offer || 0,
+          keep: it.keep !== 0,
+          comps
+        };
+      });
+      renderItems();
+      loadQuoteList();
+      setStatus("Quote loaded.");
+    }
+
+    function newQuote() {
+      items = [];
+      selectedItemIndex = -1;
+      currentQuoteId = "";
+      currentQuoteStatus = "draft";
+      currentQuoteExpiry = "";
+      clearCustomer();
+      els.sessionNotes.value = "";
+      els.quoteId.textContent = "--";
+      if (els.inlineQuoteId) els.inlineQuoteId.textContent = "--";
+      els.offerId.textContent = "--";
+      els.quoteExpiry.textContent = "--";
+      updateSessionLabel();
+      renderItems();
+      setStatus("New quote ready.");
+    }
+
+    async function fetchComps(mode) {
+      if (selectedItemIndex < 0 || selectedItemIndex >= items.length) {
+        els.compsStatus.textContent = "Select a line first.";
+        return;
+      }
+      const item = items[selectedItemIndex];
+      const res = await fetch(`${API_BASE}/api/trade/comps`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", ...getAuthHeaders() },
+        body: JSON.stringify({
+          title: item.title,
+          platform: item.platform,
+          category: item.category || "",
+          condition: item.condition,
+          mode
+        })
+      });
+      const data = await res.json();
+      if (!res.ok || !data.ok) {
+        els.compsStatus.textContent = data.error || "Comps failed.";
+        return;
+      }
+      item.comps = Array.isArray(data.comps) ? data.comps : [];
+      renderComps();
+    }
+
+    async function fetchPricecharting() {
+      if (selectedItemIndex < 0 || selectedItemIndex >= items.length) {
+        if (els.marketStatus) els.marketStatus.textContent = "Select a line first.";
+        return;
+      }
+      const item = items[selectedItemIndex];
+      const title = (item.title || "").trim();
+      if (!title) {
+        if (els.marketStatus) els.marketStatus.textContent = "Add a title first.";
+        return;
+      }
+      if (els.marketStatus) els.marketStatus.textContent = "Fetching PriceCharting snapshot...";
+      const qs = new URLSearchParams({
+        title,
+        platform: item.platform || ""
+      }).toString();
+      const res = await fetch(`${API_BASE}/api/trade/pricecharting?${qs}`, { headers: getAuthHeaders() });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok || !data.ok) {
+        if (els.marketStatus) els.marketStatus.textContent = data.error || "PriceCharting fetch failed.";
+        return;
+      }
+      item.pricecharting = data;
+      renderMarket();
+    }
+
+    function addManualComp() {
+      if (selectedItemIndex < 0 || selectedItemIndex >= items.length) {
+        els.compsStatus.textContent = "Select a line first.";
+        return;
+      }
+      const price = Number(els.manualCompPrice.value || 0);
+      if (!price) {
+        els.compsStatus.textContent = "Enter a manual comp price.";
+        return;
+      }
+      const url = (els.manualCompUrl.value || "").trim();
+      const notes = (els.manualCompNotes.value || "").trim();
+      const item = items[selectedItemIndex];
+      if (!Array.isArray(item.comps)) item.comps = [];
+      item.comps.push({ source: "manual", price, url, notes, title: notes || "manual" });
+      els.manualCompPrice.value = "";
+      els.manualCompUrl.value = "";
+      els.manualCompNotes.value = "";
+      renderComps();
+    }
+
+    async function aiSuggestItem(index, quiet = false) {
+      const item = items[index];
+      if (!item || !item.title) {
+        if (!quiet) els.itemsStatus.textContent = "Add a title first.";
+        return;
+      }
+      const creditPercent = parseFloat(els.policyCreditRetail.value || "50");
+      const cashFromCredit = parseFloat(els.policyCashFromCredit.value || "80");
+      try {
+        if (!quiet) els.itemsStatus.textContent = "Asking AI for offer suggestion...";
+        const resp = await fetch(API_BASE + "/api/trade/suggest", {
+          method: "POST",
+          headers: { "Content-Type": "application/json", ...getAuthHeaders() },
+          body: JSON.stringify({
+            title: item.title,
+            platform: item.platform,
+            category: item.category || "",
+            condition: item.condition,
+            retailPrice: item.retailPrice || 0,
+            qty: item.qty || 1,
+            policy: {
+              creditPercent,
+              cashPercent: cashFromCredit
+            }
+          })
+        });
+        const data = await resp.json();
+        item.creditOffer = Number(data.creditOffer || 0);
+        item.cashOffer = Number(data.cashOffer || 0);
+        if (!quiet && data.reason) {
+          els.itemsStatus.textContent = "AI: " + data.reason;
+        }
+        renderItems();
+      } catch (err) {
+        if (!quiet) els.itemsStatus.textContent = "AI error: " + err.message;
+      }
+    }
+
+    async function aiSuggestAll() {
+      if (!items.length) {
+        els.itemsStatus.textContent = "No items to run AI on yet.";
+        return;
+      }
+      els.itemsStatus.textContent = "Calling AI for each item...";
+      for (let i = 0; i < items.length; i++) {
+        await aiSuggestItem(i, true);
+      }
+      els.itemsStatus.textContent = "AI suggestions updated for all items.";
+    }
+
+    function setDropZoneDragging(isDragging) {
+      if (!els.dropZone) return;
+      if (isDragging) els.dropZone.classList.add("dragover");
+      else els.dropZone.classList.remove("dragover");
+    }
+
+    async function loadInventoryForAutocomplete() {
+      try {
+        const res = await fetch(`${API_BASE}/api/items`, { headers: getAuthHeaders() });
+        if (!res.ok) return;
+        const rows = await res.json();
+        if (!Array.isArray(rows)) return;
+        buildInventoryIndex(rows);
+        refreshTitleSuggestions();
+      } catch {}
+    }
+
+    function fileToBase64(file) {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => {
+          const result = reader.result || "";
+          const parts = String(result).split(",");
+          resolve(parts[1] || "");
+        };
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+      });
+    }
+
+    async function handleImageFiles(files) {
+      if (!files || !files.length) return;
+      let count = 0;
+      for (const file of files) {
+        if (!file.type.startsWith("image/")) continue;
+        count += 1;
+        els.photoCount.textContent = count + (count === 1 ? " photo added" : " photos added");
+        els.itemsStatus.textContent = "Analyzing photo with AI...";
+        const base64 = await fileToBase64(file);
+        await sendImageToBackend(base64, file.type);
+      }
+      els.itemsStatus.textContent = "Photo analysis complete. Review and adjust items before finalizing.";
+      renderItems();
+    }
+
+    async function sendImageToBackend(imageBase64, mimeType) {
+      try {
+        const resp = await fetch(API_BASE + "/api/trade/analyze-image", {
+          method: "POST",
+          headers: { "Content-Type": "application/json", ...getAuthHeaders() },
+          body: JSON.stringify({ imageBase64, mimeType })
+        });
+        const data = await resp.json();
+        if (data.warning) {
+          els.itemsStatus.textContent = String(data.message || "AI image analysis returned no structured data.");
+        }
+        const detected = Array.isArray(data.items) ? data.items : [];
+        if (!detected.length) {
+          els.itemsStatus.textContent = "AI did not confidently detect items. Try a clearer shot or fewer items.";
+          return;
+        }
+        detected.forEach((d) => {
+          items.push({
+            title: d.title || "",
+            platform: d.platform || "",
+            category: "",
+            condition: d.conditionGuess || "Good",
+            qty: d.quantity || 1,
+            retailPrice: 0,
+            creditOffer: 0,
+            cashOffer: 0,
+            keep: true,
+            comps: []
+          });
+        });
+        els.itemsStatus.textContent = `Added ${detected.length} item${detected.length === 1 ? "" : "s"} from photo.`;
+      } catch (err) {
+        els.itemsStatus.textContent = "AI image error: " + err.message;
+      }
+    }
+
+    els.itemsBody.addEventListener("change", (ev) => {
+      const index = Number(ev.target?.dataset?.index);
+      if (index < 0 || index >= items.length) return;
+      const item = items[index];
+      const role = ev.target?.dataset?.role;
+      if (role === "keep") item.keep = ev.target.checked;
+      if (role === "qty") item.qty = Number(ev.target.value || 1);
+      if (role === "retail") item.retailPrice = Number(ev.target.value || 0);
+      if (role === "credit") item.creditOffer = Number(ev.target.value || 0);
+      if (role === "cash") item.cashOffer = Number(ev.target.value || 0);
+      renderItems();
+    });
+
+    els.itemsBody.addEventListener("click", async (ev) => {
+      const role = ev.target?.dataset?.role;
+      const rowIndex = ev.target?.closest("tr")?.dataset?.index;
+      const index = Number(ev.target?.dataset?.index ?? rowIndex);
+      if (index < 0 || index >= items.length) return;
+      if (role === "remove") {
+        items.splice(index, 1);
+        els.itemsStatus.textContent = "Removed line from trade.";
+        if (selectedItemIndex === index) selectedItemIndex = -1;
+        renderItems();
+      }
+      if (role === "ai") {
+        await aiSuggestItem(index);
+      }
+      if (role === "comps") {
+        setSelectedItem(index);
+      }
+      if (!role || (role !== "remove" && role !== "ai" && role !== "comps")) {
+        setSelectedItem(index);
+      }
+    });
+
+    els.btnAddItem.addEventListener("click", () => {
+      const title = (els.itemTitle.value || "").trim();
+      if (!title) {
+        els.itemsStatus.textContent = "Please enter at least a title before adding.";
+        return;
+      }
+      items.push({
+        title,
+        platform: els.itemPlatform.value || "",
+        category: "",
+        condition: els.itemCondition.value || "Good",
+        qty: Number(els.itemQty.value || 1),
+        retailPrice: Number(els.itemRetail.value || 0),
+        creditOffer: 0,
+        cashOffer: 0,
+        keep: true,
+        comps: []
+      });
+      els.itemTitle.value = "";
+      els.itemRetail.value = "";
+      els.itemsStatus.textContent = "Line added.";
+      renderItems();
+      els.itemTitle.focus();
+    });
+
+    els.btnAiAll.addEventListener("click", aiSuggestAll);
+    els.btnCompsSold.addEventListener("click", () => fetchComps("sold"));
+    els.btnCompsActive.addEventListener("click", () => fetchComps("active"));
+    els.btnAddManualComp.addEventListener("click", addManualComp);
+    if (els.btnFetchPricecharting) els.btnFetchPricecharting.addEventListener("click", fetchPricecharting);
+    if (els.btnOpenPricecharting) {
+      els.btnOpenPricecharting.addEventListener("click", () => {
+        if (selectedItemIndex < 0 || selectedItemIndex >= items.length) {
+          if (els.marketStatus) els.marketStatus.textContent = "Select a line first.";
+          return;
+        }
+        openExternal(buildPricechartingUrl(items[selectedItemIndex]));
+      });
+    }
+    if (els.btnOpenEbaySold) {
+      els.btnOpenEbaySold.addEventListener("click", () => {
+        if (selectedItemIndex < 0 || selectedItemIndex >= items.length) {
+          if (els.marketStatus) els.marketStatus.textContent = "Select a line first.";
+          return;
+        }
+        openExternal(buildEbayUrl(items[selectedItemIndex], "sold"));
+      });
+    }
+    if (els.btnOpenEbayActive) {
+      els.btnOpenEbayActive.addEventListener("click", () => {
+        if (selectedItemIndex < 0 || selectedItemIndex >= items.length) {
+          if (els.marketStatus) els.marketStatus.textContent = "Select a line first.";
+          return;
+        }
+        openExternal(buildEbayUrl(items[selectedItemIndex], "active"));
+      });
+    }
+
+    els.btnCustomerSearch.addEventListener("click", searchCustomers);
+    els.btnCustomerSave.addEventListener("click", saveCustomer);
+    els.btnCustomerClear.addEventListener("click", clearCustomer);
+    if (els.btnSaveSettings) els.btnSaveSettings.addEventListener("click", saveTradeSettings);
+
+    els.btnSaveQuote.addEventListener("click", () => saveQuote("draft"));
+    els.btnPresentQuote.addEventListener("click", () => saveQuote("presented"));
+    els.btnAcceptQuote.addEventListener("click", () => saveQuote("accepted"));
+    els.btnDeclineQuote.addEventListener("click", () => saveQuote("declined"));
+    els.btnClear.addEventListener("click", newQuote);
+    els.btnQuoteSearch.addEventListener("click", loadQuoteList);
+
+    els.btnPrintOffer.addEventListener("click", () => window.print());
+
+    if (els.btnOpenSettings && els.settingsDrawer) {
+      els.btnOpenSettings.addEventListener("click", () => {
+        els.settingsDrawer.classList.toggle("open");
+      });
+    }
+
+    if (els.btnOpenQuotes && els.quotesDrawer) {
+      els.btnOpenQuotes.addEventListener("click", () => {
+        els.quotesDrawer.classList.add("open");
+        if (els.quotesDrawer.classList.contains("open")) {
+          loadQuoteList();
+        }
+      });
+    }
+    if (els.btnCloseQuotes && els.quotesDrawer) {
+      els.btnCloseQuotes.addEventListener("click", () => {
+        els.quotesDrawer.classList.remove("open");
+      });
+    }
+    if (els.quotesDrawer) {
+      els.quotesDrawer.addEventListener("click", (e) => {
+        if (e.target === els.quotesDrawer) {
+          els.quotesDrawer.classList.remove("open");
+        }
+      });
+    }
+
+    if (els.btnTogglePhoto && els.photoPanel) {
+      els.btnTogglePhoto.addEventListener("click", () => {
+        els.photoPanel.classList.toggle("open");
+      });
+    }
+
+    if (els.dropZone) {
+      els.dropZone.addEventListener("click", () => els.photoInput.click());
+      els.dropZone.addEventListener("dragover", (e) => {
+        e.preventDefault();
+        setDropZoneDragging(true);
+      });
+      els.dropZone.addEventListener("dragleave", () => setDropZoneDragging(false));
+      els.dropZone.addEventListener("drop", (e) => {
+        e.preventDefault();
+        setDropZoneDragging(false);
+        handleImageFiles(e.dataTransfer.files);
+      });
+    }
+
+    if (els.photoInput) {
+      els.photoInput.addEventListener("change", (e) => handleImageFiles(e.target.files));
+    }
+
+    if (els.itemTitle) {
+      els.itemTitle.addEventListener("keydown", (e) => {
+        if (e.key === "Enter") {
+          e.preventDefault();
+          els.btnAddItem.click();
+        }
+      });
+      els.itemTitle.addEventListener("input", refreshTitleSuggestions);
+      els.itemTitle.addEventListener("focus", refreshTitleSuggestions);
+      els.itemTitle.addEventListener("change", maybeAutofillPlatformForTitle);
+      els.itemTitle.addEventListener("blur", maybeAutofillPlatformForTitle);
+    }
+
+    [els.policyCreditRetail, els.policyCashFromCredit, els.customerName, els.customerPhone, els.customerEmail, els.sessionNotes].forEach((el) => {
+      if (!el) return;
+      el.addEventListener("input", () => {
+        updateTotalsUI();
+      });
+    });
+
+    async function init() {
+      await loadSettings();
+      await loadMe();
+      populatePlatformSuggestions();
+      await loadInventoryForAutocomplete();
+      renderItems();
+      updateSessionLabel();
+      loadQuoteList();
+    }
+
+    init();
+</script>
+</body>
+</html>
+

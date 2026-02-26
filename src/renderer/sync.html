@@ -1,0 +1,105 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>Channel Sync Monitor</title>
+  <meta http-equiv="Content-Security-Policy"
+        content="default-src 'self' file:;
+                 img-src 'self' file: data: http://127.0.0.1:5175 http://localhost:5175;
+                 style-src 'self' 'unsafe-inline';
+                 script-src 'self' 'unsafe-inline';
+                 connect-src 'self' http://127.0.0.1:5175 http://localhost:5175;" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="stylesheet" href="index.css" />
+  <style>
+    body { background:#0f1115; color:#e7e7e7; }
+    .shell { max-width: 1100px; margin: 0 auto; padding: 20px; }
+    .panel { background:#141821; border:1px solid #242a35; border-radius:12px; padding:16px; margin-bottom:16px; }
+    .row { display:flex; gap:12px; flex-wrap:wrap; align-items:center; }
+    .row label { font-size:12px; color:#b8bcc6; }
+    .row select, .row input { background:#0f131b; color:#e7e7e7; border:1px solid #2a3140; border-radius:8px; padding:6px 10px; }
+    .row button { background:#1f2937; border:1px solid #374151; color:#e5e7eb; padding:6px 12px; border-radius:8px; cursor:pointer; }
+    .row button:hover { background:#263041; }
+    table { width:100%; border-collapse: collapse; font-size:12px; }
+    th, td { padding:8px; border-bottom:1px solid #262c39; text-align:left; }
+    th { color:#9ca3af; font-weight:600; }
+    .ok { color:#10b981; }
+    .fail { color:#ef4444; }
+    .muted { color:#9ca3af; font-size:12px; }
+    .mono { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
+    .section-title { font-weight:600; margin-bottom:10px; }
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <header class="panel">
+      <div class="row" style="justify-content:space-between;">
+        <button type="button" onclick="location.href='index.html'">← Back to Dashboard</button>
+      </div>
+      <h1>Channel Sync Monitor</h1>
+      <div class="muted">Track inventory sync health for external sales channels.</div>
+    </header>
+
+    <section class="panel">
+      <div class="row">
+        <label for="channel-select">Sales Channel</label>
+        <select id="channel-select">
+          <option value="wix">Wix</option>
+        </select>
+        <button type="button" id="refresh-status">Refresh Status</button>
+        <button type="button" id="refresh-log">Refresh Log</button>
+        <button type="button" id="link-wix">Link Wix Products by SKU</button>
+      </div>
+    </section>
+
+    <section class="panel">
+      <div class="section-title">Latest Status per SKU</div>
+      <div class="muted" id="status-meta">Loading...</div>
+      <div style="margin-top:10px; overflow:auto;">
+        <table>
+          <thead>
+            <tr>
+              <th>SKU</th>
+              <th>Last Action</th>
+              <th>OK</th>
+              <th>Message</th>
+              <th>Time</th>
+            </tr>
+          </thead>
+          <tbody id="status-body"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="panel">
+      <div class="section-title">Recent Sync Log</div>
+      <div class="muted" id="log-meta">Loading...</div>
+      <div style="margin-top:10px; overflow:auto;">
+        <table>
+          <thead>
+            <tr>
+              <th>Time</th>
+              <th>SKU</th>
+              <th>Action</th>
+              <th>OK</th>
+              <th>Message</th>
+            </tr>
+          </thead>
+          <tbody id="log-body"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="panel">
+      <div class="section-title">Lookup SKU in Channel</div>
+      <div class="row">
+        <input id="lookup-sku" placeholder="Enter SKU" />
+        <button type="button" id="lookup-btn">Lookup</button>
+        <div class="muted" id="lookup-result"></div>
+      </div>
+    </section>
+  </div>
+
+  <script src="sync.js"></script>
+</body>
+</html>

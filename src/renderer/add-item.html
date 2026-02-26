@@ -1,0 +1,1015 @@
+<!doctype html> 
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>Add New Item • RetroCatz POS</title>
+  <!-- Offline CSP -->
+  <meta http-equiv="Content-Security-Policy"
+        content="default-src 'self' file:;
+                 img-src 'self' file: data: http://127.0.0.1:5175 http://localhost:5175;
+                 style-src 'self' 'unsafe-inline';
+                 script-src 'self' 'unsafe-inline';
+                 connect-src 'self' http://127.0.0.1:5175 http://localhost:5175;">
+  <style>
+    :root{--bg:#0b0b0d;--panel:#111827;--border:#374151;--text:#e5e7eb;--muted:#9ca3af;--blue:#2563eb}
+    *{box-sizing:border-box}
+    body{margin:16px;background:var(--bg);color:var(--text);font-family:system-ui,sans-serif}
+    .toolbar{display:flex;align-items:center;gap:8px;background:#091226;padding:12px;border-radius:8px;border:1px solid #0e1b36}
+    .toolbar h1{margin:0;font-size:20px;font-weight:700}
+    .btn{padding:8px 12px;border:1px solid var(--border);border-radius:8px;background:#0c0c0f;color:var(--text);cursor:pointer;transition:background-color .15s,border-color .15s,box-shadow .15s,transform .05s}
+    .btn:hover{border-color:#596274}
+    .btn.primary{background:var(--blue);border-color:var(--blue)}
+    .btn.primary[disabled]{opacity:.5;cursor:not-allowed}
+    .card{max-width:1100px;margin:24px auto;background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:16px;position:relative}
+    /* add right padding so main content doesn't sit under the sidebar */
+    .pad-right{padding-right:380px}
+    label{display:block;font-size:12px;color:var(--muted);margin:8px 0 6px}
+    input,select{width:100%;padding:10px;border:1px solid var(--border);border-radius:8px;background:#000;color:var(--text)}
+    .grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:16px}
+    .row{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:16px}
+    .inline{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+    .small{font-size:12px;color:var(--muted)}
+    .hint{font-size:12px;color:#93c5fd}
+    .danger{outline:2px solid #ef4444}
+    .muted{opacity:.8}
+
+    /* barcode preview + print button row */
+    .barcode-row{
+      display:flex;
+      gap:12px;
+      margin-top:10px;
+      align-items:stretch;
+    }
+    #barcodePreview{
+      flex:1;
+      background:#fff;
+      display:none;
+      place-items:center;
+      padding:8px;
+      border-radius:8px;
+    }
+    #barcodePreview .bc-wrap{display:grid;justify-items:center;gap:4px}
+    #barcodePreview img{display:block;margin:0 auto}
+    #barcodePreview .bc-caption{font-size:12px;color:#111;text-align:center;line-height:1.2}
+
+    #printLabel{
+      width:120px;
+      border-radius:10px;
+      background:#111827;
+      border:1px solid #4b5563;
+      color:#e5e7eb;
+      font-size:13px;
+      font-weight:600;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      text-align:center;
+      padding:0 12px;
+      box-shadow:0 0 0 1px rgba(15,23,42,0.6);
+    }
+    #printLabel:hover{
+      background:#1f2937;
+      border-color:#9ca3af;
+      box-shadow:0 0 0 1px rgba(148,163,184,0.6);
+    }
+    #printLabel:active{
+      transform:scale(.98);
+      box-shadow:0 0 0 1px rgba(55,65,81,0.9);
+    }
+    #printLabel:disabled{
+      opacity:.4;
+      cursor:not-allowed;
+      box-shadow:none;
+    }
+
+    /* ----- RIGHT SIDEBAR: Suggested Retail (AI) ----- */
+    #marketSide{
+      position:absolute; right:16px; top:16px; width:340px;
+      background:#0f172a; border:1px solid var(--border); border-radius:12px; padding:14px;
+    }
+    #marketSide h2{margin:0 0 8px 0; font-size:14px; color:var(--text)}
+    .ms-row{display:flex; align-items:center; gap:8px; flex-wrap:wrap}
+    .chip{font-size:12px; color:#9ca3af; border:1px solid var(--border); border-radius:999px; padding:2px 8px}
+    .ms-stats{display:grid; grid-template-columns:repeat(5,minmax(0,1fr)); gap:8px; margin:8px 0 10px}
+    .ms-card{background:#0b1224; border:1px solid var(--border); border-radius:8px; padding:10px}
+    .ms-k{font-size:12px; color:#9ca3af}
+    .ms-v{font-size:18px; color:#e5e7eb}
+    #ms-comps{display:grid; gap:6px; max-height:220px; overflow:auto}
+    .ms-comp{display:grid; grid-template-columns:1fr; gap:4px; align-items:flex-start;
+             background:#0b1224; border:1px solid var(--border); border-radius:8px; padding:8px}
+    .ms-comp a{font-size:12px; color:#93c5fd; text-decoration:none; overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
+
+    /* tiny loader: three pulsing dots */
+    .dots{display:inline-flex; gap:4px; align-items:center}
+    .dot{width:6px;height:6px;border-radius:50%;background:#9ca3af;opacity:.35;animation:blink 1.3s infinite}
+    .dot:nth-child(2){animation-delay:.2s}
+    .dot:nth-child(3){animation-delay:.4s}
+    @keyframes blink{ 0%,80%,100%{opacity:.35} 40%{opacity:1} }
+  </style>
+</head>
+<body>
+  <div class="toolbar">
+    <h1>Add New Item</h1>
+    <button class="btn" onclick="location.href='index.html'">Back to Dashboard</button>
+  </div>
+
+  <div class="card pad-right" id="addCard">
+    <!-- RIGHT SIDEBAR -->
+    <aside id="marketSide" aria-label="Suggested Retail (AI)">
+      <div class="ms-row" style="justify-content:space-between; margin-bottom:6px">
+        <h2>Suggested Retail (AI • GPT-5.1)</h2>
+        <span id="ms-status" class="chip">idle</span>
+      </div>
+
+      <div class="ms-row" style="margin-bottom:8px">
+        <!-- condition first -->
+        <label class="small" style="display:flex;gap:6px;align-items:center">
+          condition
+          <select id="ms-isnew" style="background:#0b1224;color:#e5e7eb;border:1px solid var(--border);border-radius:8px;padding:6px">
+            <option value="false">used</option>
+            <option value="true">new</option>
+          </select>
+        </label>
+
+        <!-- category next -->
+        <label class="small" style="display:flex;gap:6px;align-items:center">
+          category
+          <select id="ms-category" style="background:#0b1224;color:#e5e7eb;border:1px solid var(--border);border-radius:8px;padding:6px">
+            <option value="games">games</option>
+            <option value="consoles">consoles</option>
+            <option value="accessories">accessories</option>
+          </select>
+        </label>
+
+        <!-- completeness last (changes based on category) -->
+        <label id="ms-completeness-wrap" class="small" style="display:flex;gap:6px;align-items:center">
+          completeness
+          <select id="ms-completeness" style="background:#0b1224;color:#e5e7eb;border:1px solid var(--border);border-radius:8px;padding:6px">
+            <!-- options get populated by JS based on category (games / consoles / accessories) -->
+          </select>
+        </label>
+
+        <label class="small" style="display:flex;gap:6px;align-items:center;margin-left:auto">
+          <input id="ms-exclude" type="checkbox" checked />
+          exclude lots
+        </label>
+        <button id="ms-refresh" class="btn" style="margin-left:auto">AI Price Check</button>
+      </div>
+
+      <!-- stats -->
+      <div class="ms-stats">
+        <div class="ms-card"><div class="ms-k">Avg</div><div id="ms-avg" class="ms-v">$0.00</div></div>
+        <div class="ms-card"><div class="ms-k">Median</div><div id="ms-median" class="ms-v">$0.00</div></div>
+        <div class="ms-card"><div class="ms-k">Low</div><div id="ms-low" class="ms-v">$0.00</div></div>
+        <div class="ms-card"><div class="ms-k">High</div><div id="ms-high" class="ms-v">$0.00</div></div>
+        <div class="ms-card"><div class="ms-k">Samples</div><div id="ms-count" class="ms-v">0</div></div>
+      </div>
+
+      <div class="ms-row" style="justify-content:flex-end; gap:8px; margin-bottom:8px">
+        <button id="ms-apply-median" class="btn" style="background:#2563eb;border-color:#2563eb;color:#fff">Apply Median → Price</button>
+        <button id="ms-apply-low" class="btn">Apply Low</button>
+        <button id="ms-apply-high" class="btn">Apply High</button>
+      </div>
+
+      <div id="ms-loading" class="small" style="display:none">
+        <span class="dots" aria-hidden="true"><span class="dot"></span><span class="dot"></span><span class="dot"></span></span>
+        fetching AI pricing…
+      </div>
+      <div id="ms-error" class="small" style="display:none;color:#fca5a5"></div>
+
+      <div id="ms-comps"></div>
+    </aside>
+
+    <!-- Title / Platform -->
+    <div class="grid">
+      <div>
+        <label>Title</label>
+        <input id="title" list="title-suggestions" placeholder="start typing (e.g., Halo, Metroid, etc.)" required>
+        <datalist id="title-suggestions"></datalist>
+        <div class="small muted" id="recentCount"></div>
+      </div>
+      <div>
+        <label>Platform (optional)</label>
+        <select id="platform"></select>
+      </div>
+    </div>
+
+    <!-- Manufacturer Barcode (scan from case) -->
+    <div class="grid">
+      <div>
+        <label>Manufacturer Barcode (scan from case, optional)</label>
+        <input id="extBarcode" placeholder="scan or type manufacturer UPC/EAN">
+        <div class="small muted" id="barcodeHint"></div>
+      </div>
+      <div></div>
+    </div>
+
+    <!-- Category / Condition -->
+    <div class="grid">
+      <div>
+        <label>Category</label>
+        <select id="category" required></select>
+      </div>
+      <div>
+        <label>Condition</label>
+        <select id="condition" required>
+          <!-- locked to New/Used (backend groups on this) -->
+          <option>New</option>
+          <option>Used</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Source (where item was acquired, optional) -->
+    <div class="grid">
+      <div>
+        <label>Source (optional)</label>
+        <select id="source">
+          <option value="">(none)</option>
+          <option value="Wix">Wix</option>
+          <option value="eBay">eBay</option>
+          <option value="Whatnot">Whatnot</option>
+          <option value="Facebook Marketplace">Facebook Marketplace</option>
+          <option value="Trade-in">Trade-in</option>
+        </select>
+        <div class="small muted">
+          Where you acquired this item (used later for sourcing & profit reports).
+        </div>
+      </div>
+      <div></div>
+    </div>
+
+    <!-- Quantity -->
+    <div class="grid">
+      <div>
+        <label>Quantity</label>
+        <input id="qty" inputmode="numeric" value="1">
+      </div>
+      <div>
+        <label class="small">&nbsp;</label>
+        <div class="small muted">
+          Accessories with matching <b>Category + Platform + Title + New/Used</b> will
+          <b>group under one SKU</b> (qty increases, avg cost recalculated).
+        </div>
+      </div>
+    </div>
+
+    <!-- Cost / Price (+ margin preview) -->
+    <div class="grid">
+      <div>
+        <label>Cost (your cost)</label>
+        <input id="cost" inputmode="decimal" placeholder="0.00">
+      </div>
+      <div>
+        <label>Price (list price)</label>
+        <input id="price" inputmode="decimal" placeholder="0.00">
+        <div class="small muted" id="marginPreview"></div>
+        <label class="inline" style="margin-top:8px">
+          <input type="checkbox" id="overrideAll" />
+          <span class="small">Change price for all matching</span>
+        </label>
+        <div class="small hint" id="groupHint"></div>
+      </div>
+    </div>
+
+    <!-- SKU / Barcode -->
+    <div class="row">
+      <div class="inline">
+        <button id="gen" class="btn">Refresh Grouping & Barcode</button>
+        <span class="small" id="genStatus">not generated</span>
+      </div>
+      <div class="inline" style="justify-content:flex-end">
+        <label>Barcode size</label>
+        <select id="barcodeSize" style="max-width:140px">
+          <option value="0.75">0.75"</option>
+          <option value="1" selected>1"</option>
+          <option value="1.25">1.25"</option>
+        </select>
+        <span class="hint">remembers your choice</span>
+      </div>
+    </div>
+
+    <div class="barcode-row">
+      <div id="barcodePreview"></div>
+      <button id="printLabel" type="button" class="btn" disabled>Print Label</button>
+    </div>
+
+    <!-- Actions -->
+    <div class="inline" style="gap:10px;margin-top:14px">
+      <button id="save" class="btn primary" disabled>Save Item</button>
+      <button class="btn" onclick="history.back()">Cancel</button>
+    </div>
+  </div>
+
+  <script type="module">
+    // --- Imports (kept) ---
+    import {
+      USD, dollarsToCents, centsToDollars,
+      ALL_PLATFORMS, CATEGORIES,
+      getPreferredBarcodeInches, setPreferredBarcodeInches,
+      TOP_TITLES
+    } from './data.js';
+
+    // === API ===
+    const API_BASE = 'http://127.0.0.1:5175';
+    const sessionId = localStorage.getItem('rc_session_id') || '';
+    const authHeaders = sessionId ? { 'rc_session_id': sessionId } : {};
+
+    async function apiAddItem(row) {
+      const res = await fetch(`${API_BASE}/api/items`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', ...authHeaders },
+        body: JSON.stringify(row)
+      });
+      if (!res.ok) throw new Error(await res.text());
+      return res.json();
+    }
+    async function apiGroupInfo(q) {
+      const url = new URL(`${API_BASE}/api/group-info`);
+      Object.entries(q).forEach(([k,v]) => url.searchParams.set(k, v ?? ''));
+      const res = await fetch(url.toString(), { headers: { ...authHeaders } });
+      if (!res.ok) throw new Error('group-info failed');
+      return res.json();
+    }
+    async function apiLookupByBarcode(code) {
+      const res = await fetch(`${API_BASE}/api/items/by-barcode/${encodeURIComponent(code)}`, {
+        headers: { ...authHeaders }
+      });
+      if (!res.ok) return null;
+      const data = await res.json();
+      if (!data || !data.ok || !data.item) return null;
+      return data.item;
+    }
+
+    // NEW: AI price endpoint helper
+    async function apiAiPrice(payload) {
+      const res = await fetch(`${API_BASE}/api/ai/price`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', ...authHeaders },
+        body: JSON.stringify(payload)
+      });
+      if (!res.ok) throw new Error('ai_price_http_error');
+      const data = await res.json();
+      if (!data.ok) throw new Error(data.error || 'ai_price_failed');
+      return data;
+    }
+
+    // === Label PDF helper (single item from Add Item page) ===
+    async function printLabelsForItemsPayloadAdd(itemsPayload, labelSize = '2x1') {
+      if (!itemsPayload || !itemsPayload.length) {
+        alert('No items to print.');
+        return;
+      }
+
+      try {
+        const res = await fetch(`${API_BASE}/print-labels`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', ...authHeaders },
+          body: JSON.stringify({ labelSize, items: itemsPayload })
+        });
+
+        if (!res.ok) {
+          console.error('print-labels failed:', res.status, await res.text());
+          alert('Label PDF failed to generate. Check backend logs.');
+          return;
+        }
+
+        const blob = await res.blob();
+        const url = URL.createObjectURL(blob);
+
+        // Try to open PDF in new tab and auto-print; fall back to download
+        const win = window.open(url);
+        if (!win) {
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = 'labels.pdf';
+          document.body.appendChild(a);
+          a.click();
+          a.remove();
+          return;
+        }
+
+        win.addEventListener('load', () => {
+          try {
+            win.focus();
+            win.print();
+          } catch (e) {
+            console.warn('Auto-print failed; print manually from PDF.', e);
+          }
+        });
+      } catch (err) {
+        console.error('printLabelsForItemsPayloadAdd error:', err);
+        alert('Something went wrong generating labels. Check console/backend.');
+      }
+    }
+
+
+    // --- Elements ---
+    const $ = (id)=>document.getElementById(id);
+    const elTitle = $('title');
+    const elPlatform = $('platform');
+    const elCategory = $('category');
+    const elCondition = $('condition');
+    const elSource = $('source');
+    const elQty = $('qty');
+    const elCost = $('cost');
+    const elPrice = $('price');
+    const elOverride = $('overrideAll');
+    const elGen = $('gen');
+    const elGenStatus = $('genStatus');
+    const elPreview = $('barcodePreview');
+    const elSave = $('save');
+    const elSize = $('barcodeSize');
+    const elRecentCount = $('recentCount');
+    const elMargin = $('marginPreview');
+    const elGroupHint = $('groupHint');
+    const elExtBarcode = $('extBarcode');
+    const elBarcodeHint = $('barcodeHint');
+    const elPrint = $('printLabel');
+    const dl = document.getElementById('title-suggestions');
+
+    // Market sidebar elements
+    const ms = {
+      status: $('ms-status'),
+      avg: $('ms-avg'), median: $('ms-median'), low: $('ms-low'), high: $('ms-high'), count: $('ms-count'),
+      comps: $('ms-comps'), err: $('ms-error'), load: $('ms-loading'),
+      completenessWrap: $('ms-completeness-wrap'),
+      completeness: $('ms-completeness'), isnew: $('ms-isnew'), category: $('ms-category'),
+      exclude: $('ms-exclude'), refresh: $('ms-refresh'),
+      applyMed: $('ms-apply-median'), applyLow: $('ms-apply-low'), applyHigh: $('ms-apply-high')
+    };
+
+    // --- Populate dropdowns ---
+    function opt(txt, val){ const o=document.createElement('option'); o.textContent=txt; o.value=val??txt; return o; }
+    ALL_PLATFORMS.forEach(p=> elPlatform.appendChild(opt(p,p)));
+    ['Games','Console','Accessory','Apparel','Music','Movie','Other'].forEach(c=> elCategory.appendChild(opt(c,c)));
+    // Condition already locked to New/Used in markup
+
+    // --- Recent titles (global) ---
+    const RECENT_KEY = 'rcg:recent_titles:v1';
+    const loadRecents = () => { try { return JSON.parse(localStorage.getItem(RECENT_KEY)||'{}'); } catch { return {}; } };
+    const saveRecents = (obj) => localStorage.setItem(RECENT_KEY, JSON.stringify(obj||{}));
+    const rememberTitle = (platform, title) => {
+      const t = String(title||'').trim(); if (!t) return;
+      const key = String(platform||'').trim() || '_all';
+      const data = loadRecents();
+      data[key] = data[key] || [];
+      data['_all'] = data['_all'] || [];
+      const norm = s => s.toLowerCase();
+      const upsert = (arr) => {
+        const i = arr.findIndex(x => norm(x) === norm(t));
+        if (i >= 0) arr.splice(i,1);
+        arr.unshift(t);
+        if (arr.length > 200) arr.length = 200;
+      };
+      upsert(data[key]); upsert(data['_all']);
+      saveRecents(data);
+    };
+    function allCuratedTitles() {
+      const src = TOP_TITLES || {};
+      const s = new Set();
+      for (const arr of Object.values(src)) (arr || []).forEach(t => t && s.add(String(t).trim()));
+      return Array.from(s);
+    }
+    function getRecentAll() {
+      try {
+        const data = JSON.parse(localStorage.getItem(RECENT_KEY) || '{}');
+        return Array.from(new Set([...(data['_all'] || [])]));
+      } catch { return []; }
+    }
+    function refreshTitleSuggestionsGlobal() {
+      dl.innerHTML = '';
+      const q = String(elTitle.value || '').trim().toLowerCase();
+      const recents = getRecentAll();
+      const curated = allCuratedTitles();
+      const combined = [];
+      const seen = new Set();
+      const push = (t) => {
+        const v = String(t || '').trim(); if (!v) return;
+        const k = v.toLowerCase(); if (seen.has(k)) return;
+        seen.add(k); combined.push(v);
+      };
+      recents.forEach(push); curated.forEach(push);
+      const filtered = q ? combined.filter(t => t.toLowerCase().startsWith(q)) : combined;
+      filtered.slice(0, 200).forEach(v => {
+        const o = document.createElement('option'); o.value = v; dl.appendChild(o);
+      });
+      elRecentCount.textContent = recents.length ? `recent titles: ${recents.length}` : '';
+    }
+    elTitle.addEventListener('focus', refreshTitleSuggestionsGlobal);
+    elTitle.addEventListener('input', refreshTitleSuggestionsGlobal);
+    elTitle.addEventListener('focus', () => { if (typeof elTitle.showPicker==='function') { try{ elTitle.showPicker(); } catch{} } });
+    refreshTitleSuggestionsGlobal();
+
+    // --- Currency formatting + margin preview ---
+    function formatUSD(input){
+      const v = input.value; if (v==null) return;
+      const cents = dollarsToCents(v);
+      input.value = USD.format(centsToDollars(cents));
+      input.dataset.cents = String(cents);
+      updateMargin();
+    }
+    function trackCents(el){ el.dataset.cents = String(dollarsToCents(el.value)); updateMargin(); }
+    function updateMargin(){
+      const c = Number(elCost.dataset.cents || dollarsToCents(elCost.value));
+      const p = Number(elPrice.dataset.cents || dollarsToCents(elPrice.value));
+      if (c>0 && p>0){
+        const profit = p - c;
+        const pct = (profit / p) * 100;
+        elMargin.textContent = `${USD.format(profit/100)} (${pct.toFixed(0)}%)`;
+      } else {
+        elMargin.textContent = '';
+      }
+    }
+    elCost.addEventListener('blur', ()=>formatUSD(elCost));
+    elPrice.addEventListener('blur', ()=>formatUSD(elPrice));
+    elCost.addEventListener('input', ()=>trackCents(elCost));
+    elPrice.addEventListener('input', ()=>trackCents(elPrice));
+
+    // --- Barcode size pref ---
+    elSize.value = String(getPreferredBarcodeInches());
+    elSize.addEventListener('change', ()=> {
+      setPreferredBarcodeInches(elSize.value);
+      renderBarcodePreview(currentGroup);
+    });
+
+    // --- Helpers for label text ---
+    function esc(s){
+      return String(s ?? '')
+        .replace(/&/g,'&amp;')
+        .replace(/</g,'&lt;')
+        .replace(/>/g,'&gt;')
+        .replace(/"/g,'&quot;')
+        .replace(/'/g,'&#39;');
+    }
+    function maxLabelChars() {
+      const inches = parseFloat(elSize.value || '1') || 1;
+      if (inches <= 0.8) return 20;
+      if (inches <= 1.05) return 26;
+      return 32;
+    }
+    function shortenDesc(desc) {
+      const max = maxLabelChars();
+      const str = String(desc || '').trim();
+      if (!str) return '';
+      if (str.length <= max) return str;
+      if (max <= 1) return '…';
+      return str.slice(0, max - 1) + '…';
+    }
+
+    // --- Group preflight + barcode preview ---
+    let currentGroup = { exists:false, sku:null, barcode:null, internalCode:null, externalBarcode:null, price:null, qty:null, cost:null };
+    let lastLabelConfig = null; // used for printing
+
+    function renderBarcodePreview(group) {
+      lastLabelConfig = null;
+      elPrint.disabled = true;
+
+      if (!group) {
+        elPreview.style.display = 'none';
+        elPreview.innerHTML = '';
+        return;
+      }
+
+      const sku = String(group.sku || group.internalCode || group.barcode || '').replace(/\D/g,'');
+      if (!sku) {
+        elPreview.style.display = 'none';
+        elPreview.innerHTML = '';
+        return;
+      }
+
+      const title = elTitle.value.trim();
+      const platform = elPlatform.value.trim();
+      const fullDesc = `${title}${platform ? ' ('+platform+')' : ''}`.trim();
+      const descShort = shortenDesc(fullDesc || title || '');
+
+      const inches = parseFloat(elSize.value || '1') || 1;
+      const approxPx = Math.round(inches * 96); // rough width in px
+
+      const url = `${API_BASE}/barcode/${encodeURIComponent(sku)}?label=${encodeURIComponent(descShort || sku)}`;
+
+      elPreview.style.display = 'grid';
+      elPreview.innerHTML = `
+        <div class="bc-wrap">
+          <img src="${url}"
+               alt="Barcode preview"
+               style="max-width:${approxPx + 80}px;background:#fff;padding:4px;border-radius:4px;border:1px solid #e5e7eb" />
+          <div class="bc-caption">
+            <div>${esc(sku)}</div>
+            <div>${esc(descShort || fullDesc || '')}</div>
+          </div>
+        </div>
+      `;
+
+      lastLabelConfig = {
+        code: sku,
+        desc: descShort || fullDesc || '',
+        url
+      };
+      elPrint.disabled = false;
+    }
+
+    async function preflight() {
+      const title = elTitle.value.trim();
+      const category = elCategory.value || '';
+      const condition = elCondition.value || 'Used';
+      const platform = elPlatform.value.trim();
+
+      if(!title || !category || !condition){
+        elGenStatus.textContent = 'need title + category + condition';
+        elGenStatus.style.color = '#f87171';
+        elPreview.style.display = 'none';
+        currentGroup = { exists:false };
+        lastLabelConfig = null;
+        elPrint.disabled = true;
+        validate();
+        return;
+      }
+
+      try {
+        const data = await apiGroupInfo({ title, platform, category, condition });
+        currentGroup = data;
+
+        renderBarcodePreview(currentGroup);
+
+        if (data.exists) {
+          elGenStatus.textContent = `grouped → ${data.sku} • qty ${data.qty}`;
+          elGenStatus.style.color = '#10b981';
+          elGroupHint.textContent = `Price locked to $${Number(data.price).toFixed(2)} unless you check "Change price for all matching".`;
+          if (!elOverride.checked) {
+            elPrice.value = Number(data.price).toFixed(2);
+            elPrice.disabled = true;
+            elPrice.dataset.cents = String(dollarsToCents(elPrice.value));
+            updateMargin();
+          }
+        } else {
+          elGenStatus.textContent = `new group will be created`;
+          elGenStatus.style.color = '#93c5fd';
+          elGroupHint.textContent = `First item sets the group price. Future matching items will reuse SKU and this price.`;
+          elPrice.disabled = false;
+        }
+      } catch (e) {
+        console.error(e);
+        elGenStatus.textContent = 'grouping failed';
+        elGenStatus.style.color = '#f87171';
+        elPreview.style.display = 'none';
+        lastLabelConfig = null;
+        elPrint.disabled = true;
+      }
+      validate();
+    }
+
+    elGen.addEventListener('click', preflight);
+    ['input','change'].forEach(ev => {
+      [elTitle, elPlatform, elCategory, elCondition].forEach(el => el.addEventListener(ev, preflight));
+    });
+    elOverride.addEventListener('change', () => {
+      if (currentGroup.exists) {
+        if (elOverride.checked) {
+          elPrice.disabled = false;
+          elPrice.focus();
+        } else {
+          elPrice.value = Number(currentGroup.price).toFixed(2);
+          elPrice.disabled = true;
+          elPrice.dataset.cents = String(dollarsToCents(elPrice.value));
+          updateMargin();
+        }
+      }
+      validate();
+    });
+
+    // --- Scanner: lookup by manufacturer barcode to prefill title/platform ---
+    async function handleBarcodeLookup() {
+      const code = (elExtBarcode.value || '').trim();
+      if (!code) {
+        elBarcodeHint.textContent = '';
+        return;
+      }
+      elBarcodeHint.textContent = 'looking up saved template…';
+      try {
+        const item = await apiLookupByBarcode(code);
+        if (!item) {
+          elBarcodeHint.textContent = 'no saved item found for this barcode (first time scan is okay)';
+          return;
+        }
+        if (item.title) elTitle.value = item.title;
+        if (item.platform) {
+          const opts = Array.from(elPlatform.options || []);
+          const match = opts.find(o => String(o.value).toLowerCase() === String(item.platform).toLowerCase());
+          if (match) {
+            elPlatform.value = match.value;
+          } else {
+            const o = document.createElement('option');
+            o.value = item.platform;
+            o.textContent = item.platform;
+            elPlatform.appendChild(o);
+            elPlatform.value = item.platform;
+          }
+        }
+        elBarcodeHint.textContent = `template loaded: ${item.title || ''}${item.platform ? ' • '+item.platform : ''}`;
+        refreshTitleSuggestionsGlobal();
+        preflight();
+        validate();
+      } catch (err) {
+        console.error(err);
+        elBarcodeHint.textContent = 'lookup failed';
+      }
+    }
+
+    elExtBarcode.addEventListener('blur', handleBarcodeLookup);
+    elExtBarcode.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        handleBarcodeLookup();
+      }
+    });
+
+    // --- Validation ---
+    function required(el){ const ok = !!(el.value && el.value.trim()); el.classList.toggle('danger', !ok); return ok; }
+    function moneyRequired(el){ const cents = Number(el.dataset.cents || dollarsToCents(el.value)); const ok = cents>0; el.classList.toggle('danger', !ok); return ok; }
+    function qtyRequired(el){ const n = parseInt(el.value||'0',10); const ok = n>0; el.classList.toggle('danger', !ok); return ok; }
+
+    function validate(){
+      const vTitle = required(elTitle);
+      const vCat = required(elCategory);
+      const vCond = required(elCondition);
+      const vQty = qtyRequired(elQty);
+      const vCost = moneyRequired(elCost);
+      const vPrice = moneyRequired(elPrice);
+      const ok = vTitle && vCat && vCond && vQty && vCost && vPrice;
+      elSave.disabled = !ok;
+      return ok;
+    }
+
+    ['input','change','blur'].forEach(evt => {
+      [elTitle, elCategory, elCondition, elQty, elCost, elPrice].forEach(el => el.addEventListener(evt, validate));
+    });
+
+    // --- Save (posts grouping flags + external barcode + source) ---
+    elSave.addEventListener('click', async () => {
+      if(!validate()) return;
+
+      const qty = Math.max(1, parseInt(elQty.value || '1', 10));
+      const cost = (Number(elCost.dataset.cents || dollarsToCents(elCost.value)) / 100) || 0;
+      const priceEntered = (Number(elPrice.dataset.cents || dollarsToCents(elPrice.value)) / 100) || 0;
+
+      let overridePrice = false;
+      let forceNewGroup = false;
+
+      if (currentGroup.exists) {
+        const groupPrice = Number(currentGroup.price);
+        const priceChanged = Math.abs(priceEntered - groupPrice) > 0.0001;
+
+        if (elOverride.checked) {
+          overridePrice = true;
+        } else if (priceChanged) {
+          const answer = confirm(
+            `A matching item exists at $${groupPrice.toFixed(2)}.\n\n` +
+            `Yes = override price for ALL matching items to $${priceEntered.toFixed(2)}.\n` +
+            `No = create a NEW independent SKU for this intake.`
+          );
+          if (answer) {
+            overridePrice = true;
+          } else {
+            forceNewGroup = true;
+          }
+        }
+      }
+
+      const row = {
+        title: elTitle.value.trim(),
+        platform: elPlatform.value.trim(),
+        category: elCategory.value,
+        condition: elCondition.value,
+        qty,
+        cost,
+        price: priceEntered,
+        overridePrice,
+        forceNewGroup,
+        barcode: elExtBarcode.value.trim() || null,
+        source: elSource && elSource.value ? elSource.value : null
+      };
+
+      try {
+        const resp = await apiAddItem(row);
+        if (!resp.ok) throw new Error(resp.error || 'unknown error');
+      } catch (e) {
+        alert('Save failed: ' + (e.message || e));
+        return;
+      }
+
+      rememberTitle(elPlatform.value, elTitle.value);
+      window.location.href = 'inventory.html';
+    });
+
+    // --- Print label from Add Item (PDF via /print-labels) ---
+    elPrint.addEventListener('click', async () => {
+      if (!lastLabelConfig) {
+        alert('Generate a barcode first.');
+        return;
+      }
+
+      const code = lastLabelConfig.code;
+
+      // Prefer the short label text; fall back to title or code
+      const desc =
+        lastLabelConfig.desc ||
+        elTitle.value.trim() ||
+        code;
+
+      // Pull current price (in dollars) from the same cents logic we use for margin
+      const cents = Number(elPrice.dataset.cents || dollarsToCents(elPrice.value));
+      const price = cents ? cents / 100 : 0;
+
+      // Single-item payload, same shape inventory.html now uses
+      const payload = [
+        {
+          sku: code,
+          title: desc,
+          // NEW: send price so backend can render "SKU • $xx.xx"
+          price
+        }
+      ];
+
+      // For now: always use 2x1 label; we can wire this to the dropdown later if you want
+      await printLabelsForItemsPayloadAdd(payload, '2x1');
+    });
+
+
+    // Kick off initial preflight so barcode/price state appears quickly
+    preflight();
+
+    /* ======= MARKET SIDEBAR WIRING (AI via GPT-5.1) ======= */
+
+    const COMPLETENESS_PRESETS = {
+      games: [
+        { value:'disc_only',  label:'disc only / cart only' },
+        { value:'disc_case',  label:'disc + case' },
+        { value:'cib',        label:'complete in box (CIB)' },
+        { value:'box_only',   label:'box only' },
+        { value:'case_only',  label:'case/box only' },
+        { value:'cart_only',  label:'cart only' }
+      ],
+      consoles: [
+        { value:'console_only',        label:'console only' },
+        { value:'console_controller',  label:'console + controller' },
+        { value:'console_hookups',     label:'console + hookups' },
+        { value:'console_full',        label:'console + controller + hookups' },
+        { value:'console_boxed',       label:'boxed console' },
+        { value:'console_cib',         label:'CIB (console complete in box)' }
+      ],
+      accessories: [
+        { value:'accessory_only', label:'accessory only' },
+        { value:'accessory_cib',  label:'CIB (accessory complete in box)' }
+      ]
+    };
+
+    function fmt(n){ return isFinite(n) && n !== 0 ? `$${Number(n).toFixed(2)}` : '$0.00'; }
+    function setStatus(txt, color){
+      ms.status.textContent='';
+      ms.status.className='chip';
+      ms.status.style.color=color||'#9ca3af';
+      ms.status.textContent=txt;
+    }
+
+    function updateCompletenessOptions() {
+      const mode = (ms.category.value || '').toLowerCase();
+      const presets =
+        mode === 'games' ? COMPLETENESS_PRESETS.games :
+        mode === 'consoles' ? COMPLETENESS_PRESETS.consoles :
+        mode === 'accessories' ? COMPLETENESS_PRESETS.accessories :
+        null;
+
+      if (!presets) {
+        if (ms.completenessWrap) ms.completenessWrap.style.display = 'none';
+        return;
+      }
+
+      ms.completenessWrap.style.display = 'flex';
+      const sel = ms.completeness;
+      sel.innerHTML = '';
+      presets.forEach(p => {
+        const o = document.createElement('option');
+        o.value = p.value;
+        o.textContent = p.label;
+        sel.appendChild(o);
+      });
+    }
+
+    function syncMarketControls() {
+      const cond = (elCondition.value || 'Used').toLowerCase();
+      ms.isnew.value = cond === 'new' ? 'true' : 'false';
+
+      const mainCat = (elCategory.value || '').toLowerCase();
+      if (mainCat === 'games') ms.category.value = 'games';
+      else if (mainCat === 'console') ms.category.value = 'consoles';
+      else if (mainCat === 'accessory') ms.category.value = 'accessories';
+
+      updateCompletenessOptions();
+    }
+
+    ['change','input'].forEach(ev => {
+      elCondition.addEventListener(ev, syncMarketControls);
+      elCategory.addEventListener(ev, syncMarketControls);
+    });
+    ms.category.addEventListener('change', updateCompletenessOptions);
+
+    syncMarketControls();
+
+    async function fetchMarket(){
+      ms.err.style.display='none';
+      ms.load.style.display='inline-block';
+      ms.comps.innerHTML='';
+      setStatus('thinking…', '#93c5fd');
+
+      const title = elTitle.value.trim();
+      if(!title){
+        ms.load.style.display='none';
+        setStatus('enter title', '#fbbf24');
+        return;
+      }
+
+      const effectiveCategory = (ms.category.value || elCategory.value || 'games').toLowerCase();
+      let completenessValue = null;
+      if (['games','consoles','accessories'].includes(effectiveCategory)) {
+        completenessValue = ms.completeness.value || null;
+      }
+
+      const rawPrice = elPrice.value.replace(/[^\d.]/g,'');
+      const priceHint = rawPrice ? Number(rawPrice) : null;
+
+      const payload = {
+        title,
+        platform: elPlatform.value.trim(),
+        category: effectiveCategory,
+        condition: (elCondition.value || 'Used'),
+        completeness: completenessValue,
+        excludeLots: !!ms.exclude.checked,
+        priceHint
+      };
+
+      let data;
+      try{
+        data = await apiAiPrice(payload);
+      }catch(e){
+        console.error(e);
+        ms.load.style.display='none';
+        setStatus('ai error','#f87171');
+        ms.err.style.display='block';
+        ms.err.textContent='AI pricing request failed. Check backend logs.';
+        ms.avg.textContent = '$0.00';
+        ms.median.textContent = '$0.00';
+        ms.low.textContent = '$0.00';
+        ms.high.textContent = '$0.00';
+        ms.count.textContent = '0';
+        return;
+      }
+      ms.load.style.display='none';
+      setStatus('ai ready','#a7f3d0');
+
+      const g = data.guidance || {};
+      const low = Number(g.low || g.floor || 0);
+      const mid = Number(g.mid || g.anchor || 0);
+      const high = Number(g.high || g.ceiling || 0);
+      const avg = mid || ((low && high) ? (low+high)/2 : 0);
+      const samples = g.samples || 0;
+
+      ms.avg.textContent = fmt(avg);
+      ms.median.textContent = fmt(mid);
+      ms.low.textContent = fmt(low);
+      ms.high.textContent = fmt(high);
+      ms.count.textContent = String(samples);
+
+      // Show notes / explanation
+      const notes = g.notes || data.rawText || '';
+      if (notes) {
+        ms.comps.innerHTML = '';
+        const div = document.createElement('div');
+        div.className = 'ms-comp';
+        div.innerHTML = `<div class="small" style="color:#d1d5db;white-space:pre-wrap">${esc(notes)}</div>`;
+        ms.comps.appendChild(div);
+      } else {
+        ms.comps.innerHTML = `<div class="small" style="color:#9ca3af">AI suggested this price band based on recent market data and general value patterns.</div>`;
+      }
+
+      ms.applyMed.dataset.value = mid || 0;
+      ms.applyLow.dataset.value = low || 0;
+      ms.applyHigh.dataset.value = high || 0;
+    }
+
+    function apply(btn){
+      const v = Number(btn.dataset.value||0);
+      if(!v) return;
+      elPrice.value = v.toFixed(2);
+      elPrice.dataset.cents = String(dollarsToCents(elPrice.value));
+      updateMargin();
+      validate();
+    }
+
+    ms.refresh.addEventListener('click', fetchMarket);
+    ms.applyMed.addEventListener('click', ()=>apply(ms.applyMed));
+    ms.applyLow.addEventListener('click', ()=>apply(ms.applyLow));
+    ms.applyHigh.addEventListener('click', ()=>apply(ms.applyHigh));
+  </script>
+</body>
+</html>

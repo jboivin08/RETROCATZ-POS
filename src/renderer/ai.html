@@ -1,0 +1,483 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>RetroCatz Brain • POS</title>
+  <meta http-equiv="Content-Security-Policy"
+        content="default-src 'self' file:;
+                 img-src 'self' file: data:;
+                 style-src 'self' 'unsafe-inline';
+                 script-src 'self' 'unsafe-inline';
+                 connect-src 'self' http://127.0.0.1:5175 http://localhost:5175;">
+  <link rel="stylesheet" href="index.css" />
+  <style>
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: #0b0b0d;
+      color: #e5e7eb;
+      padding: 16px;
+      box-sizing: border-box;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      padding: 12px;
+      border-radius: 10px;
+      background: #091226;
+      border: 1px solid #0e1b36;
+    }
+    header h1 {
+      margin: 0;
+      font-size: 1.6rem;
+    }
+    header p {
+      margin: 2px 0 0;
+      font-size: 0.85rem;
+      color: #9ca3af;
+    }
+    .brain-controls {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.9rem;
+    }
+    .brain-controls select {
+      background: #111827;
+      color: #e5e7eb;
+      border: 1px solid #374151;
+      border-radius: 6px;
+      padding: 4px 8px;
+    }
+    .live-status {
+      font-size: 0.75rem;
+      border-radius: 999px;
+      padding: 2px 8px;
+      border: 1px solid #374151;
+      background: #020617;
+      color: #9ca3af;
+    }
+    .live-status.live {
+      border-color: #065f46;
+      color: #6ee7b7;
+      background: rgba(6, 95, 70, 0.2);
+    }
+    .live-status.fallback {
+      border-color: #92400e;
+      color: #fcd34d;
+      background: rgba(146, 64, 14, 0.2);
+    }
+    main {
+      flex: 1;
+      display: grid;
+      grid-template-columns: minmax(0, 1.1fr) minmax(0, 1.2fr);
+      gap: 16px;
+      min-height: 0;
+    }
+    .panel {
+      background: #111827;
+      border-radius: 12px;
+      border: 1px solid #374151;
+      padding: 12px;
+      display: flex;
+      flex-direction: column;
+      min-height: 0;
+    }
+    .panel h2 {
+      margin: 0 0 8px;
+      font-size: 1rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .feed-list {
+      flex: 1;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .feed-empty {
+      font-size: 0.85rem;
+      color: #6b7280;
+      margin-top: 8px;
+    }
+    .msg-card {
+      border-radius: 10px;
+      padding: 8px 10px;
+      border: 1px solid #1f2933;
+      background: #020617;
+      font-size: 0.85rem;
+    }
+    .msg-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 4px;
+    }
+    .msg-title {
+      font-weight: 600;
+    }
+    .msg-meta {
+      font-size: 0.7rem;
+      color: #9ca3af;
+    }
+    .msg-body {
+      margin: 4px 0 0;
+      white-space: pre-wrap;
+    }
+    .badge {
+      border-radius: 999px;
+      padding: 2px 8px;
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+    .badge-info {
+      background: rgba(59,130,246,0.2);
+      border: 1px solid rgba(59,130,246,0.5);
+      color: #bfdbfe;
+    }
+    .badge-warning {
+      background: rgba(245,158,11,0.2);
+      border: 1px solid rgba(245,158,11,0.5);
+      color: #fcd34d;
+    }
+    .badge-opportunity {
+      background: rgba(16,185,129,0.2);
+      border: 1px solid rgba(16,185,129,0.5);
+      color: #6ee7b7;
+    }
+    .badge-source {
+      background: #020617;
+      border: 1px solid #1f2937;
+      color: #9ca3af;
+    }
+    .back-link {
+      font-size: 0.8rem;
+      color: #9ca3af;
+      text-decoration: underline;
+      cursor: pointer;
+    }
+    .top-row-actions {
+      display: flex;
+      gap: 6px;
+      font-size: 0.8rem;
+    }
+    .top-row-actions button {
+      padding: 4px 10px;
+      border-radius: 999px;
+      border: 1px solid #374151;
+      background: #020617;
+      color: #9ca3af;
+      cursor: pointer;
+    }
+    .top-row-actions button:hover {
+      border-color: #6b7280;
+      color: #e5e7eb;
+    }
+
+    /* RIGHT PANEL: mind window + chat */
+    .right-panel-content {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      min-height: 0;
+    }
+
+    /* Mind Window */
+    .mind-window {
+      display: grid;
+      grid-template-columns: minmax(0, 1.1fr) minmax(0, 1.3fr);
+      gap: 8px;
+      border-radius: 10px;
+      padding: 8px;
+      border: 1px solid #111827;
+      background: radial-gradient(circle at top left, #1d283a 0, #020617 55%, #000 100%);
+      position: relative;
+      overflow: hidden;
+      transition: box-shadow 0.25s ease, border-color 0.25s ease, opacity 0.25s ease;
+      opacity: 0.8;
+    }
+    .mind-window.active {
+      box-shadow: 0 0 20px rgba(96,165,250,0.45);
+      border-color: #2563eb;
+      opacity: 1;
+    }
+    .mind-label {
+      position: absolute;
+      top: 4px;
+      left: 8px;
+      font-size: 0.65rem;
+      color: #9ca3af;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      opacity: 0.8;
+    }
+    .mind-visual {
+      position: relative;
+      min-height: 90px;
+      border-radius: 10px;
+      overflow: hidden;
+      background: radial-gradient(circle at 10% 0, #22c55e33, transparent 55%),
+                  radial-gradient(circle at 90% 100%, #3b82f633, transparent 55%),
+                  #020617;
+      border: 1px solid rgba(55,65,81,0.7);
+    }
+    .mind-gradient {
+      position: absolute;
+      inset: 0;
+      background: conic-gradient(from 180deg, #22c55e, #0ea5e9, #6366f1, #22c55e);
+      opacity: 0.12;
+      mix-blend-mode: screen;
+      animation: mind-spin 9s linear infinite;
+    }
+    .orb {
+      position: absolute;
+      width: 24px;
+      height: 24px;
+      border-radius: 999px;
+      border: 1px solid rgba(191,219,254,0.85);
+      box-shadow: 0 0 10px rgba(96,165,250,0.8);
+      background: radial-gradient(circle at 30% 20%, #e0f2fe, #1d4ed8);
+      opacity: 0.8;
+    }
+    .orb-1 {
+      top: 18%;
+      left: 14%;
+      animation: orb-orbit-1 6s ease-in-out infinite;
+    }
+    .orb-2 {
+      top: 55%;
+      left: 55%;
+      width: 18px;
+      height: 18px;
+      animation: orb-orbit-2 7s ease-in-out infinite;
+    }
+    .orb-3 {
+      top: 25%;
+      right: 12%;
+      width: 20px;
+      height: 20px;
+      animation: orb-orbit-3 8s ease-in-out infinite;
+    }
+    .mind-wave {
+      position: absolute;
+      bottom: -35%;
+      left: -10%;
+      right: -10%;
+      height: 60%;
+      background: linear-gradient(180deg, transparent 0%, #0f172a 30%, #020617 100%);
+      opacity: 0.6;
+      overflow: hidden;
+    }
+    .mind-wave::before,
+    .mind-wave::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(circle at 10% 0, #60a5fa33, transparent 60%),
+                  radial-gradient(circle at 70% 50%, #22c55e33, transparent 60%);
+      opacity: 0.5;
+      animation: wave-drift 7s ease-in-out infinite;
+    }
+    .mind-wave::after {
+      animation-duration: 11s;
+      opacity: 0.35;
+    }
+
+    .mind-code {
+      border-radius: 10px;
+      border: 1px solid #111827;
+      background: #020617;
+      font-family: "SF Mono", Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+      font-size: 0.7rem;
+      padding: 8px;
+      white-space: pre-wrap;
+      max-height: 120px;
+      overflow-y: auto;
+      color: #9ca3af;
+    }
+    .mind-window.active .mind-code {
+      border-color: #1d4ed8;
+      box-shadow: inset 0 0 12px rgba(37,99,235,0.35);
+      color: #e5e7eb;
+    }
+
+    .chat-transcript {
+      flex: 1;
+      overflow-y: auto;
+      border-radius: 8px;
+      border: 1px solid #111827;
+      background: #020617;
+      padding: 8px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      font-size: 0.85rem;
+    }
+    .chat-line {
+      max-width: 90%;
+      padding: 6px 8px;
+      border-radius: 8px;
+      white-space: pre-wrap;
+    }
+    .chat-line.me {
+      align-self: flex-end;
+      background: #1d4ed8;
+      color: #e5e7eb;
+    }
+    .chat-line.ai {
+      align-self: flex-start;
+      background: #111827;
+      color: #e5e7eb;
+    }
+    form {
+      margin-top: 8px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    textarea {
+      resize: vertical;
+      min-height: 60px;
+      max-height: 120px;
+      padding: 6px 8px;
+      border-radius: 8px;
+      border: 1px solid #374151;
+      background: #020617;
+      color: #e5e7eb;
+      font-family: inherit;
+      font-size: 0.9rem;
+    }
+    button {
+      align-self: flex-end;
+      padding: 6px 14px;
+      border-radius: 999px;
+      border: 1px solid #2563eb;
+      background: #1d4ed8;
+      color: #e5e7eb;
+      font-size: 0.85rem;
+      cursor: pointer;
+    }
+    button:disabled {
+      opacity: 0.6;
+      cursor: default;
+    }
+
+    /* Animations */
+    @keyframes mind-spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    @keyframes orb-orbit-1 {
+      0% { transform: translate(0, 0); }
+      25% { transform: translate(10px, 6px); }
+      50% { transform: translate(6px, -6px); }
+      75% { transform: translate(-6px, 4px); }
+      100% { transform: translate(0, 0); }
+    }
+    @keyframes orb-orbit-2 {
+      0% { transform: translate(0, 0) scale(1); }
+      25% { transform: translate(-8px, 4px) scale(1.08); }
+      50% { transform: translate(-4px, -4px) scale(0.95); }
+      75% { transform: translate(6px, 2px) scale(1.05); }
+      100% { transform: translate(0, 0) scale(1); }
+    }
+    @keyframes orb-orbit-3 {
+      0% { transform: translate(0, 0); }
+      25% { transform: translate(-4px, 6px); }
+      50% { transform: translate(-10px, 2px); }
+      75% { transform: translate(0, -4px); }
+      100% { transform: translate(0, 0); }
+    }
+    @keyframes wave-drift {
+      0% { transform: translateX(0); }
+      50% { transform: translateX(12px); }
+      100% { transform: translateX(0); }
+    }
+
+    @media (max-width: 960px) {
+      main {
+        grid-template-columns: minmax(0, 1fr);
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div>
+      <h1>RetroCatz Brain</h1>
+      <p>Store Oracle • Market Watcher • Trend Brain</p>
+    </div>
+    <div class="brain-controls">
+      <span class="back-link" onclick="window.location.href='index.html'">&larr; Back to Dashboard</span>
+      <span id="aiLiveStatus" class="live-status">AI status unknown</span>
+      <label>
+        Mode:
+        <select id="aiMode">
+          <option value="lab" selected>Auto</option>
+          <option value="on">Online</option>
+          <option value="off">Off</option>
+        </select>
+      </label>
+      <label>
+        Chattiness:
+        <select id="aiChattiness">
+          <option value="quiet">Quiet</option>
+          <option value="normal" selected>Normal</option>
+          <option value="chatty">Talkative</option>
+        </select>
+      </label>
+    </div>
+  </header>
+
+  <main>
+    <section class="panel">
+      <h2>
+        Manager Messages
+        <span class="top-row-actions">
+          <button type="button" id="refreshFeedBtn">Refresh</button>
+        </span>
+      </h2>
+      <div id="feedList" class="feed-list"></div>
+      <div id="feedEmpty" class="feed-empty" style="display:none;">
+        No messages yet. Once the Oracle starts analyzing your store, notes will appear here.
+      </div>
+    </section>
+
+    <section class="panel">
+      <div class="right-panel-content">
+        <div id="mindWindow" class="mind-window">
+          <span class="mind-label">mind activity</span>
+          <div class="mind-visual">
+            <div class="mind-gradient"></div>
+            <div class="orb orb-1"></div>
+            <div class="orb orb-2"></div>
+            <div class="orb orb-3"></div>
+            <div class="mind-wave"></div>
+          </div>
+          <div class="mind-code">
+            <pre id="mindCode"></pre>
+          </div>
+        </div>
+
+        <h2>Talk to the Brain</h2>
+        <div id="chatTranscript" class="chat-transcript"></div>
+        <form id="chatForm">
+          <textarea id="chatInput" placeholder="Ask about sales, inventory, trends, or ideas..."></textarea>
+          <button type="submit" id="chatSendBtn">Send</button>
+        </form>
+      </div>
+    </section>
+  </main>
+
+  <script src="ai.js"></script>
+</body>
+</html>

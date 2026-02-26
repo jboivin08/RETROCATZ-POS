@@ -1,0 +1,3668 @@
+<!-- src/renderer/pos.html : RetroCatz POS - ergonomic register with tabs, recent sales, refunds/voids, settings -->
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>RetroCatz POS - Register</title>
+  <!-- CSP now allows talking to backend API -->
+  <meta http-equiv="Content-Security-Policy"
+        content="default-src 'self' file:;
+                 img-src 'self' file: data:;
+                 style-src 'self' 'unsafe-inline';
+                 script-src 'self' 'unsafe-inline';
+                 connect-src 'self' http://127.0.0.1:5175 http://localhost:5175;">
+  <link rel="stylesheet" href="index.css" />
+
+  <style>
+    :root {
+      --bg: #0b0b0d;
+      --bg-elevated: #111827;
+      --bg-soft: #0f172a;
+      --border: #374151;
+      --accent: #2563eb;
+      --accent-soft: rgba(37,99,235,0.14);
+      --accent-strong: rgba(37,99,235,0.3);
+      --danger: #7f1d1d;
+      --success: #4ade80;
+      --text: #e5e7eb;
+      --muted: #9ca3af;
+      --font-base: 14px;
+      --radius-lg: 10px;
+      --radius-xl: 12px;
+      --shadow-soft: none;
+      --panel-bg: #0c0c0f;
+      --toolbar-bg: #091226;
+      --toolbar-border: #0e1b36;
+      --row-hover: #14161b;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 16px;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      font-size: var(--font-base);
+      min-height: 100vh;
+      height: auto;
+      display: flex;
+      flex-direction: column;
+      overflow-y: auto;
+    }
+
+    .app-shell {
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+      height: auto;
+      max-width: 1440px;
+      margin: 0 auto;
+      padding: 0;
+      gap: 8px;
+    }
+
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 16px;
+      background: var(--toolbar-bg);
+      border-radius: var(--radius-xl);
+      border: 1px solid var(--toolbar-border);
+      box-shadow: var(--shadow-soft);
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .brand-logo {
+      height: 22px;
+      width: auto;
+      display: block;
+    }
+
+    .brand-title {
+      display: flex;
+      flex-direction: column;
+      line-height: 1.1;
+    }
+
+    .brand-title span:first-child {
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      font-size: 12px;
+      color: #e5e7eb;
+    }
+
+    .brand-title span:last-child {
+      font-size: 11px;
+      color: var(--muted);
+    }
+
+    .header-right {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 12px;
+      color: var(--muted);
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+
+    .status-strip {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 10px;
+      border-radius: 8px;
+      border: 1px solid #1f2a45;
+      background: #050814;
+      color: var(--muted);
+      font-size: 11px;
+      letter-spacing: 0.02em;
+      flex-wrap: wrap;
+    }
+    .status-strip strong {
+      color: var(--text);
+      font-weight: 600;
+    }
+    .status-strip .divider {
+      width: 1px;
+      height: 12px;
+      background: rgba(148,163,184,0.4);
+    }
+    .status-strip .key {
+      color: #cbd5e1;
+    }
+    .status-strip .btn-inline {
+      border: 1px solid #2b3448;
+      background: #0f172a;
+      color: var(--text);
+      padding: 4px 8px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 11px;
+    }
+    .status-strip .btn-inline:hover {
+      border-color:#596274;
+      box-shadow:0 0 0 1px rgba(148,163,184,.35);
+    }
+
+    /* Nav Tabs Bar */
+
+    .nav-bar {
+      margin-top: 2px;
+      padding: 6px 10px;
+      border-radius: 8px;
+      background: #050814;
+      border: 1px solid #1f2a45;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+
+    .nav-tabs {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .nav-tab {
+      padding: 5px 12px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+      background: #0c0c0f;
+      color: var(--text);
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: background 0.12s ease, color 0.12s ease, border-color 0.12s ease, transform 0.06s ease;
+    }
+
+    .nav-tab:hover {
+      border-color:#596274;
+      box-shadow:0 0 0 1px rgba(148,163,184,.35);
+      transform: translateY(-0.5px);
+    }
+
+    .nav-tab-active {
+      background: #2563eb;
+      color: #e5e7eb;
+      border-color: #2563eb;
+      box-shadow: 0 0 0 1px rgba(37,99,235,0.5);
+    }
+
+    .nav-tab-return-active {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 1px rgba(37,99,235,0.8);
+      background: #0f172a;
+      color: #e5e7eb;
+    }
+
+    .nav-right {
+      font-size: 11px;
+      color: var(--muted);
+    }
+
+    main {
+      flex: 1 1 auto;
+      display: grid;
+      grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr);
+      gap: 12px;
+      min-height: 0;
+      align-content: start;
+      grid-auto-rows: minmax(0, auto);
+      overflow: visible;
+      margin-top: 4px;
+    }
+
+    @media (max-width: 1200px) {
+      main {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 1000px) {
+      header {
+        flex-wrap: wrap;
+        gap: 8px;
+      }
+      .header-right {
+        width: 100%;
+        justify-content: space-between;
+      }
+      .nav-bar {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+      .nav-tabs {
+        flex-wrap: wrap;
+        width: 100%;
+      }
+      .nav-right {
+        align-self: stretch;
+        text-align: right;
+      }
+    }
+
+    @media (max-width: 800px) {
+      .app-shell {
+        padding: 8px;
+      }
+      .nav-bar {
+        padding: 6px 8px;
+        border-radius: 12px;
+      }
+      .nav-tab {
+        flex: 1 1 auto;
+        justify-content: center;
+      }
+      .cart-table-header,
+      .cart-row {
+        grid-template-columns: 2fr 0.8fr 0.9fr 0.8fr 0.8fr auto;
+      }
+      .totals-card {
+        grid-template-columns: 1fr;
+      }
+      .tender-buttons {
+        flex-direction: column;
+        align-items: stretch;
+      }
+      .tender-buttons .btn {
+        justify-content: center;
+      }
+      .cash-keypad-grid {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+      }
+      .cash-keypad-btn.accent {
+        grid-column: span 3;
+      }
+    }
+
+    @media (max-width: 620px) {
+      .cart-table-header,
+      .cart-row {
+        grid-template-columns: 1.8fr 0.8fr 0.9fr 0.8fr auto;
+      }
+      .cart-table-header div:nth-child(2),
+      .cart-row div:nth-child(2) {
+        display: none;
+      }
+    }
+
+    /* Panels */
+
+    .panel {
+      background: var(--bg-elevated);
+      border-radius: var(--radius-xl);
+      border: 1px solid var(--border);
+      padding: 10px;
+      box-shadow: var(--shadow-soft);
+      display: flex;
+      flex-direction: column;
+      min-height: 0;
+      overflow: visible;
+    }
+
+    .panel-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 8px;
+      padding-bottom: 6px;
+      border-bottom: 1px solid #1f2a45;
+    }
+
+    .panel-header h2 {
+      font-size: 13px;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: #e5e7eb;
+      margin: 0;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .panel-header h2 span.accent-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 999px;
+      background: var(--accent);
+      box-shadow: 0 0 12px rgba(56,189,248,0.8);
+    }
+
+    .panel-header .subtext {
+      font-size: 11px;
+      color: var(--muted);
+    }
+
+    .panel-body {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      min-height: 0;
+      overflow: visible;
+    }
+
+    .content-panel-hidden {
+      display: none !important;
+    }
+
+    /* Cart Area */
+
+    .cart-table-wrapper {
+      flex: 1;
+      min-height: 0;
+      max-height: 100%;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      background: #0c0c0f;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .cart-table-header {
+      display: grid;
+      grid-template-columns: 2.6fr 0.9fr 0.7fr 0.8fr 0.7fr auto;
+      column-gap: 4px;
+      padding: 6px 8px;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--muted);
+      border-bottom: 1px solid #1f2937;
+      background: #0d0d10;
+    }
+
+    .cart-table-body {
+      flex: 1;
+      overflow-y: auto;
+      padding: 2px 0;
+    }
+
+    .cart-row {
+      display: grid;
+      grid-template-columns: 2.6fr 0.9fr 0.7fr 0.8fr 0.7fr auto;
+      column-gap: 4px;
+      align-items: center;
+      padding: 5px 8px;
+      font-size: 12px;
+      cursor: pointer;
+      position: relative;
+    }
+
+    .cart-row:nth-child(odd) {
+      background: rgba(255,255,255,0.015);
+    }
+
+    .cart-row:nth-child(even) {
+      background: rgba(255,255,255,0.01);
+    }
+
+    .cart-row.selected {
+      box-shadow: inset 0 0 0 1px var(--accent), 0 0 12px rgba(56,189,248,0.5);
+      background: radial-gradient(circle at left, rgba(56,189,248,0.15), rgba(15,23,42,0.98));
+    }
+
+    .cart-row .item-title {
+      display: flex;
+      flex-direction: column;
+      gap: 1px;
+    }
+
+    .cart-row .item-main {
+      font-weight: 500;
+      color: #e5e7eb;
+    }
+
+    .cart-row .item-meta {
+      font-size: 11px;
+      color: var(--muted);
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+
+    .cart-row .item-meta span {
+      padding: 1px 6px;
+      border-radius: 999px;
+      border: 1px solid rgba(148,163,184,0.3);
+      background: rgba(15,23,42,0.9);
+    }
+
+    .cart-row input.qty-input {
+      width: 50px;
+      padding: 2px 4px;
+      border-radius: 8px;
+      border: 1px solid rgba(148,163,184,0.6);
+      background: #020617;
+      color: var(--text);
+      font-size: 12px;
+      text-align: center;
+      outline: none;
+    }
+    .qty-controls {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .qty-btn {
+      width: 22px;
+      height: 22px;
+      border-radius: 6px;
+      border: 1px solid var(--border);
+      background: #0c0c0f;
+      color: var(--text);
+      cursor: pointer;
+      font-size: 12px;
+      line-height: 1;
+    }
+    .qty-btn:hover {
+      border-color:#596274;
+      box-shadow:0 0 0 1px rgba(148,163,184,.35);
+    }
+    .note-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 2px 6px;
+      border-radius: 6px;
+      border: 1px solid var(--border);
+      background: #0f172a;
+      font-size: 10px;
+      color: var(--muted);
+    }
+
+    .cart-row input.qty-input:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 1px rgba(56,189,248,0.5);
+    }
+
+    .cart-empty {
+      padding: 16px;
+      text-align: center;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .remove-btn {
+      border-radius: 999px;
+      border: 1px solid rgba(248,113,113,0.7);
+      background: radial-gradient(circle at top, rgba(127,29,29,0.9), rgba(127,29,29,0.95));
+      color: #fee2e2;
+      font-size: 11px;
+      padding: 3px 7px;
+      cursor: pointer;
+      justify-self: end;
+    }
+
+    .cart-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 6px 8px;
+      border-top: 1px solid #1f2937;
+      background: #0c0c0f;
+      font-size: 11px;
+      gap: 8px;
+    }
+    .cart-summary-strip {
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background: #0c0c0f;
+      padding: 8px 10px;
+      display: grid;
+      grid-template-columns: 1.2fr 1fr 1fr 1fr 1fr;
+      gap: 6px;
+      font-size: 11px;
+      color: var(--muted);
+    }
+    .cart-summary-strip strong {
+      color: var(--text);
+      font-weight: 600;
+      display: block;
+    }
+    .receipt-preview {
+      margin-top: 6px;
+      border-top: 1px dashed #1f2937;
+      padding-top: 6px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      font-size: 11px;
+      color: var(--muted);
+    }
+    .receipt-preview .line {
+      display: flex;
+      justify-content: space-between;
+      gap: 8px;
+    }
+    .receipt-preview .line span:last-child {
+      color: var(--text);
+    }
+
+    .cart-footer-left {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+
+    .cart-footer-left span {
+      padding: 3px 7px;
+      border-radius: 999px;
+      border: 1px solid rgba(148,163,184,0.3);
+      background: rgba(15,23,42,0.9);
+    }
+
+    .cart-footer-right {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      background: #0c0c0f;
+      color: var(--text);
+      font-size: 11px;
+      padding: 6px 10px;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      cursor: pointer;
+      transition: background 0.1s ease, transform 0.05s ease, box-shadow 0.1s ease, border-color 0.1s ease;
+      user-select: none;
+      white-space: nowrap;
+    }
+    .btn-mini {
+      padding: 4px 8px;
+      font-size: 10px;
+      border-radius: 6px;
+    }
+    .btn:hover {
+      border-color:#596274;
+      box-shadow:0 0 0 1px rgba(148,163,184,.35);
+      transform:translateY(-0.5px);
+    }
+
+    .btn span.kbd {
+      font-size: 10px;
+      padding: 2px 6px;
+      border-radius: 6px;
+      border: 1px solid rgba(148,163,184,0.6);
+      color: var(--muted);
+    }
+
+    .btn-primary {
+      border-color: var(--accent);
+      background: var(--accent);
+      box-shadow: 0 0 0 1px rgba(37,99,235,0.4);
+    }
+
+    .btn-primary:hover {
+      filter: brightness(1.1);
+    }
+
+    .btn-danger {
+      border-color: var(--danger);
+      background: var(--danger);
+      box-shadow: none;
+    }
+
+    .btn-soft {
+      background: rgba(15,23,42,0.9);
+    }
+
+    .btn:active {
+      transform: translateY(1px) scale(0.99);
+      box-shadow: none;
+    }
+
+    .btn:disabled {
+      opacity: 0.4;
+      cursor: default;
+      box-shadow: none;
+    }
+
+    /* CASH KEYPAD UNDER CART */
+
+    .cash-keypad {
+      margin-top: 8px;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      background: #0c0c0f;
+      padding: 8px 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .cash-keypad.collapsed .cash-keypad-grid,
+    .cash-keypad.collapsed .cash-keypad-display {
+      display: none;
+    }
+    .cash-keypad-toggle {
+      border: 1px solid var(--border);
+      background: #0f172a;
+      color: var(--text);
+      padding: 4px 8px;
+      border-radius: 6px;
+      font-size: 11px;
+      cursor: pointer;
+    }
+
+    .cash-keypad-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--muted);
+    }
+
+    .cash-keypad-display {
+      font-size: 16px;
+      font-weight: 600;
+      text-align: right;
+      padding: 4px 8px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      background: #000;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .cash-keypad-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 6px;
+    }
+
+    .cash-keypad-btn {
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      background: #0c0c0f;
+      padding: 8px 0;
+      font-size: 13px;
+      color: #e5e7eb;
+      cursor: pointer;
+      user-select: none;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: transform 0.06s ease, box-shadow 0.08s ease, background 0.08s ease;
+    }
+
+    .cash-keypad-btn.special {
+      background: var(--danger);
+      border-color: var(--danger);
+    }
+
+    .cash-keypad-btn.accent {
+      background: var(--accent);
+      border-color: var(--accent);
+    }
+
+    .cash-keypad-btn:hover {
+      transform: translateY(-0.5px);
+      box-shadow: 0 10px 20px rgba(15,23,42,0.8);
+    }
+
+    .cash-keypad-btn:active {
+      transform: translateY(1px) scale(0.98);
+      box-shadow: none;
+    }
+
+    /* Totals + Tender */
+
+    .totals-card {
+      margin-top: 8px;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      background: #0c0c0f;
+      padding: 8px 10px;
+      display: grid;
+      grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
+      gap: 10px;
+    }
+
+    @media (max-width: 900px) {
+      .totals-card {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .totals-left, .totals-right {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .totals-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 12px;
+    }
+
+    .totals-row label {
+      color: var(--muted);
+    }
+
+    .totals-row .value {
+      font-variant-numeric: tabular-nums;
+    }
+
+    .totals-row.total {
+      margin-top: 4px;
+      padding-top: 4px;
+      border-top: 1px dashed rgba(148,163,184,0.7);
+      font-size: 13px;
+      font-weight: 600;
+      color: #e5e7eb;
+    }
+
+    .totals-row.total .value {
+      font-size: 14px;
+    }
+
+    .badge {
+      font-size: 10px;
+      padding: 2px 6px;
+      border-radius: 999px;
+      border: 1px solid rgba(148,163,184,0.5);
+      color: var(--muted);
+    }
+
+    .badge-success {
+      border-color: rgba(74,222,128,0.7);
+      color: var(--success);
+    }
+
+    .input-group {
+      display: flex;
+      gap: 4px;
+      align-items: center;
+      font-size: 12px;
+    }
+
+    .input-group input {
+      flex: 1;
+      min-width: 0;
+      padding: 5px 7px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      background: #000;
+      color: var(--text);
+      outline: none;
+      font-size: 12px;
+    }
+
+    .input-group input::placeholder {
+      color: rgba(148,163,184,0.7);
+    }
+
+    .input-group input:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 1px rgba(56,189,248,0.6);
+    }
+
+    .tender-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .tender-buttons {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+
+    .total-big {
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      background: #0c0c0f;
+      padding: 10px 12px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 14px;
+      font-weight: 600;
+      margin-bottom: 6px;
+    }
+    .total-big .label {
+      color: var(--muted);
+      font-size: 11px;
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    .tender-status {
+      font-size: 11px;
+      color: var(--muted);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .tender-status strong {
+      font-variant-numeric: tabular-nums;
+    }
+
+    .tender-status .change-positive {
+      color: var(--success);
+    }
+
+    .tender-status .change-negative {
+      color: var(--danger);
+    }
+
+    /* Right Panel: Scan/Search */
+
+    .stack {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      min-height: 0;
+    }
+
+    .op-section {
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background: #0c0c0f;
+      padding: 8px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .op-header {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--muted);
+    }
+    .customer-tabs {
+      display: flex;
+      gap: 6px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background: #0b0e14;
+      padding: 4px;
+    }
+    .tab-btn {
+      flex: 1;
+      border: 1px solid transparent;
+      background: transparent;
+      color: var(--muted);
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      padding: 6px 8px;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+    .tab-btn.tab-active {
+      background: #13172a;
+      color: #e5e7eb;
+      border-color: #1f2937;
+    }
+    .hold-list {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .hold-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 8px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background: #0b0e14;
+      font-size: 11px;
+      color: var(--muted);
+    }
+    .hold-item strong {
+      color: var(--text);
+    }
+    .customer-results {
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      overflow: hidden;
+      background: #0b0e14;
+      max-height: 180px;
+    }
+    .customer-row {
+      display: grid;
+      grid-template-columns: 1.4fr 0.8fr 0.6fr;
+      gap: 8px;
+      padding: 6px 8px;
+      border-bottom: 1px solid #131a2a;
+      font-size: 11px;
+      cursor: pointer;
+    }
+    .customer-row:last-child { border-bottom: none; }
+    .customer-row:hover { background: #0f141f; }
+    .customer-row .muted { color: var(--muted); font-size: 10px; }
+    .customer-selected {
+      padding: 6px 8px;
+      border: 1px dashed var(--border);
+      border-radius: 8px;
+      font-size: 11px;
+      color: var(--muted);
+    }
+
+    .card {
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      background: var(--bg-elevated);
+      padding: 8px 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--muted);
+    }
+
+    .card-header strong {
+      color: #e5e7eb;
+    }
+
+    .card-header .hint {
+      font-size: 10px;
+      color: var(--muted);
+    }
+
+    .card-body {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      font-size: 12px;
+    }
+
+    .row {
+      display: flex;
+      gap: 6px;
+      align-items: center;
+    }
+
+    .row.stretch {
+      align-items: stretch;
+    }
+
+    .row > * {
+      flex: 1;
+    }
+
+    .row .btn {
+      flex: 0 0 auto;
+    }
+
+    .search-results {
+      max-height: 190px;
+      overflow-y: auto;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      background: #0c0c0f;
+      padding: 4px 0;
+    }
+    .scan-results {
+      max-height: 140px;
+    }
+
+    .search-item {
+      display: grid;
+      grid-template-columns: minmax(0, 2.3fr) 0.7fr 0.6fr 0.7fr;
+      gap: 4px;
+      align-items: center;
+      padding: 5px 8px;
+      cursor: pointer;
+      font-size: 12px;
+    }
+
+    .search-item:nth-child(odd) {
+      background: rgba(255,255,255,0.015);
+    }
+
+    .search-item:nth-child(even) {
+      background: rgba(255,255,255,0.01);
+    }
+
+    .search-item:hover {
+      background: #14161b;
+    }
+
+    .search-item .title {
+      display: flex;
+      flex-direction: column;
+      gap: 1px;
+    }
+
+    .search-item .title-main {
+      font-weight: 500;
+      color: #e5e7eb;
+    }
+
+    .search-item .title-meta {
+      font-size: 11px;
+      color: var(--muted);
+    }
+
+    .quick-keys {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 2px;
+    }
+
+    .quick-key {
+      flex: 1;
+      min-width: 80px;
+      border-radius: 999px;
+      border: 1px solid rgba(148,163,184,0.4);
+      background: #0c0c0f;
+      padding: 5px 8px;
+      font-size: 11px;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      cursor: pointer;
+      transition: transform 0.06s ease, box-shadow 0.08s ease;
+    }
+
+    .quick-key:hover {
+      transform: translateY(-0.5px);
+      box-shadow: 0 0 0 1px rgba(148,163,184,.35);
+    }
+
+    .quick-key strong {
+      font-size: 11px;
+      color: #e5e7eb;
+    }
+
+    .quick-key span {
+      font-size: 10px;
+      color: var(--muted);
+    }
+
+    .status-bar {
+      font-size: 10px;
+      color: var(--muted);
+      padding-top: 2px;
+      border-top: 1px dashed rgba(51,65,85,0.7);
+      margin-top: 2px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .status-bar span.right {
+      text-align: right;
+      flex: 1;
+    }
+
+    .error {
+      color: var(--danger);
+    }
+
+    .success {
+      color: var(--success);
+    }
+
+    /* Recent sales full panel */
+
+    .sales-filter-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      align-items: center;
+      margin-bottom: 4px;
+    }
+
+    .sales-filter-row .input-group {
+      max-width: 260px;
+    }
+
+    .sales-date-buttons {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px;
+    }
+
+    .sales-date-btn {
+      font-size: 11px;
+      padding: 4px 8px;
+      border-radius: 999px;
+      border: 1px solid rgba(148,163,184,0.4);
+      background: rgba(15,23,42,0.9);
+      color: var(--muted);
+      cursor: pointer;
+      transition: background 0.1s ease, border-color 0.1s ease, color 0.1s ease;
+    }
+
+    .sales-date-btn-active {
+      background: rgba(37,99,235,0.95);
+      border-color: rgba(37,99,235,0.95);
+      color: #e5e7eb;
+    }
+
+    .sales-table-wrapper {
+      flex: 1;
+      min-height: 0;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      background: var(--panel-bg);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .sales-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 11px;
+    }
+
+    .sales-table thead th {
+      text-align: left;
+      padding: 4px 6px;
+      border-bottom: 1px solid #1f2937;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      background: #0d0d10;
+      position: sticky;
+      top: 0;
+      z-index: 1;
+    }
+
+    .sales-table-body {
+      flex: 1;
+      overflow-y: auto;
+    }
+
+    .sales-table tbody tr {
+      cursor: pointer;
+    }
+
+    .sales-table tbody tr:nth-child(odd) {
+      background: rgba(255,255,255,0.015);
+    }
+
+    .sales-table tbody tr:nth-child(even) {
+      background: rgba(255,255,255,0.01);
+    }
+
+    .sales-table tbody tr:hover {
+      background: var(--row-hover);
+    }
+
+    .sales-table tbody tr.selected {
+      background: rgba(37,99,235,0.15);
+      box-shadow: inset 0 0 0 1px var(--accent);
+    }
+
+    .sales-table td {
+      padding: 4px 6px;
+      border-bottom: 1px solid rgba(15,23,42,0.9);
+    }
+
+    .sales-detail {
+      font-size: 11px;
+      color: var(--muted);
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      margin-top: 4px;
+    }
+
+    .sales-detail span strong {
+      color: var(--text);
+    }
+
+    .sales-actions {
+      display: flex;
+      gap: 6px;
+      margin-top: 4px;
+      flex-wrap: wrap;
+    }
+
+    
+
+    footer {
+      margin-top: 4px;
+      font-size: 10px;
+      color: var(--muted);
+      text-align: right;
+      opacity: 0.8;
+    }
+  </style>
+</head>
+<body>
+  <div class="app-shell">
+    <header>
+      <div class="brand">
+        <img class="brand-logo" src="assets/retrocatz-logo.png" alt="RetroCatz" />
+        <div class="brand-title">
+          <span>RetroCatz POS</span>
+          <span>Register - In-Store Checkout</span>
+        </div>
+      </div>
+      <div class="header-right">
+        <div class="status-strip">
+          <span>Cashier: <strong id="cashierName">owner</strong></span>
+          <span class="divider"></span>
+          <span>Mode: <strong id="modeLabel">Sale</strong></span>
+          <span class="divider"></span>
+          <span>Catalog: <strong id="catalogCount">0</strong></span>
+          <span class="divider"></span>
+          <span>Time: <strong id="clock">--:--</strong></span>
+          <span class="divider"></span>
+          <span class="key">F1 Scan</span>
+          <span class="key">F2 Search</span>
+          <span class="key">F12 Complete</span>
+          <button class="btn-inline" id="back">Back</button>
+        </div>
+      </div>
+    </header>
+
+    <!-- Nav Tabs -->
+    <div class="nav-bar">
+      <div class="nav-tabs">
+        <button class="nav-tab nav-tab-active" id="tab-register">Register</button>
+        <button class="nav-tab" id="tab-sales">Recent Sales</button>
+        <!-- Return Mode tab doubles as soft return toggle -->
+        <button class="nav-tab" id="btnReturnMode">Return Mode</button>
+      </div>
+      <div class="nav-right">F1 Scan | F2 Search | F12 Complete</div>
+    </div>
+
+    <!-- REGISTER PANEL (DEFAULT) -->
+    <main id="panel-register">
+      <!-- LEFT: CART + KEYPAD + TOTALS -->
+      <section class="panel">
+        <div class="panel-header">
+          <h2>
+            <span class="accent-dot"></span>
+            Active Cart
+          </h2>
+          <div class="subtext">Items in current transaction | <span id="cartCount">0 items</span></div>
+        </div>
+        <div class="panel-body">
+          <div class="cart-summary-strip" id="cartSummaryStrip">
+            <div>Items<strong id="sumItems">0</strong></div>
+            <div>Subtotal<strong id="sumSubtotal">$0.00</strong></div>
+            <div>Discount<strong id="sumDiscount">$0.00</strong></div>
+            <div>Tax<strong id="sumTax">$0.00</strong></div>
+            <div>Total<strong id="sumTotal">$0.00</strong></div>
+          </div>
+          <div class="receipt-preview" id="receiptPreview">
+            <div class="line"><span>Receipt preview</span><span>—</span></div>
+          </div>
+          <div class="totals-card">
+            <div class="totals-left">
+              <div class="totals-row">
+                <label>Subtotal</label>
+                <div class="value" id="subtotalValue">$0.00</div>
+              </div>
+              <div class="totals-row">
+                <label>
+                  Discount
+                  <span class="badge" id="discountLabel">None</span>
+                </label>
+                <div class="value" id="discountValue">- $0.00</div>
+              </div>
+              <div class="totals-row">
+                <label>
+                  Tax
+                  <span class="badge" id="taxModeLabel">Standard</span>
+                </label>
+                <div class="value" id="taxValue">$0.00</div>
+              </div>
+              <div class="totals-row total">
+                <label>Total Due</label>
+                <div class="value" id="totalValue">$0.00</div>
+              </div>
+
+              <div class="row">
+                <button class="btn btn-soft btn-mini" data-discount-percent="5">5% Off</button>
+                <button class="btn btn-soft btn-mini" data-discount-percent="10">10% Off</button>
+                <button class="btn btn-soft btn-mini" data-discount-amount="5">$5 Off</button>
+                <button class="btn btn-soft btn-mini" data-discount-amount="10">$10 Off</button>
+              </div>
+
+              <div class="input-group">
+                <input type="number" min="0" step="0.01" id="discountAmountInput" placeholder="Discount $ (entire sale)">
+                <button class="btn btn-soft" id="btnApplyDiscountAmount">Apply $</button>
+              </div>
+              <div class="input-group">
+                <input type="number" min="0" max="100" step="0.1" id="discountPercentInput" placeholder="Discount % (e.g. employee)">
+                <button class="btn btn-soft" id="btnApplyDiscountPercent">Apply %</button>
+              </div>
+              <div class="row">
+                <button class="btn btn-soft" id="btnClearDiscounts">Clear Discounts</button>
+                <button class="btn btn-soft" id="btnToggleTaxExempt">Tax Exempt</button>
+              </div>
+            </div>
+
+            <div class="totals-right">
+              <div class="total-big">
+                <span class="label">Amount Due</span>
+                <span id="totalBigValue">$0.00</span>
+              </div>
+              <div class="tender-row">
+                <div class="input-group">
+                  <input type="number" min="0" step="0.01" id="tenderAmountInput" placeholder="Amount tendered">
+                </div>
+              </div>
+
+              <div class="tender-buttons">
+                <button class="btn btn-primary" id="btnTenderCash">Cash</button>
+                <button class="btn btn-soft" id="btnTenderCard">Card</button>
+                <button class="btn btn-soft" id="btnTenderStoreCredit">Store Credit</button>
+                <button class="btn btn-soft btn-mini" id="btnTenderExact">Exact</button>
+                <button class="btn btn-soft btn-mini" id="btnTenderRoundUp">Round Up</button>
+              </div>
+
+              <div class="tender-status">
+                <span>Paid: <strong id="paidSoFar">$0.00</strong></span>
+                <span>Change: <strong id="changeDue">$0.00</strong></span>
+              </div>
+              <div class="tender-status">
+                <span>Balance: <strong id="balanceDue">$0.00</strong></span>
+                <span id="tenderMessage" class="success"></span>
+              </div>
+
+              <div class="row">
+                <button class="btn btn-primary" id="btnCompleteSale">
+                  Complete Sale (F12)
+                </button>
+                <button class="btn btn-soft" id="btnPrintReceipt">
+                  Print Receipt
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+          <div class="cart-table-wrapper">
+            <div class="cart-table-header">
+              <div>Item</div>
+              <div>Platform</div>
+              <div>Qty</div>
+              <div>Price</div>
+              <div>Total</div>
+              <div></div>
+            </div>
+            <div class="cart-table-body" id="cartBody">
+              <div class="cart-empty" id="cartEmpty">
+                Scan a barcode or search for a game to start a sale.
+              </div>
+            </div>
+            <div class="cart-footer">
+              <div class="cart-footer-left">
+                <span id="cartSummary">0 items • $0.00</span>
+                <span>F1: Scan, F2: Search, F12: Complete</span>
+              </div>
+              <div class="cart-footer-right">
+                <button class="btn btn-soft" id="btnHoldSale">
+                  Hold
+                </button>
+                <button class="btn btn-soft" id="btnRecallSale">
+                  Recall
+                </button>
+                <button class="btn btn-soft" id="btnClearSale">
+                  Clear
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- CASH KEYPAD FOR TOUCH ENTRY -->
+          <div class="cash-keypad">
+            <div class="cash-keypad-header">
+              <span>Cash / Tender Entry</span>
+              <span>Tap amounts instead of typing</span>
+              <button class="cash-keypad-toggle" id="btnToggleKeypad">Hide</button>
+            </div>
+            <div class="cash-keypad-display" id="cashKeypadDisplay">$0.00</div>
+            <div class="cash-keypad-grid">
+              <button class="cash-keypad-btn" data-cash-key="7">7</button>
+              <button class="cash-keypad-btn" data-cash-key="8">8</button>
+              <button class="cash-keypad-btn" data-cash-key="9">9</button>
+              <button class="cash-keypad-btn special" data-cash-key="C">C</button>
+
+              <button class="cash-keypad-btn" data-cash-key="4">4</button>
+              <button class="cash-keypad-btn" data-cash-key="5">5</button>
+              <button class="cash-keypad-btn" data-cash-key="6">6</button>
+              <button class="cash-keypad-btn special" data-cash-key="BS">⌫</button>
+
+              <button class="cash-keypad-btn" data-cash-key="1">1</button>
+              <button class="cash-keypad-btn" data-cash-key="2">2</button>
+              <button class="cash-keypad-btn" data-cash-key="3">3</button>
+              <button class="cash-keypad-btn" data-cash-key="00">00</button>
+
+              <button class="cash-keypad-btn" data-cash-key="0">0</button>
+              <button class="cash-keypad-btn" data-cash-key=".">.</button>
+              <button class="cash-keypad-btn accent" data-cash-key="EXACT" style="grid-column: span 2;">EXACT TOTAL</button>
+            </div>
+          </div>
+
+          
+      </section>
+
+      <!-- RIGHT: SCAN / SEARCH / QUICK KEYS / SESSION -->
+      <section class="panel">
+        <div class="panel-header">
+          <h2>
+            <span class="accent-dot"></span>
+            Operations
+          </h2>
+          <div class="subtext">
+            Fast lookup + customer tagging
+          </div>
+        </div>
+        <div class="panel-body">
+          <div class="op-section">
+            <div class="op-header">Scan / Search</div>
+            <div class="row">
+              <div class="input-group">
+                <input type="text" id="scanInput" placeholder="Scan barcode, SKU, or title">
+              </div>
+              <button class="btn btn-primary" id="btnScanAdd">Add</button>
+            </div>
+            <div class="search-results scan-results" id="scanResults"></div>
+            <div class="status-bar">
+              <span id="scanStatus">Ready to scan or search.</span>
+              <span class="right">Auto-matches while typing.</span>
+            </div>
+          </div>
+
+          <div class="op-section">
+            <div class="op-header">Last Scanned</div>
+            <div class="status-bar" style="justify-content:space-between;">
+              <span id="lastScanTitle">None yet</span>
+              <span id="lastScanPrice" class="right">$0.00</span>
+            </div>
+            <div class="status-bar">
+              <span id="lastScanMeta" class="muted">?</span>
+              <span class="right">Tap to add again later</span>
+            </div>
+          </div>
+
+          <div class="op-section">
+            <div class="op-header">Customer</div>
+            <div class="customer-tabs">
+              <button class="tab-btn tab-active" id="btnCustomerRegular" data-type="regular">Regular</button>
+              <button class="tab-btn" id="btnCustomerBusiness" data-type="business">Business</button>
+            </div>
+            <div class="input-group">
+              <input type="text" id="customerSearch" placeholder="Search customer (name, phone, email)">
+            </div>
+            <div class="customer-results" id="customerResults" style="display:none;"></div>
+            <div class="customer-selected" id="customerSelected" style="display:none;"></div>
+            <div class="input-group">
+              <input type="text" id="customerName" placeholder="Customer name (optional)">
+            </div>
+            <div class="input-group">
+              <input type="text" id="customerPhone" placeholder="Phone (optional)">
+            </div>
+            <div class="input-group" id="businessEinRow" style="display:none;">
+              <input type="text" id="customerEin" placeholder="EIN (tax exempt)">
+            </div>
+            <div class="status-bar">
+              <span id="customerTypeHint">Regular customer.</span>
+              <span class="right" id="customerTaxHint">Tax: Standard</span>
+            </div>
+          </div>
+
+          <div class="row">
+            <button class="btn btn-soft btn-mini" id="btnLookupCustomer">Lookup</button>
+            <button class="btn btn-soft btn-mini" id="btnWalkIn">Walk-in</button>
+          </div>
+
+          <div class="op-section">
+            <div class="op-header">Held Sales</div>
+            <div class="hold-list" id="holdList"></div>
+          </div>
+
+          <div class="op-section">
+            <div class="op-header">Session</div>
+            <div style="font-size: 11px; color: var(--muted); display:flex; flex-direction:column; gap:4px;">
+              <div>Active Mode: <strong id="statusModeLabel">Sale</strong></div>
+              <div>Keyboard: F1 Scan | F2 Search | F12 Complete | Del Remove line</div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <!-- RECENT SALES PANEL -->
+    <section id="panel-sales" class="panel content-panel-hidden">
+      <div class="panel-header">
+        <h2>
+          <span class="accent-dot"></span>
+          Recent Sales
+        </h2>
+        <div class="subtext">
+          Lookup by ID, RF-ID, date, amount, tender | up to 1 year
+        </div>
+      </div>
+      <div class="panel-body" style="min-height:0;">
+        <div class="sales-filter-row">
+          <div class="input-group">
+            <input type="text" id="salesSearchInput" placeholder="Search by ID, RF-ID, date (YYYY-MM-DD), amount, tender type">
+          </div>
+          <div class="sales-date-buttons">
+            <button class="sales-date-btn sales-date-btn-active" data-range="1y" id="btnSalesRange1y">1 year</button>
+            <button class="sales-date-btn" data-range="6m" id="btnSalesRange6m">6 months</button>
+            <button class="sales-date-btn" data-range="30d" id="btnSalesRange30d">Last 30 days</button>
+            <button class="sales-date-btn" data-range="7d" id="btnSalesRange7d">Last 7 days</button>
+            <button class="sales-date-btn" data-range="today" id="btnSalesRangeToday">Today</button>
+          </div>
+        </div>
+
+        <div class="sales-table-wrapper">
+          <div class="sales-table-body">
+            <table class="sales-table">
+              <thead>
+                <tr>
+                  <th style="width:22%;">Time</th>
+                  <th style="width:32%;">ID</th>
+                  <th style="width:16%;">Total</th>
+                  <th style="width:16%;">Tender</th>
+                  <th style="width:14%;">Status</th>
+                </tr>
+              </thead>
+              <tbody id="recentSalesBody"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="sales-detail" id="salesDetail">
+          <span>No sale selected.</span>
+        </div>
+        <div class="sales-actions">
+          <button class="btn btn-soft" id="btnReloadSales">Reload</button>
+          <button class="btn btn-danger" id="btnVoidSale" disabled>Void Sale</button>
+          <button class="btn btn-primary" id="btnRefundSale" disabled>Refund Sale</button>
+        </div>
+      </div>
+    </section>
+
+
+    <footer>
+      Front-end register for RetroCatz POS. Transactions and inventory are stored locally; backend API can enhance this.
+    </footer>
+  </div>
+
+  <iframe id="receipt-print-frame" style="display:none;"></iframe>
+
+  <script>
+    // --- Helper for DOM -------------------------------------------------------
+    const $ = (id) => document.getElementById(id);
+
+    // --- Simple Back navigation ----------------------------------------------
+    const backBtn = $('back');
+    if (backBtn) {
+      backBtn.addEventListener('click', () => {
+        window.location.href = 'index.html';
+      });
+    }
+
+    // --- Inventory / Catalog (wired to backend + localStorage) ----------------
+    const API_BASE = "http://127.0.0.1:5175";
+    const SESSION_KEY = "rc_session_id";
+    let catalog = [];
+    let catalogSearchIndex = [];
+    let inventoryLoaded = false;
+
+    function getAuthHeaders() {
+      const sid = localStorage.getItem(SESSION_KEY) || "";
+      return sid ? { "rc_session_id": sid } : {};
+    }
+
+    function rebuildCatalogIndex(list = []) {
+      catalogSearchIndex = list.map((item) => ({
+        item,
+        haystack: [
+          item?.title || "",
+          item?.platform || "",
+          item?.sku || "",
+          item?.barcode || "",
+          item?.condition || "",
+          item?.category || ""
+        ].join("\n").toLowerCase()
+      }));
+    }
+
+    function saveInventory(list) {
+      const normalized = Array.isArray(list) ? list : [];
+      try {
+        localStorage.setItem('inventory', JSON.stringify(normalized));
+      } catch {}
+      catalog = normalized;
+      rebuildCatalogIndex(normalized);
+    }
+
+    async function hydrateInventory() {
+      try {
+        const res = await fetch(`${API_BASE}/api/items`, { headers: { ...getAuthHeaders() } });
+        if (res.status === 401) {
+          console.warn("POS: unauthorized, redirecting to login");
+          window.location.href = "login.html";
+          return;
+        }
+        const data = await res.json();
+        const backendItems = Array.isArray(data) ? data : (data.items || []);
+
+        let legacy = [];
+        try {
+          legacy = JSON.parse(localStorage.getItem('inventory') || '[]');
+        } catch {
+          legacy = [];
+        }
+
+        const bySku = new Map();
+        backendItems.forEach(i => { if (i && i.sku) bySku.set(i.sku, i); });
+        legacy.forEach(i => { if (i && i.sku && !bySku.has(i.sku)) bySku.set(i.sku, i); });
+
+        catalog = Array.from(bySku.values());
+        saveInventory(catalog);
+      } catch (err) {
+        console.error('POS: failed to load inventory from backend, falling back to localStorage', err);
+        try {
+          catalog = JSON.parse(localStorage.getItem('inventory') || '[]');
+        } catch {
+          catalog = [];
+        }
+        rebuildCatalogIndex(catalog);
+      }
+      inventoryLoaded = true;
+
+      const catalogCountEl = $('catalogCount');
+      if (catalogCountEl) {
+        catalogCountEl.textContent = catalog.length.toString();
+      }
+    }
+
+    function getCatalog() {
+      return catalog || [];
+    }
+
+    // --- Sales log (backend DB) ----------------------------------------------
+    let salesCache = [];
+    async function loadSales() {
+      try {
+        const res = await fetch(`${API_BASE}/api/sales`, { headers: { ...getAuthHeaders() } });
+        if (!res.ok) throw new Error(`sales_load_failed_${res.status}`);
+        const data = await res.json();
+        salesCache = Array.isArray(data.rows) ? data.rows : [];
+        return salesCache;
+      } catch (e) {
+        console.warn("POS: failed to load sales from backend", e);
+        return salesCache;
+      }
+    }
+
+    // --- Tax settings ---------------------------------------------------------
+    const TAX_RATE_KEY = 'posTaxRate';
+    const HOLD_SALES_KEY = 'posHeldSales';
+    const KEYPAD_COLLAPSED_KEY = 'posKeypadCollapsed';
+    const MANAGER_PIN_KEY = 'posManagerPin';
+
+    // forward declaration used later
+    let currentTotals = {
+      subtotal: 0,
+      discount: 0,
+      tax: 0,
+      total: 0
+    };
+
+    function loadTaxRate() {
+      let baseRate = 0.07; // default 7%
+      try {
+        const stored = localStorage.getItem(TAX_RATE_KEY);
+        if (stored != null) {
+          const v = parseFloat(stored);
+          if (!isNaN(v) && v >= 0 && v <= 0.25) {
+            baseRate = v;
+          }
+        }
+      } catch {}
+      state.taxRate = baseRate;
+      const input = $('settingsTaxRate');
+      if (input) {
+        input.value = (baseRate * 100).toFixed(2);
+      }
+      const pinInput = $('settingsManagerPin');
+      if (pinInput) {
+        try { pinInput.value = localStorage.getItem(MANAGER_PIN_KEY) || ""; } catch {}
+      }
+    }
+
+    function saveTaxRateFromSettings() {
+      const input = $('settingsTaxRate');
+      const msg = $('settingsStatus');
+      if (!input || !msg) return;
+      const raw = input.value;
+      let pct = parseFloat(raw || '0');
+      if (isNaN(pct) || pct < 0 || pct > 25) {
+        msg.textContent = 'Enter a tax rate between 0 and 25%.';
+        msg.style.color = '#f97373';
+        return;
+      }
+      const rate = pct / 100;
+      state.taxRate = rate;
+      try {
+        localStorage.setItem(TAX_RATE_KEY, rate.toString());
+      } catch {}
+      const pinInput = $('settingsManagerPin');
+      if (pinInput) {
+        try { localStorage.setItem(MANAGER_PIN_KEY, pinInput.value.trim()); } catch {}
+      }
+      msg.textContent = 'Tax rate saved as ' + pct.toFixed(2) + '%.';
+      msg.style.color = '#9ca3af';
+      recalcAndRender();
+    }
+
+
+    // --- State ----------------------------------------------------------------
+    const state = {
+      cart: [],
+      selectedIndex: -1,
+      discountAmount: 0,
+      discountPercent: 0,
+      taxRate: 0.07,
+      taxExempt: false,
+      customerType: "regular",
+      customerId: null,
+      mode: "sale", // "sale" | "return" (soft mode: affects UI only)
+      paidAmount: 0,
+      lastTenderMethod: null, // "cash" | "card" | "store_credit"
+    };
+
+    let lastSale = null;
+    let selectedSaleId = null;
+
+    const salesFilter = {
+      search: "",
+      range: "1y" // today | 7d | 30d | 6m | 1y
+    };
+
+    // --- DOM References -------------------------------------------------------
+    const cartBodyEl = $("cartBody");
+    const cartEmptyEl = $("cartEmpty");
+    const cartSummaryEl = $("cartSummary");
+    const cartCountEl = $("cartCount");
+    const sumItemsEl = $("sumItems");
+    const sumSubtotalEl = $("sumSubtotal");
+    const sumDiscountEl = $("sumDiscount");
+    const sumTaxEl = $("sumTax");
+    const sumTotalEl = $("sumTotal");
+    const receiptPreviewEl = $("receiptPreview");
+
+    const subtotalValueEl = $("subtotalValue");
+    const discountValueEl = $("discountValue");
+    const discountLabelEl = $("discountLabel");
+    const taxValueEl = $("taxValue");
+    const taxModeLabelEl = $("taxModeLabel");
+    const totalValueEl = $("totalValue");
+    const totalBigValueEl = $("totalBigValue");
+
+    const discountAmountInput = $("discountAmountInput");
+    const discountPercentInput = $("discountPercentInput");
+    const tenderAmountInput = $("tenderAmountInput");
+
+    const paidSoFarEl = $("paidSoFar");
+    const changeDueEl = $("changeDue");
+    const balanceDueEl = $("balanceDue");
+    const tenderMessageEl = $("tenderMessage");
+
+    const modeLabelEl = $("modeLabel");
+    const statusModeLabelEl = $("statusModeLabel");
+
+    const scanInput = $("scanInput");
+    const scanStatus = $("scanStatus");
+    const scanResultsEl = $("scanResults");
+    const searchInput = scanInput;
+    const searchResultsEl = scanResultsEl;
+    const searchStatus = scanStatus;
+    const quickKeysEl = $("quickKeys");
+    const lastScanTitleEl = $("lastScanTitle");
+    const lastScanMetaEl = $("lastScanMeta");
+    const lastScanPriceEl = $("lastScanPrice");
+    const customerNameEl = $("customerName");
+    const customerPhoneEl = $("customerPhone");
+    const customerEinEl = $("customerEin");
+    const customerSearchEl = $("customerSearch");
+    const customerResultsEl = $("customerResults");
+    const customerSelectedEl = $("customerSelected");
+    const customerTypeHintEl = $("customerTypeHint");
+    const customerTaxHintEl = $("customerTaxHint");
+    const btnCustomerRegular = $("btnCustomerRegular");
+    const btnCustomerBusiness = $("btnCustomerBusiness");
+    const businessEinRow = $("businessEinRow");
+    const btnLookupCustomer = $("btnLookupCustomer");
+    const btnWalkIn = $("btnWalkIn");
+    const holdListEl = $("holdList");
+    const btnHoldSale = $("btnHoldSale");
+    const btnRecallSale = $("btnRecallSale");
+    const btnToggleKeypad = $("btnToggleKeypad");
+
+    const recentSalesBodyEl = $("recentSalesBody");
+    const salesDetailEl = $("salesDetail");
+    const btnVoidSale = $("btnVoidSale");
+    const btnRefundSale = $("btnRefundSale");
+
+    const salesSearchInput = $("salesSearchInput");
+
+    // Cash keypad DOM
+    const cashKeypadDisplayEl = $("cashKeypadDisplay");
+    let cashKeypadBuffer = "";
+
+    // --- Utility Functions ----------------------------------------------------
+    function formatMoney(value) {
+      const n = Number.isFinite(value) ? value : 0;
+      return "$" + n.toFixed(2);
+    }
+
+    function findItemByCode(code) {
+      if (!code) return null;
+      const trimmed = code.trim().toUpperCase();
+      const cat = getCatalog();
+      return cat.find(item =>
+        (item.sku && String(item.sku).toUpperCase() === trimmed) ||
+        (item.barcode && String(item.barcode).toUpperCase() === trimmed)
+      ) || null;
+    }
+
+    function searchCatalog(query) {
+      if (!query) return [];
+      const q = query.trim().toLowerCase();
+      if (!q) return [];
+      return catalogSearchIndex
+        .map((entry) => {
+          const item = entry.item || {};
+          const sku = String(item.sku || "").toLowerCase();
+          const barcode = String(item.barcode || "").toLowerCase();
+          const title = String(item.title || "").toLowerCase();
+          const platform = String(item.platform || "").toLowerCase();
+
+          let score = 999;
+          if (sku === q || barcode === q) score = 0;
+          else if (sku.startsWith(q) || title.startsWith(q)) score = 1;
+          else if (title.includes(q)) score = 2;
+          else if (platform.includes(q) || entry.haystack.includes(q)) score = 3;
+          else return null;
+
+          return { item, score };
+        })
+        .filter(Boolean)
+        .sort((a, b) => a.score - b.score)
+        .map((entry) => entry.item);
+    }
+
+    function clearResults(targetEl) {
+      if (targetEl) targetEl.innerHTML = "";
+    }
+
+    function renderResults(targetEl, results, { onPick } = {}) {
+      if (!targetEl) return;
+      targetEl.innerHTML = "";
+      if (!results || !results.length) return;
+      const fragment = document.createDocumentFragment();
+      results.slice(0, 20).forEach(item => {
+        const row = document.createElement("div");
+        row.className = "search-item";
+
+        const titleEl = document.createElement("div");
+        titleEl.className = "title";
+        const main = document.createElement("div");
+        main.className = "title-main";
+        main.textContent = item.title || item.sku || "Untitled";
+        const meta = document.createElement("div");
+        meta.className = "title-meta";
+        meta.textContent = (item.platform || "N/A") + " • " + (item.condition || "N/A");
+        titleEl.appendChild(main);
+        titleEl.appendChild(meta);
+
+        const priceEl = document.createElement("div");
+        priceEl.textContent = formatMoney(+(+item.price || 0));
+
+        const skuEl = document.createElement("div");
+        skuEl.textContent = item.sku || "";
+
+        const btnEl = document.createElement("div");
+        const btn = document.createElement("button");
+        btn.className = "btn btn-soft";
+        btn.textContent = "Add";
+        btn.addEventListener("click", (e) => {
+          e.stopPropagation();
+          if (onPick) onPick(item);
+        });
+        btnEl.appendChild(btn);
+
+        row.appendChild(titleEl);
+        row.appendChild(priceEl);
+        row.appendChild(skuEl);
+        row.appendChild(btnEl);
+
+        row.addEventListener("click", () => {
+          if (onPick) onPick(item);
+        });
+
+        fragment.appendChild(row);
+      });
+      targetEl.appendChild(fragment);
+    }
+
+    function debounce(fn, ms) {
+      let t;
+      return (...args) => {
+        clearTimeout(t);
+        t = setTimeout(() => fn(...args), ms);
+      };
+    }
+
+    function addItemToCartFromInventory(item, qty = 1) {
+      if (!item || qty === 0) return;
+
+      const price = +(+item.price || 0);
+      const sku = item.sku || "";
+      const title = item.title || "Untitled";
+      const platform = item.platform || "N/A";
+      const condition = item.condition || "N/A";
+
+      if (lastScanTitleEl) lastScanTitleEl.textContent = title || sku || "Item";
+      if (lastScanMetaEl) lastScanMetaEl.textContent = (platform || "N/A") + " • " + (condition || "N/A") + (sku ? " • " + sku : "");
+      if (lastScanPriceEl) lastScanPriceEl.textContent = formatMoney(price);
+
+      const cartItem = state.cart.find(ci =>
+        ci.sku === sku && ci.price === price
+      );
+
+      if (cartItem) {
+        cartItem.qty += qty;
+        if (cartItem.qty <= 0) {
+          state.cart = state.cart.filter(ci => ci !== cartItem);
+        }
+      } else if (qty > 0) {
+        state.cart.push({
+          sku,
+          title,
+          platform,
+          condition,
+          price,
+          qty
+        });
+      }
+
+      if (state.cart.length === 0) {
+        state.selectedIndex = -1;
+      } else if (state.selectedIndex === -1) {
+        state.selectedIndex = 0;
+      }
+
+      recalcAndRender();
+    }
+
+    function removeSelectedItem() {
+      if (state.selectedIndex < 0 || state.selectedIndex >= state.cart.length) return;
+      state.cart.splice(state.selectedIndex, 1);
+      if (state.cart.length === 0) {
+        state.selectedIndex = -1;
+      } else if (state.selectedIndex >= state.cart.length) {
+        state.selectedIndex = state.cart.length - 1;
+      }
+      recalcAndRender();
+    }
+
+    // --- Cash keypad helpers --------------------------------------------------
+    function updateCashKeypadFromBuffer() {
+      let numeric = 0;
+      if (cashKeypadBuffer) {
+        const parsed = parseFloat(cashKeypadBuffer);
+        if (!isNaN(parsed)) numeric = parsed;
+      }
+      if (cashKeypadDisplayEl) {
+        cashKeypadDisplayEl.textContent = formatMoney(numeric);
+      }
+      if (tenderAmountInput) {
+        tenderAmountInput.value = cashKeypadBuffer;
+      }
+    }
+
+    function handleCashKeypadPress(key) {
+      if (key === "C") {
+        cashKeypadBuffer = "";
+      } else if (key === "BS") {
+        cashKeypadBuffer = cashKeypadBuffer.slice(0, -1);
+      } else if (key === "EXACT") {
+        const total = currentTotals.total || 0;
+        cashKeypadBuffer = total > 0 ? total.toFixed(2) : "";
+      } else if (key === ".") {
+        if (!cashKeypadBuffer.includes(".")) {
+          cashKeypadBuffer = cashKeypadBuffer ? cashKeypadBuffer + "." : "0.";
+        }
+      } else if (key === "00") {
+        cashKeypadBuffer = (cashKeypadBuffer || "0") + "00";
+      } else {
+        // digits 0-9
+        cashKeypadBuffer = (cashKeypadBuffer || "") + key;
+      }
+
+      // Normalize leading zeros (but keep "0." as-is)
+      if (/^0[0-9]/.test(cashKeypadBuffer) && !cashKeypadBuffer.startsWith("0.")) {
+        cashKeypadBuffer = String(parseInt(cashKeypadBuffer, 10));
+      }
+
+      updateCashKeypadFromBuffer();
+    }
+
+    function clearSale() {
+      state.cart = [];
+      state.selectedIndex = -1;
+      state.discountAmount = 0;
+      state.discountPercent = 0;
+      state.taxExempt = false;
+      state.customerId = null;
+      state.paidAmount = 0;
+      state.lastTenderMethod = null;
+      if (tenderAmountInput) tenderAmountInput.value = "";
+      if (discountAmountInput) discountAmountInput.value = "";
+      if (discountPercentInput) discountPercentInput.value = "";
+      if (customerNameEl) customerNameEl.value = "";
+      if (customerPhoneEl) customerPhoneEl.value = "";
+      if (customerEinEl) customerEinEl.value = "";
+      if (customerSearchEl) customerSearchEl.value = "";
+      if (customerResultsEl) {
+        customerResultsEl.innerHTML = "";
+        customerResultsEl.style.display = "none";
+      }
+      setSelectedCustomerDisplay(null);
+      setCustomerType("regular");
+      // reset cash keypad
+      cashKeypadBuffer = "";
+      updateCashKeypadFromBuffer();
+
+      updateModeLabels();
+      recalcAndRender();
+      setTenderMessage("Sale cleared.", "success");
+    }
+
+    function toggleReturnMode() {
+      state.mode = state.mode === "sale" ? "return" : "sale";
+      updateModeLabels();
+      recalcAndRender();
+    }
+
+    function updateModeLabels() {
+      if (modeLabelEl) modeLabelEl.textContent = state.mode === "sale" ? "Sale" : "Return";
+      if (statusModeLabelEl) statusModeLabelEl.textContent = state.mode === "sale" ? "Sale" : "Return";
+      const tabReturn = $("btnReturnMode");
+      if (tabReturn) {
+        if (state.mode === "return") {
+          tabReturn.classList.add("nav-tab-return-active");
+        } else {
+          tabReturn.classList.remove("nav-tab-return-active");
+        }
+      }
+    }
+
+    function applyDiscountAmount() {
+      const value = parseFloat(discountAmountInput.value || "0");
+      state.discountAmount = isNaN(value) ? 0 : Math.max(0, value);
+      state.discountPercent = 0;
+      discountPercentInput.value = "";
+      recalcAndRender();
+    }
+
+    function applyDiscountPercent() {
+      const value = parseFloat(discountPercentInput.value || "0");
+      state.discountPercent = isNaN(value) ? 0 : Math.max(0, Math.min(100, value));
+      state.discountAmount = 0;
+      discountAmountInput.value = "";
+      recalcAndRender();
+    }
+
+    function clearDiscounts() {
+      state.discountAmount = 0;
+      state.discountPercent = 0;
+      discountAmountInput.value = "";
+      discountPercentInput.value = "";
+      recalcAndRender();
+    }
+
+    function updateCustomerHints() {
+      if (customerTypeHintEl) {
+        customerTypeHintEl.textContent = state.customerType === "business" ? "Business customer." : "Regular customer.";
+      }
+      if (customerTaxHintEl) {
+        customerTaxHintEl.textContent = state.taxExempt ? "Tax: Exempt" : "Tax: Standard";
+      }
+    }
+
+    function setCustomerType(type) {
+      const next = type === "business" ? "business" : "regular";
+      state.customerType = next;
+      if (btnCustomerRegular) btnCustomerRegular.classList.toggle("tab-active", next === "regular");
+      if (btnCustomerBusiness) btnCustomerBusiness.classList.toggle("tab-active", next === "business");
+      if (businessEinRow) businessEinRow.style.display = next === "business" ? "block" : "none";
+      if (next !== "business" && customerEinEl) customerEinEl.value = "";
+      if (customerNameEl) {
+        customerNameEl.placeholder = next === "business" ? "Business name (optional)" : "Customer name (optional)";
+      }
+      if (customerPhoneEl) {
+        customerPhoneEl.placeholder = next === "business" ? "Business phone (optional)" : "Phone (optional)";
+      }
+      updateCustomerHints();
+    }
+
+    function setSelectedCustomerDisplay(cust) {
+      if (!customerSelectedEl) return;
+      if (!cust) {
+        customerSelectedEl.style.display = "none";
+        customerSelectedEl.textContent = "";
+        return;
+      }
+      const label = `${cust.name || "Customer"}${cust.type === "business" ? " • Business" : ""}`;
+      customerSelectedEl.textContent = `Selected: ${label}`;
+      customerSelectedEl.style.display = "block";
+    }
+
+    async function searchCustomers(query) {
+      if (!customerResultsEl) return;
+      const q = String(query || "").trim();
+      if (!q) {
+        customerResultsEl.innerHTML = "";
+        customerResultsEl.style.display = "none";
+        return;
+      }
+      try {
+        const res = await fetch(`${API_BASE}/api/customers?search=${encodeURIComponent(q)}`, { headers: { ...getAuthHeaders() } });
+        if (!res.ok) throw new Error("customer_search_failed");
+        const data = await res.json();
+        const rows = Array.isArray(data.rows) ? data.rows : [];
+        renderCustomerResults(rows);
+      } catch (e) {
+        customerResultsEl.innerHTML = "";
+        customerResultsEl.style.display = "none";
+      }
+    }
+
+    function renderCustomerResults(rows) {
+      if (!customerResultsEl) return;
+      customerResultsEl.innerHTML = "";
+      if (!rows || !rows.length) {
+        customerResultsEl.style.display = "none";
+        return;
+      }
+      rows.slice(0, 8).forEach((c) => {
+        const row = document.createElement("div");
+        row.className = "customer-row";
+        const phone = c.phone || c.phone2 || c.phone3 || "";
+        const email = c.email || c.email2 || c.email3 || "";
+        row.innerHTML = `
+          <div>
+            <strong>${c.name || "Customer"}</strong>
+            <div class="muted">${email || phone}</div>
+          </div>
+          <div>${c.type || "regular"}</div>
+          <div>${c.tax_exempt ? "Exempt" : "Standard"}</div>
+        `;
+        row.addEventListener("click", () => applyCustomerFromRecord(c));
+        customerResultsEl.appendChild(row);
+      });
+      customerResultsEl.style.display = "block";
+    }
+
+    function applyCustomerFromRecord(c) {
+      state.customerId = c.id || null;
+      setCustomerType(c.type || "regular");
+      if (customerNameEl) customerNameEl.value = c.name || "";
+      if (customerPhoneEl) customerPhoneEl.value = c.phone || c.phone2 || c.phone3 || "";
+      if (customerEinEl) customerEinEl.value = c.ein || "";
+      state.taxExempt = !!c.tax_exempt;
+      updateCustomerHints();
+      setSelectedCustomerDisplay(c);
+      if (customerResultsEl) {
+        customerResultsEl.innerHTML = "";
+        customerResultsEl.style.display = "none";
+      }
+      if (customerSearchEl) customerSearchEl.value = "";
+      recalcAndRender();
+    }
+
+    function toggleTaxExempt() {
+      state.taxExempt = !state.taxExempt;
+      recalcAndRender();
+    }
+
+    function setTenderMessage(message, type = "success") {
+      if (!tenderMessageEl) return;
+      tenderMessageEl.textContent = message;
+      tenderMessageEl.classList.remove("error", "success");
+      if (type === "error") {
+        tenderMessageEl.classList.add("error");
+      } else {
+        tenderMessageEl.classList.add("success");
+      }
+    }
+
+    function methodLabel(method) {
+      switch (method) {
+        case "cash": return "Cash";
+        case "card": return "Card";
+        case "store_credit": return "Store Credit";
+        case "refund": return "Refund";
+        default: return "Payment";
+      }
+    }
+
+    function tenderPayment(method) {
+      const total = currentTotals.total;
+      if (total <= 0) {
+        setTenderMessage("No balance due.", "error");
+        return;
+      }
+
+      const raw = tenderAmountInput.value;
+      let amount = parseFloat(raw || "0");
+      if (isNaN(amount) || amount <= 0) {
+        // If no amount provided, assume exact pay for non-cash methods
+        if (method === "card" || method === "store_credit") {
+          amount = total - state.paidAmount;
+        } else {
+          setTenderMessage("Enter tender amount.", "error");
+          return;
+        }
+      }
+
+      state.paidAmount += amount;
+      state.lastTenderMethod = method;
+      recalcAndRender();
+
+      const remaining = currentTotals.total - state.paidAmount;
+      if (remaining <= 0) {
+        setTenderMessage(methodLabel(method) + " accepted. Sale can be completed.", "success");
+      } else {
+        setTenderMessage(methodLabel(method) + " accepted. Remaining: " + formatMoney(remaining), "success");
+      }
+      tenderAmountInput.value = "";
+      // sync keypad buffer with cleared field
+      cashKeypadBuffer = "";
+      updateCashKeypadFromBuffer();
+    }
+
+    async function completeSale() {
+      const total = currentTotals.total;
+      if (total <= 0) {
+        setTenderMessage("No items or total is zero.", "error");
+        return;
+      }
+
+      if (state.paidAmount < total) {
+        setTenderMessage("Insufficient payment to complete sale.", "error");
+        return;
+      }
+
+      const change = state.paidAmount - total;
+      changeDueEl.textContent = formatMoney(Math.max(0, change));
+      setTenderMessage("Sale completed. Change due: " + formatMoney(Math.max(0, change)), "success");
+
+      const discountCents = Math.round(currentTotals.discount * 100);
+      const taxCents = Math.round(currentTotals.tax * 100);
+      const feeCents = 0;
+
+      const sale = {
+        id: `SO-${new Date().toISOString().replace(/[-:TZ.]/g,'').slice(0,14)}-${Math.random().toString(36).slice(2,6).toUpperCase()}`,
+        ts: new Date().toISOString(),
+        user: "owner",
+        channel: "in_store",
+        items: state.cart.map(l => ({
+          sku: l.sku,
+          title: l.title,
+          platform: l.platform,
+          condition: l.condition,
+          price: l.price,
+          qty: l.qty
+        })),
+        customer: {
+          type: state.customerType || "regular",
+          name: customerNameEl ? customerNameEl.value || "" : "",
+          phone: customerPhoneEl ? customerPhoneEl.value || "" : "",
+          ein: customerEinEl ? customerEinEl.value || "" : "",
+          tax_exempt: !!state.taxExempt
+        },
+        customer_id: state.customerId || null,
+        tax_exempt: !!state.taxExempt,
+        discount_cents: discountCents,
+        tax_cents: taxCents,
+        fee_cents: feeCents,
+        subtotal: Number(currentTotals.subtotal.toFixed(2)),
+        total: Number(currentTotals.total.toFixed(2)),
+        tender: {
+          type: state.lastTenderMethod || "cash",
+          paid: state.paidAmount,
+          change: Math.max(0, change)
+        },
+        note: "",
+        status: "completed"
+      };
+
+      // Sync with backend (real inventory reduction + sales log)
+      try {
+        const r = await fetch(`${API_BASE}/api/sales/complete`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json", ...getAuthHeaders() },
+          body: JSON.stringify({ sale })
+        });
+        if (!r.ok) {
+          const j = await r.json().catch(() => ({}));
+          setTenderMessage(j.error || "Inventory sync failed.", "error");
+          return;
+        }
+        const j = await r.json().catch(() => ({}));
+        if (j && j.saleId) {
+          sale.server_id = j.saleId;
+          sale.id = j.saleId;
+        }
+      } catch (err) {
+        console.error("Inventory sync failed:", err);
+        setTenderMessage("Inventory sync failed.", "error");
+        return;
+      }
+
+
+
+      lastSale = sale;
+
+
+      openReceiptWindow(sale);
+      await renderRecentSales();
+
+      setTimeout(clearSale, 500);
+    }
+
+    function printReceipt() {
+      if (!lastSale) {
+        window.print();
+        return;
+      }
+      openReceiptWindow(lastSale);
+    }
+
+    // --- Totals Calculation ---------------------------------------------------
+    function calculateTotals() {
+      let subtotal = 0;
+      for (const item of state.cart) {
+        const line = item.price * item.qty;
+        subtotal += line;
+      }
+
+      let discount = 0;
+      if (state.discountAmount > 0) {
+        discount = Math.min(state.discountAmount, subtotal);
+      } else if (state.discountPercent > 0) {
+        discount = subtotal * (state.discountPercent / 100);
+      }
+
+      subtotal = Math.max(0, subtotal);
+
+      let taxable = subtotal - discount;
+      taxable = Math.max(0, taxable);
+
+      let tax = 0;
+      if (!state.taxExempt) {
+        tax = taxable * state.taxRate;
+      }
+
+      const total = taxable + tax;
+
+      currentTotals = {
+        subtotal,
+        discount,
+        tax,
+        total
+      };
+    }
+
+    // --- Render Functions -----------------------------------------------------
+    function renderCart() {
+      if (!cartBodyEl || !cartEmptyEl) return;
+
+      cartBodyEl.innerHTML = "";
+      if (state.cart.length === 0) {
+        cartBodyEl.appendChild(cartEmptyEl);
+        cartEmptyEl.style.display = "block";
+      } else {
+        cartEmptyEl.style.display = "none";
+
+        state.cart.forEach((item, index) => {
+          const row = document.createElement("div");
+          row.className = "cart-row";
+          if (index === state.selectedIndex) {
+            row.classList.add("selected");
+          }
+
+          const itemCol = document.createElement("div");
+          itemCol.className = "item-title";
+          const main = document.createElement("div");
+          main.className = "item-main";
+          main.textContent = item.title;
+          const meta = document.createElement("div");
+          meta.className = "item-meta";
+
+          const platformTag = document.createElement("span");
+          platformTag.textContent = item.platform || "N/A";
+          const condTag = document.createElement("span");
+          condTag.textContent = item.condition || "N/A";
+          meta.appendChild(platformTag);
+          meta.appendChild(condTag);
+          if (item.sku) {
+            const skuTag = document.createElement("span");
+            skuTag.textContent = item.sku;
+            meta.appendChild(skuTag);
+          }
+          if (item.note) {
+            const noteTag = document.createElement("span");
+            noteTag.className = "note-pill";
+            noteTag.textContent = "Note";
+            meta.appendChild(noteTag);
+          }
+
+          itemCol.appendChild(main);
+          itemCol.appendChild(meta);
+
+          const platformCol = document.createElement("div");
+          platformCol.textContent = item.platform || "N/A";
+
+          const qtyCol = document.createElement("div");
+          const qtyWrap = document.createElement("div");
+          qtyWrap.className = "qty-controls";
+          const btnMinus = document.createElement("button");
+          btnMinus.className = "qty-btn";
+          btnMinus.textContent = "−";
+          btnMinus.addEventListener("click", (e) => {
+            e.stopPropagation();
+            item.qty = Math.max(0, item.qty - 1);
+            if (item.qty <= 0) {
+              state.cart.splice(index, 1);
+              if (state.cart.length === 0) {
+                state.selectedIndex = -1;
+              } else if (state.selectedIndex >= state.cart.length) {
+                state.selectedIndex = state.cart.length - 1;
+              }
+            }
+            recalcAndRender();
+          });
+          const qtyInput = document.createElement("input");
+          qtyInput.type = "number";
+          qtyInput.className = "qty-input";
+          qtyInput.value = item.qty;
+          qtyInput.addEventListener("change", () => {
+            let newQty = parseInt(qtyInput.value, 10);
+            if (isNaN(newQty)) newQty = item.qty;
+            if (newQty <= 0) {
+              state.cart.splice(index, 1);
+              if (state.cart.length === 0) {
+                state.selectedIndex = -1;
+              } else if (state.selectedIndex >= state.cart.length) {
+                state.selectedIndex = state.cart.length - 1;
+              }
+            } else {
+              item.qty = newQty;
+            }
+            recalcAndRender();
+          });
+          const btnPlus = document.createElement("button");
+          btnPlus.className = "qty-btn";
+          btnPlus.textContent = "+";
+          btnPlus.addEventListener("click", (e) => {
+            e.stopPropagation();
+            item.qty += 1;
+            recalcAndRender();
+          });
+          qtyWrap.appendChild(btnMinus);
+          qtyWrap.appendChild(qtyInput);
+          qtyWrap.appendChild(btnPlus);
+          qtyCol.appendChild(qtyWrap);
+
+          const priceCol = document.createElement("div");
+          priceCol.innerHTML = `${formatMoney(item.price)} <button class="btn btn-soft btn-mini" data-act="override" data-idx="${index}">Override</button>`;
+
+          const lineTotalCol = document.createElement("div");
+          lineTotalCol.textContent = formatMoney(item.price * item.qty);
+
+          const removeCol = document.createElement("div");
+          const noteBtn = document.createElement("button");
+          noteBtn.className = "btn btn-soft btn-mini";
+          noteBtn.textContent = "Note";
+          noteBtn.addEventListener("click", (e) => {
+            e.stopPropagation();
+            const input = prompt("Line item note:", item.note || "");
+            if (input === null) return;
+            item.note = input.trim();
+            recalcAndRender();
+          });
+          const removeBtn = document.createElement("button");
+          removeBtn.className = "remove-btn";
+          removeBtn.textContent = "×";
+          removeBtn.addEventListener("click", (e) => {
+            e.stopPropagation();
+            state.cart.splice(index, 1);
+            if (state.cart.length === 0) {
+              state.selectedIndex = -1;
+            } else if (state.selectedIndex >= state.cart.length) {
+              state.selectedIndex = state.cart.length - 1;
+            }
+            recalcAndRender();
+          });
+          removeCol.appendChild(noteBtn);
+          removeCol.appendChild(removeBtn);
+
+          row.appendChild(itemCol);
+          row.appendChild(platformCol);
+          row.appendChild(qtyCol);
+          row.appendChild(priceCol);
+          row.appendChild(lineTotalCol);
+          row.appendChild(removeCol);
+
+          row.addEventListener("click", () => {
+            state.selectedIndex = index;
+            renderCart();
+          });
+
+          cartBodyEl.appendChild(row);
+        });
+      }
+
+      const totalItems = state.cart.reduce((sum, item) => sum + item.qty, 0);
+      cartSummaryEl.textContent = totalItems + " item" + (totalItems === 1 ? "" : "s") +
+        " • " + formatMoney(currentTotals.subtotal);
+      cartCountEl.textContent = cartSummaryEl.textContent;
+    }
+
+    function renderTotals() {
+      subtotalValueEl.textContent = formatMoney(currentTotals.subtotal);
+      discountValueEl.textContent = "- " + formatMoney(currentTotals.discount);
+      taxValueEl.textContent = formatMoney(currentTotals.tax);
+      totalValueEl.textContent = formatMoney(currentTotals.total);
+      if (totalBigValueEl) {
+        totalBigValueEl.textContent = formatMoney(currentTotals.total);
+      }
+      if (sumItemsEl) sumItemsEl.textContent = String(state.cart.reduce((a, i) => a + i.qty, 0));
+      if (sumSubtotalEl) sumSubtotalEl.textContent = formatMoney(currentTotals.subtotal);
+      if (sumDiscountEl) sumDiscountEl.textContent = formatMoney(currentTotals.discount);
+      if (sumTaxEl) sumTaxEl.textContent = formatMoney(currentTotals.tax);
+      if (sumTotalEl) sumTotalEl.textContent = formatMoney(currentTotals.total);
+
+      if (state.discountAmount > 0) {
+        discountLabelEl.textContent = "Manual $" + state.discountAmount.toFixed(2);
+      } else if (state.discountPercent > 0) {
+        discountLabelEl.textContent = "Percent " + state.discountPercent.toFixed(1) + "%";
+      } else {
+        discountLabelEl.textContent = "None";
+      }
+
+      taxModeLabelEl.textContent = state.taxExempt ? "Exempt" : "Standard";
+      updateCustomerHints();
+
+      const total = currentTotals.total;
+      const balance = Math.max(0, total - state.paidAmount);
+      const change = Math.max(0, state.paidAmount - total);
+      paidSoFarEl.textContent = formatMoney(state.paidAmount);
+      balanceDueEl.textContent = formatMoney(balance);
+      changeDueEl.textContent = formatMoney(change);
+
+      if (change > 0) {
+        changeDueEl.classList.add("change-positive");
+      } else {
+        changeDueEl.classList.remove("change-positive");
+      }
+
+      if (receiptPreviewEl) {
+        const lines = state.cart.slice(0, 4).map((item) => {
+          const lineTotal = (item.price || 0) * (item.qty || 1);
+          return `<div class="line"><span>${item.title || item.sku || "Item"}</span><span>${formatMoney(lineTotal)}</span></div>`;
+        }).join("");
+        receiptPreviewEl.innerHTML = lines || '<div class="line"><span>Receipt preview</span><span>—</span></div>';
+      }
+    }
+
+    function overrideLinePrice(index) {
+      const item = state.cart[index];
+      if (!item) return;
+      if (!requireManagerPin()) {
+        setTenderMessage("Manager PIN required.", "error");
+        return;
+      }
+      const input = prompt("New price for line item:", String(item.price || 0));
+      if (input == null) return;
+      const p = Number(input);
+      if (!Number.isFinite(p) || p < 0) {
+        setTenderMessage("Invalid price.", "error");
+        return;
+      }
+      item.price = Number(p.toFixed(2));
+      recalcAndRender();
+    }
+
+    function recalcAndRender() {
+      calculateTotals();
+      renderCart();
+      renderTotals();
+      // keep keypad display in sync with any total change when EXACT is hit later
+      updateCashKeypadFromBuffer();
+    }
+
+    function loadHeldSales() {
+      try {
+        const raw = localStorage.getItem(HOLD_SALES_KEY);
+        const list = raw ? JSON.parse(raw) : [];
+        return Array.isArray(list) ? list : [];
+      } catch {
+        return [];
+      }
+    }
+
+    function saveHeldSales(list) {
+      try {
+        localStorage.setItem(HOLD_SALES_KEY, JSON.stringify(list || []));
+      } catch {}
+    }
+
+    function renderHeldSales() {
+      if (!holdListEl) return;
+      const held = loadHeldSales();
+      holdListEl.innerHTML = "";
+      if (!held.length) {
+        const empty = document.createElement("div");
+        empty.className = "small muted";
+        empty.textContent = "No held sales.";
+        holdListEl.appendChild(empty);
+        return;
+      }
+      held.forEach((h) => {
+        const row = document.createElement("div");
+        row.className = "hold-item";
+        row.innerHTML = `
+          <div>
+            <strong>${h.label || "Held Sale"}</strong><br>
+            ${h.items || 0} items • ${formatMoney(h.total || 0)}
+          </div>
+          <div>
+            <button class="btn btn-soft btn-mini" data-hold-id="${h.id}">Recall</button>
+          </div>
+        `;
+        holdListEl.appendChild(row);
+      });
+    }
+
+    function holdCurrentSale() {
+      if (!state.cart.length) {
+        setTenderMessage("Nothing to hold.", "error");
+        return;
+      }
+      const held = loadHeldSales();
+      const id = "HOLD-" + Date.now().toString(36);
+      const defaultLabel = (customerNameEl && customerNameEl.value.trim()) ? customerNameEl.value.trim() : "Walk-in";
+      const label = prompt("Hold label (name or note):", defaultLabel) || defaultLabel;
+      held.unshift({
+        id,
+        label,
+        items: state.cart.reduce((a, i) => a + i.qty, 0),
+        total: currentTotals.total,
+        cart: state.cart,
+        discountAmount: state.discountAmount,
+        discountPercent: state.discountPercent,
+        taxExempt: state.taxExempt,
+        customerType: state.customerType,
+        customerId: state.customerId,
+        customerName: customerNameEl ? customerNameEl.value : "",
+        customerPhone: customerPhoneEl ? customerPhoneEl.value : "",
+        customerEin: customerEinEl ? customerEinEl.value : ""
+      });
+      saveHeldSales(held.slice(0, 20));
+      renderHeldSales();
+      clearSale();
+      setTenderMessage("Sale held.", "success");
+    }
+
+    function requireManagerPin() {
+      let pin = "";
+      try { pin = localStorage.getItem(MANAGER_PIN_KEY) || ""; } catch {}
+      if (!pin) return true;
+      const input = prompt("Manager PIN:");
+      if (input == null) return false;
+      return input.trim() === pin;
+    }
+
+    function recallHeldSale(id) {
+      const held = loadHeldSales();
+      const idx = held.findIndex(h => h.id === id);
+      if (idx < 0) return;
+      const h = held.splice(idx, 1)[0];
+      saveHeldSales(held);
+      state.cart = Array.isArray(h.cart) ? h.cart : [];
+      state.selectedIndex = state.cart.length ? 0 : -1;
+      state.discountAmount = Number(h.discountAmount || 0);
+      state.discountPercent = Number(h.discountPercent || 0);
+      state.taxExempt = !!h.taxExempt;
+      setCustomerType(h.customerType || "regular");
+      state.customerId = h.customerId || null;
+      if (customerNameEl) customerNameEl.value = h.customerName || "";
+      if (customerPhoneEl) customerPhoneEl.value = h.customerPhone || "";
+      if (customerEinEl) customerEinEl.value = h.customerEin || "";
+      if (state.customerId) {
+        setSelectedCustomerDisplay({
+          id: state.customerId,
+          name: h.customerName || "Customer",
+          type: h.customerType || "regular",
+          tax_exempt: !!h.taxExempt
+        });
+      } else {
+        setSelectedCustomerDisplay(null);
+      }
+      renderHeldSales();
+      recalcAndRender();
+      setTenderMessage("Held sale recalled.", "success");
+    }
+
+    // --- Receipt Helpers ------------------------------------------------------
+    function buildReceiptHtml(sale) {
+      const barcodeUrl = `${API_BASE}/barcode?text=${encodeURIComponent(sale.id)}&scale=2&height=40`;
+
+      const itemsHtml = (sale.items || []).map(i => `
+        <tr>
+          <td>${i.title || ""}</td>
+          <td style="text-align:right;">${formatMoney(i.price)}</td>
+          <td style="text-align:right;">${i.qty || 1}</td>
+          <td style="text-align:right;">${formatMoney((i.price || 0) * (i.qty || 1))}</td>
+        </tr>
+      `).join("");
+
+      const discount = (sale.discount_cents || 0) / 100;
+      const tax = (sale.tax_cents || 0) / 100;
+      const fee = (sale.fee_cents || 0) / 100;
+      const tender = sale.tender || {};
+      const tenderLine = `Tender: ${methodLabel(tender.type || "cash")} • Paid: ${formatMoney(tender.paid || sale.total || 0)} • Change: ${formatMoney(tender.change || 0)}`;
+
+      return `
+        <html><head><meta charset="utf-8">
+        <title>Receipt ${sale.id}</title>
+        <style>
+          @page {
+            size: letter;
+            margin: 0.5in;
+          }
+          body{font-family:system-ui,Arial,sans-serif; font-size:12px; padding:8px;}
+          .center{text-align:center}
+          table{width:100%; border-collapse:collapse}
+          td{padding:3px 0; border-bottom:1px dashed #ccc}
+          .muted{color:#555;font-size:11px}
+          img.barcode{margin-top:6px; max-width:100%; height:auto;}
+        </style>
+        </head><body>
+          <div class="center">
+            <div style="font-weight:700;">RetroCatz POS</div>
+            <div class="muted">${new Date(sale.created_at || sale.ts || Date.now()).toLocaleString()}</div>
+            <div class="muted">${sale.id}</div>
+            <div><img class="barcode" src="${barcodeUrl}" alt="Sale barcode"></div>
+            <hr/>
+          </div>
+          <table>${itemsHtml}</table>
+          <hr/>
+          <div>Subtotal: ${formatMoney(sale.subtotal || 0)}</div>
+          <div>Discount: ${formatMoney(discount)}</div>
+          <div>Tax: ${formatMoney(tax)}</div>
+          <div>Fees: ${formatMoney(fee)}</div>
+          <div style="font-weight:700;">Total: ${formatMoney(sale.total || 0)}</div>
+          <div>${tenderLine}</div>
+          <script>window.print();<\/script>
+        </body></html>
+      `;
+    }
+
+    function openReceiptWindow(sale) {
+      lastSale = sale;
+      const frame = $('receipt-print-frame');
+      if (!frame) return;
+      const win = frame.contentWindow || frame;
+      const doc = win.document;
+      doc.open();
+      doc.write(buildReceiptHtml(sale));
+      doc.close();
+      win.focus();
+      win.print();
+    }
+
+    // --- Inventory consumption & restock -------------------------------------
+    function consumeInventoryFromSale(sale) {
+      if (!sale || !sale.items || !sale.items.length) return;
+      const soldSkus = sale.items
+        .map(l => l.sku)
+        .filter(Boolean);
+
+      if (!soldSkus.length) return;
+
+      const currentInv = getCatalog();
+      const remaining = currentInv.filter(item => !soldSkus.includes(item.sku));
+
+      // if nothing changed, skip
+      if (remaining.length === currentInv.length) return;
+
+      saveInventory(remaining);
+      const catalogCountEl = $('catalogCount');
+      if (catalogCountEl) catalogCountEl.textContent = remaining.length.toString();
+    }
+
+    function adjustInventoryQuantity(inv, line, units) {
+      if (!line || !units) return;
+
+      const sku = line.sku || "";
+      const platform = line.platform || "";
+      const condition = line.condition || "";
+      const qtyChange = parseInt(line.qty, 10) || 1;
+      const delta = qtyChange * units; // units = +1 for restock, -1 for sale
+
+      // Try to match by sku + platform + condition
+      const idx = inv.findIndex(i =>
+        (i.sku || "") === sku &&
+        (i.platform || "") === platform &&
+        (i.condition || "") === condition
+      );
+
+      if (idx !== -1) {
+        // If item has a qty field, adjust it
+        const item = inv[idx];
+        let currentQty = parseInt(item.qty, 10);
+        if (isNaN(currentQty)) currentQty = 1;
+
+        const newQty = currentQty + delta;
+
+        if (newQty <= 0) {
+          // Remove from inventory if qty is now zero or less
+          inv.splice(idx, 1);
+        } else {
+          item.qty = newQty;
+        }
+      } else if (units > 0) {
+        // Restocking an item that isn't in catalog yet – add it
+        inv.push({
+          sku,
+          title: line.title,
+          platform,
+          condition,
+          price: line.price,
+          qty: qtyChange,
+          createdAt: new Date().toISOString()
+        });
+      } else if (units < 0) {
+        // Selling an item we can't find / has no qty tracking – best effort:
+        // treat catalog as "one row per copy" and remove one matching row.
+        const looseIdx = inv.findIndex(i => (i.sku || "") === sku);
+        if (looseIdx !== -1) {
+          inv.splice(looseIdx, 1);
+        }
+      }
+    }
+
+    function applySaleToInventory(sale) {
+      const inv = [...getCatalog()];
+      (sale.items || []).forEach(line => {
+        // direction -1 → units leaving inventory
+        adjustInventoryQuantity(inv, line, -1);
+      });
+      saveInventory(inv);
+
+      const catalogCountEl = $('catalogCount');
+      if (catalogCountEl) {
+        catalogCountEl.textContent = inv.length.toString();
+      }
+    }
+
+    function restockItemsFromSale(sale) {
+      const inv = [...getCatalog()];
+      (sale.items || []).forEach(line => {
+        // direction +1 → units coming back into inventory
+        adjustInventoryQuantity(inv, line, +1);
+      });
+      saveInventory(inv);
+
+      const catalogCountEl = $('catalogCount');
+      if (catalogCountEl) {
+        catalogCountEl.textContent = inv.length.toString();
+      }
+    }
+
+
+    // --- Recent Sales / Refund / Void ----------------------------------------
+    function filterSalesByRangeAndSearch(allSales) {
+      const now = Date.now();
+      const range = salesFilter.range || "1y";
+      let cutoff = 0;
+
+      switch (range) {
+        case "today": {
+          const d = new Date();
+          d.setHours(0,0,0,0);
+          cutoff = d.getTime();
+          break;
+        }
+        case "7d":
+          cutoff = now - 7 * 24 * 60 * 60 * 1000;
+          break;
+        case "30d":
+          cutoff = now - 30 * 24 * 60 * 60 * 1000;
+          break;
+        case "6m":
+          cutoff = now - 183 * 24 * 60 * 60 * 1000;
+          break;
+        case "1y":
+        default:
+          cutoff = now - 365 * 24 * 60 * 60 * 1000;
+          break;
+      }
+
+      const q = (salesFilter.search || "").trim().toLowerCase();
+
+      return allSales
+        .filter(s => {
+      const ts = new Date(s.created_at || s.ts || Date.now()).getTime();
+          if (isNaN(ts) || ts < cutoff) return false;
+          if (!q) return true;
+
+          const total = s.total || 0;
+      const haystack =
+        (s.id || "") + " " +
+        (s.originalId || "") + " " +
+        new Date(s.created_at || s.ts || Date.now()).toISOString().slice(0,10) + " " +
+        (total.toFixed ? total.toFixed(2) : String(total)) + " " +
+        (s.payment_method || "");
+          return haystack.toLowerCase().includes(q);
+        })
+        .sort((a,b) => new Date(b.ts || 0) - new Date(a.ts || 0));
+    }
+
+    async function renderRecentSales() {
+      if (!recentSalesBodyEl) return;
+      recentSalesBodyEl.innerHTML = "";
+      const all = await loadSales();
+      if (!all.length) {
+        const tr = document.createElement('tr');
+        const td = document.createElement('td');
+        td.colSpan = 5;
+        td.textContent = 'No sales recorded yet.';
+        td.style.color = '#9ca3af';
+        tr.appendChild(td);
+        recentSalesBodyEl.appendChild(tr);
+        await updateSelectedSaleUI();
+        return;
+      }
+
+      const filtered = filterSalesByRangeAndSearch(all);
+
+      if (!filtered.length) {
+        const tr = document.createElement('tr');
+        const td = document.createElement('td');
+        td.colSpan = 5;
+        td.textContent = 'No sales match the current filters.';
+        td.style.color = '#9ca3af';
+        tr.appendChild(td);
+        recentSalesBodyEl.appendChild(tr);
+        await updateSelectedSaleUI();
+        return;
+      }
+
+      filtered.forEach(sale => {
+        const tr = document.createElement('tr');
+        tr.dataset.id = sale.id;
+        const ts = new Date(sale.created_at || sale.ts || Date.now());
+        const status = sale.status || 'completed';
+        const isSelected = sale.id === selectedSaleId;
+        if (isSelected) tr.classList.add('selected');
+        const tenderLabel = methodLabel(sale.payment_method || "cash");
+
+        tr.innerHTML = `
+          <td>${ts.toLocaleString()}</td>
+          <td>${sale.id}</td>
+          <td>${formatMoney(sale.total || 0)}</td>
+          <td>${tenderLabel}</td>
+          <td>${status}</td>
+        `;
+        tr.addEventListener('click', async () => {
+          selectedSaleId = sale.id;
+          await updateSelectedSaleUI();
+          await renderRecentSales();
+        });
+        recentSalesBodyEl.appendChild(tr);
+      });
+
+      await updateSelectedSaleUI();
+    }
+
+    async function updateSelectedSaleUI() {
+      if (!salesDetailEl || !btnVoidSale || !btnRefundSale) return;
+
+      if (!selectedSaleId) {
+        salesDetailEl.innerHTML = '<span>No sale selected.</span>';
+        btnVoidSale.disabled = true;
+        btnRefundSale.disabled = true;
+        return;
+      }
+
+      const sales = await loadSales();
+      const sale = sales.find(s => s.id === selectedSaleId);
+      if (!sale) {
+        selectedSaleId = null;
+        await updateSelectedSaleUI();
+        return;
+      }
+
+      const ts = new Date(sale.created_at || sale.ts || Date.now());
+      const status = sale.status || 'completed';
+
+      salesDetailEl.innerHTML = `
+        <span><strong>ID:</strong> ${sale.id}</span>
+        <span><strong>Time:</strong> ${ts.toLocaleString()}</span>
+        <span><strong>Total:</strong> ${formatMoney(sale.total || 0)}</span>
+        <span><strong>Status:</strong> ${status}</span>
+     `;
+
+      const canAct = status === 'completed';
+      btnVoidSale.disabled = !canAct;
+      btnRefundSale.disabled = !canAct;
+    }
+
+    async function voidSelectedSale() {
+      if (!selectedSaleId) return;
+      const ok = confirm("Void this sale? Inventory will be restored.");
+      if (!ok) return;
+      try {
+        const r = await fetch(`${API_BASE}/api/sales/${encodeURIComponent(selectedSaleId)}/void`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json", ...getAuthHeaders() }
+        });
+        if (!r.ok) {
+          const j = await r.json().catch(() => ({}));
+          alert(j.error || "Void failed");
+          return;
+        }
+        await renderRecentSales();
+        await updateSelectedSaleUI();
+      } catch (e) {
+        console.error(e);
+        alert("Void failed");
+      }
+    }
+
+    async function refundSelectedSale() {
+      if (!selectedSaleId) return;
+      try {
+        const r = await fetch(`${API_BASE}/api/sales/${encodeURIComponent(selectedSaleId)}`, {
+          headers: { ...getAuthHeaders() }
+        });
+        if (!r.ok) {
+          const j = await r.json().catch(() => ({}));
+          alert(j.error || "Failed to load sale");
+          return;
+        }
+        const detail = await r.json();
+        const items = Array.isArray(detail.items) ? detail.items : [];
+        if (!items.length) return;
+
+        const refundItems = [];
+        for (const it of items) {
+          const remaining = Math.max(0, Number(it.qty || 0) - Number(it.refunded_qty || 0));
+          if (remaining <= 0) continue;
+          const input = prompt(`Refund qty for ${it.title || it.sku} (max ${remaining}):`, String(remaining));
+          if (input == null) continue;
+          const qty = Math.max(0, Math.floor(Number(input || 0)));
+          if (qty > 0) refundItems.push({ sale_item_id: it.id, qty });
+        }
+
+        if (!refundItems.length) return;
+        const reason = prompt("Refund reason (optional):", "") || "";
+
+        const rr = await fetch(`${API_BASE}/api/sales/${encodeURIComponent(selectedSaleId)}/refund`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json", ...getAuthHeaders() },
+          body: JSON.stringify({ items: refundItems, reason })
+        });
+        if (!rr.ok) {
+          const j = await rr.json().catch(() => ({}));
+          alert(j.error || "Refund failed");
+          return;
+        }
+
+        await renderRecentSales();
+        await updateSelectedSaleUI();
+      } catch (e) {
+        console.error(e);
+        alert("Refund failed");
+      }
+    }
+
+    // --- Scan / Search / Quick Keys ------------------------------------------
+    function handleScanAdd() {
+      const code = scanInput.value;
+      if (!code) {
+        scanStatus.textContent = "Enter a barcode or SKU.";
+        scanStatus.classList.remove("error");
+        return;
+      }
+      if (!inventoryLoaded) {
+        scanStatus.textContent = "Inventory still loading...";
+        scanStatus.classList.add("error");
+        return;
+      }
+      const item = findItemByCode(code);
+      if (!item) {
+        const matches = searchCatalog(code);
+        if (matches.length >= 1) {
+          addItemToCartFromInventory(matches[0], 1);
+          scanStatus.classList.remove("error");
+          scanStatus.textContent = "Added: " + (matches[0].title || matches[0].sku || "Item");
+          scanInput.value = "";
+          clearResults(scanResultsEl);
+          return;
+        }
+        scanStatus.textContent = matches.length ? "Pick a match below." : "Not found in inventory.";
+        scanStatus.classList.add("error");
+        return;
+      }
+      scanStatus.classList.remove("error");
+      scanStatus.textContent = "Added: " + (item.title || item.sku || "Item") + " (" + (item.platform || "N/A") + ")";
+      // Soft return mode: always add as positive quantity; return is handled via refund flow
+      addItemToCartFromInventory(item, 1);
+      scanInput.value = "";
+      scanInput.focus();
+      clearResults(scanResultsEl);
+    }
+
+    function handleSearch(queryOverride) {
+      const query = (queryOverride != null ? queryOverride : searchInput.value || "").trim();
+      clearResults(searchResultsEl);
+      if (!inventoryLoaded) {
+        searchStatus.textContent = "Inventory still loading...";
+        return;
+      }
+      if (!query || query.length < 2) {
+        searchStatus.textContent = "Type at least 2 characters to search.";
+        return;
+      }
+      searchStatus.textContent = "Searching...";
+      const results = searchCatalog(query);
+      if (results.length === 0) {
+        searchStatus.textContent = "No results for \"" + query + "\".";
+        return;
+      }
+      searchStatus.textContent = results.length + " result" + (results.length === 1 ? "" : "s") + " found.";
+
+      renderResults(searchResultsEl, results, {
+        onPick: (item) => {
+          addItemToCartFromInventory(item, 1);
+          searchInput.value = "";
+          clearResults(searchResultsEl);
+          searchStatus.textContent = "Ready to scan or search.";
+        }
+      });
+    }
+
+    const debouncedScanLookup = debounce(() => {
+      const q = (scanInput.value || "").trim();
+      clearResults(scanResultsEl);
+      if (!q || q.length < 2) {
+        scanStatus.textContent = "Ready to scan or search.";
+        scanStatus.classList.remove("error");
+        return;
+      }
+      scanStatus.textContent = "Searching...";
+      const results = searchCatalog(q);
+      if (!results.length) {
+        scanStatus.textContent = "No matches. Press Enter to add.";
+        scanStatus.classList.remove("error");
+        return;
+      }
+      scanStatus.textContent = results.length + " match" + (results.length === 1 ? "" : "es") + " found.";
+      renderResults(scanResultsEl, results, {
+        onPick: (item) => {
+          addItemToCartFromInventory(item, 1);
+          scanInput.value = "";
+          clearResults(scanResultsEl);
+          scanStatus.textContent = "Added: " + (item.title || item.sku || "Item");
+          scanStatus.classList.remove("error");
+          scanInput.focus();
+        }
+      });
+    }, 120);
+
+    function renderQuickKeys() {
+      if (!quickKeysEl) return;
+      quickKeysEl.innerHTML = "";
+
+      const cat = getCatalog();
+      let keys = cat.slice(0, 8);
+      if (!keys.length) {
+        keys = [
+          { sku: "DEMO-MK8D", title: "Mario Kart 8 Deluxe", platform: "Switch", condition: "New", price: 59.99 },
+          { sku: "DEMO-ZBOTW", title: "Zelda: Breath of the Wild", platform: "Switch", condition: "Preowned", price: 39.99 },
+          { sku: "DEMO-SPID2", title: "Spider-Man 2", platform: "PS5", condition: "New", price: 69.99 },
+          { sku: "DEMO-HALO", title: "Halo: MCC", platform: "Xbox One", condition: "Preowned", price: 14.99 }
+        ];
+      }
+
+      keys.forEach(item => {
+        const key = document.createElement("button");
+        key.className = "quick-key";
+        const line1 = document.createElement("strong");
+        line1.textContent = item.title || item.sku || "Untitled";
+        const line2 = document.createElement("span");
+        line2.textContent = (item.platform || "N/A") + " • " + (item.condition || "N/A") + " • " + formatMoney(+(+item.price || 0));
+        key.appendChild(line1);
+        key.appendChild(line2);
+
+        key.addEventListener("click", () => {
+          // Soft return: add as positive
+          addItemToCartFromInventory(item, 1);
+        });
+
+        quickKeysEl.appendChild(key);
+      });
+    }
+
+    // --- Clock ----------------------------------------------------------------
+    function startClock() {
+      const clockEl = $("clock");
+      if (!clockEl) return;
+      function update() {
+        const now = new Date();
+        const hh = now.getHours().toString().padStart(2, "0");
+        const mm = now.getMinutes().toString().padStart(2, "0");
+        clockEl.textContent = hh + ":" + mm;
+      }
+      update();
+      setInterval(update, 15000);
+    }
+
+    // --- Tab Navigation -------------------------------------------------------
+    function switchPanel(target) {
+      const registerPanel = $("panel-register");
+      const salesPanel = $("panel-sales");
+
+      if (registerPanel) registerPanel.classList.add("content-panel-hidden");
+      if (salesPanel) salesPanel.classList.add("content-panel-hidden");
+
+      const tabRegister = $("tab-register");
+      const tabSales = $("tab-sales");
+
+      [tabRegister, tabSales].forEach(t => {
+        if (t) t.classList.remove("nav-tab-active");
+      });
+
+      if (target === "register" && registerPanel) {
+        registerPanel.classList.remove("content-panel-hidden");
+        if (tabRegister) tabRegister.classList.add("nav-tab-active");
+      } else if (target === "sales" && salesPanel) {
+        salesPanel.classList.remove("content-panel-hidden");
+        if (tabSales) tabSales.classList.add("nav-tab-active");
+      }
+    }
+
+    async function setSalesRange(range) {
+      salesFilter.range = range;
+      const buttons = document.querySelectorAll(".sales-date-btn");
+      buttons.forEach(btn => {
+        const r = btn.getAttribute("data-range");
+        if (r === range) {
+          btn.classList.add("sales-date-btn-active");
+        } else {
+          btn.classList.remove("sales-date-btn-active");
+        }
+      });
+      await renderRecentSales();
+    }
+
+    // --- Event Listeners ------------------------------------------------------
+    function wireEvents() {
+      // Tabs
+      const tabRegister = $("tab-register");
+      const tabSales = $("tab-sales");
+      const tabReturn = $("btnReturnMode");
+
+      if (tabRegister) {
+        tabRegister.addEventListener("click", () => switchPanel("register"));
+      }
+      if (tabSales) {
+        tabSales.addEventListener("click", async () => {
+          switchPanel("sales");
+          await renderRecentSales();
+        });
+      }
+      if (tabReturn) {
+        tabReturn.addEventListener("click", toggleReturnMode);
+      }
+
+      $("btnClearSale").addEventListener("click", clearSale);
+
+      $("btnApplyDiscountAmount").addEventListener("click", applyDiscountAmount);
+      $("btnApplyDiscountPercent").addEventListener("click", applyDiscountPercent);
+      $("btnClearDiscounts").addEventListener("click", clearDiscounts);
+      $("btnToggleTaxExempt").addEventListener("click", toggleTaxExempt);
+      if (btnCustomerRegular) {
+        btnCustomerRegular.addEventListener("click", () => setCustomerType("regular"));
+      }
+      if (btnCustomerBusiness) {
+        btnCustomerBusiness.addEventListener("click", () => setCustomerType("business"));
+      }
+
+      $("btnTenderCash").addEventListener("click", () => tenderPayment("cash"));
+      $("btnTenderCard").addEventListener("click", () => tenderPayment("card"));
+      $("btnTenderStoreCredit").addEventListener("click", () => tenderPayment("store_credit"));
+      const btnTenderExact = $("btnTenderExact");
+      if (btnTenderExact) {
+        btnTenderExact.addEventListener("click", () => {
+          if (tenderAmountInput) {
+            tenderAmountInput.value = currentTotals.total.toFixed(2);
+            cashKeypadBuffer = tenderAmountInput.value;
+            updateCashKeypadFromBuffer();
+          }
+        });
+      }
+      const btnTenderRoundUp = $("btnTenderRoundUp");
+      if (btnTenderRoundUp) {
+        btnTenderRoundUp.addEventListener("click", () => {
+          const rounded = Math.ceil(currentTotals.total);
+          if (tenderAmountInput) {
+            tenderAmountInput.value = rounded.toFixed(2);
+            cashKeypadBuffer = tenderAmountInput.value;
+            updateCashKeypadFromBuffer();
+          }
+        });
+      }
+      $("btnCompleteSale").addEventListener("click", completeSale);
+      $("btnPrintReceipt").addEventListener("click", printReceipt);
+      if (btnLookupCustomer) {
+        btnLookupCustomer.addEventListener("click", () => {
+          if (!customerSearchEl) return;
+          customerSearchEl.focus();
+          customerSearchEl.select();
+        });
+      }
+      if (btnWalkIn) {
+        btnWalkIn.addEventListener("click", () => {
+          if (customerNameEl) customerNameEl.value = "";
+          if (customerPhoneEl) customerPhoneEl.value = "";
+          if (customerEinEl) customerEinEl.value = "";
+          state.customerId = null;
+          setSelectedCustomerDisplay(null);
+          setCustomerType("regular");
+        });
+      }
+      [customerNameEl, customerPhoneEl, customerEinEl].forEach((el) => {
+        if (!el) return;
+        el.addEventListener("input", () => {
+          if (state.customerId) {
+            state.customerId = null;
+            setSelectedCustomerDisplay(null);
+          }
+        });
+      });
+      if (btnHoldSale) {
+        btnHoldSale.addEventListener("click", holdCurrentSale);
+      }
+      if (btnRecallSale) {
+        btnRecallSale.addEventListener("click", () => {
+          const held = loadHeldSales();
+          if (!held.length) {
+            setTenderMessage("No held sales.", "error");
+            return;
+          }
+          recallHeldSale(held[0].id);
+        });
+      }
+      if (holdListEl) {
+        holdListEl.addEventListener("click", (e) => {
+          const btn = e.target.closest("button[data-hold-id]");
+          if (!btn) return;
+          recallHeldSale(btn.getAttribute("data-hold-id"));
+        });
+      }
+      if (customerSearchEl) {
+        const runSearch = debounce((q) => searchCustomers(q), 180);
+        customerSearchEl.addEventListener("input", (e) => {
+          runSearch(e.target.value || "");
+        });
+        customerSearchEl.addEventListener("keydown", (e) => {
+          if (e.key === "Escape") {
+            customerSearchEl.value = "";
+            if (customerResultsEl) {
+              customerResultsEl.innerHTML = "";
+              customerResultsEl.style.display = "none";
+            }
+          }
+        });
+      }
+      if (btnToggleKeypad) {
+        btnToggleKeypad.addEventListener("click", () => {
+          const keypad = document.querySelector(".cash-keypad");
+          if (!keypad) return;
+          const collapsed = keypad.classList.toggle("collapsed");
+          if (btnToggleKeypad) btnToggleKeypad.textContent = collapsed ? "Show" : "Hide";
+          try { localStorage.setItem(KEYPAD_COLLAPSED_KEY, collapsed ? "1" : "0"); } catch {}
+        });
+      }
+
+      document.querySelectorAll("[data-discount-percent]").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          const pct = Number(btn.getAttribute("data-discount-percent") || 0);
+          if (pct > 0) {
+            state.discountPercent = pct;
+            state.discountAmount = 0;
+            if (discountAmountInput) discountAmountInput.value = "";
+            if (discountPercentInput) discountPercentInput.value = pct.toFixed(1);
+            recalcAndRender();
+          }
+        });
+      });
+      document.querySelectorAll("[data-discount-amount]").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          const amt = Number(btn.getAttribute("data-discount-amount") || 0);
+          if (amt > 0) {
+            state.discountAmount = amt;
+            state.discountPercent = 0;
+            if (discountPercentInput) discountPercentInput.value = "";
+            if (discountAmountInput) discountAmountInput.value = amt.toFixed(2);
+            recalcAndRender();
+          }
+        });
+      });
+
+      $("btnScanAdd").addEventListener("click", handleScanAdd);
+      scanInput.addEventListener("keydown", (e) => {
+        if (e.key === "Enter") {
+          e.preventDefault();
+          handleScanAdd();
+        }
+      });
+      scanInput.addEventListener("input", () => {
+        debouncedScanLookup();
+      });
+      scanInput.addEventListener("focus", () => {
+        if (!(scanInput.value || "").trim()) {
+          clearResults(scanResultsEl);
+          scanStatus.textContent = "Ready to scan or search.";
+          scanStatus.classList.remove("error");
+        }
+      });
+
+      const btnSearch = $("btnSearch");
+      if (btnSearch) {
+        btnSearch.addEventListener("click", handleSearch);
+      }
+
+      const btnReloadSales = $("btnReloadSales");
+      if (btnReloadSales) {
+        btnReloadSales.addEventListener("click", async () => {
+          await renderRecentSales();
+        });
+      }
+      if (btnVoidSale) {
+        btnVoidSale.addEventListener("click", voidSelectedSale);
+      }
+      if (btnRefundSale) {
+        btnRefundSale.addEventListener("click", refundSelectedSale);
+      }
+
+      // settings moved to settings.html
+
+      if (salesSearchInput) {
+        salesSearchInput.addEventListener("input", async () => {
+          salesFilter.search = salesSearchInput.value || "";
+          await renderRecentSales();
+        });
+      }
+
+      const ranges = document.querySelectorAll(".sales-date-btn");
+      ranges.forEach(btn => {
+        btn.addEventListener("click", async () => {
+          const r = btn.getAttribute("data-range") || "1y";
+          await setSalesRange(r);
+        });
+      });
+
+      // Cash keypad button wiring
+      const cashButtons = document.querySelectorAll("[data-cash-key]");
+      cashButtons.forEach(btn => {
+        btn.addEventListener("click", () => {
+          const key = btn.getAttribute("data-cash-key");
+          if (!key) return;
+          handleCashKeypadPress(key);
+        });
+      });
+
+      // Auto-format tender input on blur (e.g. 107 -> 107.00)
+      if (tenderAmountInput) {
+        tenderAmountInput.addEventListener("blur", () => {
+          const raw = tenderAmountInput.value;
+          if (!raw) return;
+          let amt = parseFloat(raw);
+          if (isNaN(amt) || amt < 0) {
+            tenderAmountInput.value = "";
+            cashKeypadBuffer = "";
+            updateCashKeypadFromBuffer();
+            return;
+          }
+          tenderAmountInput.value = amt.toFixed(2);
+          cashKeypadBuffer = amt.toFixed(2);
+          updateCashKeypadFromBuffer();
+        });
+      }
+
+      // Keyboard shortcuts
+      document.addEventListener("keydown", (e) => {
+        if (e.key === "F1") {
+          e.preventDefault();
+          switchPanel("register");
+          scanInput.focus();
+          scanInput.select();
+        } else if (e.key === "F2") {
+          e.preventDefault();
+          switchPanel("register");
+          searchInput.focus();
+          searchInput.select();
+        } else if (e.key === "F12") {
+          e.preventDefault();
+          completeSale();
+        } else if (e.key === "Delete") {
+          e.preventDefault();
+          removeSelectedItem();
+        } else if (e.key === "Enter") {
+          const tag = (e.target && e.target.tagName) ? e.target.tagName.toLowerCase() : "";
+          if (tag !== "input" && tag !== "textarea") {
+            if (state.paidAmount >= currentTotals.total && currentTotals.total > 0) {
+              e.preventDefault();
+              completeSale();
+            }
+          }
+        } else if (e.key === "Escape") {
+          clearResults(scanResultsEl);
+          scanInput.value = "";
+          scanStatus.textContent = "Ready to scan or search.";
+          scanStatus.classList.remove("error");
+        }
+      });
+
+      if (cartBodyEl) {
+        cartBodyEl.addEventListener("click", (e) => {
+          const btn = e.target.closest("button[data-act=\"override\"]");
+          if (!btn) return;
+          const idx = Number(btn.getAttribute("data-idx") || "-1");
+          if (Number.isFinite(idx) && idx >= 0) {
+            overrideLinePrice(idx);
+          }
+        });
+      }
+    }
+
+    // --- Init -----------------------------------------------------------------
+    document.addEventListener("DOMContentLoaded", () => {
+      (async () => {
+        await hydrateInventory();
+        loadTaxRate();
+        startClock();
+        renderHeldSales();
+        updateModeLabels();
+        wireEvents();
+        setCustomerType(state.customerType);
+
+        // Keep last sale for reprint
+        await loadSales();
+
+        await setSalesRange("1y");
+        await renderRecentSales();
+        recalcAndRender();
+        if (btnToggleKeypad) {
+          const collapsed = localStorage.getItem(KEYPAD_COLLAPSED_KEY) === "1";
+          const keypad = document.querySelector(".cash-keypad");
+          if (keypad && collapsed) {
+            keypad.classList.add("collapsed");
+            btnToggleKeypad.textContent = "Show";
+          }
+        }
+        setTenderMessage("Ready for next customer.", "success");
+      })();
+    });
+  </script>
+</body>
+</html>

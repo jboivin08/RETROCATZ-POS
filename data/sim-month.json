@@ -1,0 +1,21 @@
+{
+  "outPath": "C:\\Users\\PC\\Desktop\\RETROCATZ-POS\\data\\sim-month.db",
+  "seed": 12345,
+  "days": 30,
+  "items": 800,
+  "totals": {
+    "sales": 965,
+    "voids": 22,
+    "refunds": 45,
+    "inventoryCount": 1122,
+    "inventoryUnits": 3
+  },
+  "validations": {
+    "negativeQty": 0,
+    "subtotalMismatches": 0,
+    "totalMismatches": 0,
+    "refundOverages": 0,
+    "orphanSaleItems": 0,
+    "orphanRefundItems": 0
+  }
+}

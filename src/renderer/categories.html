@@ -1,0 +1,71 @@
+<!-- src/renderer/categories.html -->
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>Categories</title>
+  <link rel="stylesheet" href="index.css" />
+  <meta http-equiv="Content-Security-Policy"
+        content="default-src 'self' file:; img-src 'self' file: data:; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline';" />
+</head>
+<body>
+  <header>
+    <h1>Categories</h1>
+    <button id="back" type="button">← Back</button>
+  </header>
+
+  <main>
+    <div class="row">
+      <input id="cat-name" placeholder="new category name" />
+      <button id="cat-add" type="button">Add Category</button>
+    </div>
+    <ul id="cat-list"></ul>
+  </main>
+
+  <script>
+    const $ = (id) => document.getElementById(id);
+    const hasRequire = typeof require === 'function';
+    const ipc = hasRequire ? require('electron').ipcRenderer : null;
+
+    $('back').onclick = () => { window.location.href = 'index.html'; };
+
+    async function refresh() {
+      const list = $('cat-list');
+      list.innerHTML = '';
+      try {
+        let cats = [];
+        if (ipc?.invoke) {
+          const res = await ipc.invoke('cat:list'); // implement later
+          if (Array.isArray(res)) cats = res;
+        } else {
+          cats = JSON.parse(localStorage.getItem('cats') || '[]');
+        }
+        cats.forEach(c => {
+          const li = document.createElement('li');
+          li.textContent = c.name || c;
+          list.appendChild(li);
+        });
+      } catch (e) {
+        console.error(e);
+      }
+    }
+
+    $('cat-add').onclick = async () => {
+      const name = ($('cat-name').value || '').trim();
+      if (!name) return;
+
+      if (ipc?.invoke) {
+        await ipc.invoke('cat:add', { name }); // implement later
+      } else {
+        const cats = JSON.parse(localStorage.getItem('cats') || '[]');
+        cats.push({ name });
+        localStorage.setItem('cats', JSON.stringify(cats));
+      }
+      $('cat-name').value = '';
+      refresh();
+    };
+
+    refresh();
+  </script>
+</body>
+</html>

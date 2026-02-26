@@ -1,0 +1,24 @@
+{
+  "name": "retrocats-pos",
+  "version": "1.0.0",
+  "main": "main.js",
+  "type": "commonjs",
+  "scripts": {
+    "start": "electron .",
+    "backend": "node backend/index.js"
+  },
+  "dependencies": {
+    "bcryptjs": "^3.0.3",
+    "better-sqlite3": "^9.5.0",
+    "body-parser": "^2.2.0",
+    "bwip-js": "^4.8.0",
+    "dotenv": "^17.2.3",
+    "electron": "^39.1.1",
+    "express": "^5.1.0",
+    "node-fetch": "^2.7.0",
+    "openai": "^6.9.0",
+    "pdfkit": "^0.17.2",
+    "sql.js": "^1.13.0",
+    "uuid": "^13.0.0"
+  }
+}

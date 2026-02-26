@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Users • RetroCatz POS</title>
+  <meta http-equiv="Content-Security-Policy"
+        content="default-src 'self';
+                 script-src 'self';
+                 connect-src 'self' http://127.0.0.1:5175 http://localhost:5175;
+                 style-src 'self' 'unsafe-inline'">
+  <style>
+    body { font-family: system-ui, sans-serif; margin: 16px; }
+    .row { display: grid; gap: 8px; grid-template-columns: 1fr 1fr 140px 1fr auto; max-width: 760px; }
+    input, select, button { padding: 8px; border: 1px solid #d1d5db; border-radius: 8px; }
+    table { border-collapse: collapse; width: 100%; margin-top: 16px; font-size: 14px; }
+    th, td { border: 1px solid #e5e7eb; padding: 6px; text-align: center; }
+    th:first-child, td:first-child { text-align: left; }
+    .muted { opacity: .7; font-size: 12px; }
+    .btn-sm { padding: 6px 10px; border: 1px solid #d1d5db; border-radius: 8px; background: #fff; cursor: pointer; }
+    input[type="checkbox"] { transform: scale(1.2); cursor: pointer; }
+    .topbar { display:flex; align-items:center; justify-content:space-between; margin-bottom:12px; }
+  </style>
+</head>
+<body>
+  <div class="topbar">
+    <button id="back-btn" class="btn-sm">← Back to Main</button>
+    <h1>Users</h1>
+  </div>
+
+  <form id="user-form" class="row">
+    <input name="username" placeholder="Username" required />
+    <input name="display_name" placeholder="Display name (optional)" />
+    <select name="role">
+      <option value="clerk">clerk</option>
+      <option value="manager">manager</option>
+      <option value="owner">owner</option>
+    </select>
+    <input name="password" type="password" placeholder="Password (min 8)" required />
+    <button type="submit">Add User</button>
+  </form>
+
+  <div id="debug" class="muted" style="margin-top:8px;"></div>
+
+  <table>
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Username</th>
+        <th>Role</th>
+        <th>Active</th>
+        <th>Created</th>
+        <th>inv_add</th>
+        <th>inv_edit</th>
+        <th>inv_delete</th>
+        <th>cost_change</th>
+        <th>category_admin</th>
+        <th>user_admin</th>
+        <th>checkout</th>
+        <th>reports</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody id="users-table">
+      <tr><td colspan="14" class="muted">Loading…</td></tr>
+    </tbody>
+  </table>
+
+  <script src="./users.js"></script>
+</body>
+</html>

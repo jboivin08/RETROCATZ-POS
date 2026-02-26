@@ -1,0 +1,15 @@
+node_modules/
+dist/
+build/
+
+*.log
+backend_run.err
+backend_run.log
+
+*.db
+*.db-shm
+*.db-wal
+
+.env
+.env.*
+backend/.env

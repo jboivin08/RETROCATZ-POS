@@ -1,0 +1,772 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>Live Events • RetroCatz POS</title>
+
+<meta http-equiv="Content-Security-Policy"
+      content="default-src 'self' file:;
+               img-src 'self' file: data: http://127.0.0.1:5175 http://localhost:5175;
+               script-src 'self' 'unsafe-inline';
+               connect-src 'self' http://127.0.0.1:5175 http://localhost:5175;
+               style-src 'self' 'unsafe-inline'">
+
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+
+<style>
+  :root {
+    --bg: #0b0b0d;
+    --panel: #111827;
+    --panel-2: #0f172a;
+    --border: #374151;
+    --text: #e5e7eb;
+    --muted: #9ca3af;
+    --blue: #2563eb;
+    --danger:#7f1d1d;
+    --row-hover:#14161b;
+    --green:#22c55e;
+    --amber:#f59e0b;
+  }
+
+  * { box-sizing: border-box; }
+  body { margin: 16px; background: var(--bg); color: var(--text); font-family: system-ui, sans-serif; }
+
+  .toolbar {
+    display:flex;
+    align-items:center;
+    gap:10px;
+    background:#091226;
+    padding:12px;
+    border-radius:8px;
+    border:1px solid #0e1b36;
+    flex-wrap:wrap;
+  }
+  .toolbar h1 { margin:0; font-size:20px; font-weight:700; }
+  .logo { height:22px; width:auto; display:block; }
+
+  .toolbar-spacer { flex:1; }
+
+  .btn {
+    padding:8px 12px;
+    border:1px solid var(--border);
+    border-radius:8px;
+    background:#0c0c0f;
+    color:var(--text);
+    cursor:pointer;
+    transition:box-shadow 0.12s ease, transform 0.12s ease, border-color 0.12s ease;
+    font-size:13px;
+    white-space:nowrap;
+  }
+  .btn:hover{
+    border-color:#596274;
+    box-shadow:0 0 0 1px rgba(148,163,184,.35);
+    transform:translateY(-0.5px);
+  }
+  .btn.primary{ background: var(--blue); border-color: var(--blue); }
+  .btn.primary:hover{ filter:brightness(1.08); }
+  .btn.danger{ border-color:var(--danger); background:var(--danger); }
+  .btn.ghost{ background:transparent; }
+  .btn.success{ background:rgba(34,197,94,0.16); border-color:rgba(34,197,94,0.45); }
+  .btn.success:hover{ filter:brightness(1.08); }
+
+  .input, .select {
+    padding:8px 10px;
+    border:1px solid var(--border);
+    border-radius:8px;
+    background:#000;
+    color:var(--text);
+    outline:none;
+  }
+
+  .muted { color: var(--muted); }
+  .small { font-size:12px; color: var(--muted); }
+
+  .section {
+    border:1px solid var(--border);
+    border-radius:10px;
+    padding:10px;
+    margin-top:12px;
+    background: rgba(255,255,255,0.02);
+  }
+
+  .row { display:flex; gap:10px; flex-wrap:wrap; align-items:center; }
+  .row.tight { gap:8px; }
+
+  .pill {
+    display:inline-flex;
+    align-items:center;
+    gap:6px;
+    border-radius:999px;
+    padding:4px 10px;
+    border:1px solid rgba(148,163,184,0.35);
+    background:rgba(15,23,42,0.9);
+    font-size:11px;
+    color:#cbd5e1;
+    white-space:nowrap;
+  }
+  .pill.draft { border-color: rgba(245,158,11,0.5); }
+  .pill.final { border-color: rgba(34,197,94,0.5); }
+  .pill.voided { border-color: rgba(239,68,68,0.6); background: rgba(239,68,68,0.12); }
+  .pill.forced { border-color: rgba(34,197,94,0.55); background: rgba(34,197,94,0.12); }
+
+  .layout {
+    display:grid;
+    grid-template-columns: 1fr 420px;
+    gap:12px;
+    align-items:start;
+    margin-top:12px;
+  }
+
+  /* NEW: left side becomes stacked “search + command center” */
+  .left-col {
+    display:grid;
+    grid-template-rows: auto 1fr;
+    gap:12px;
+    align-items:start;
+  }
+
+  .panel {
+    background: var(--panel);
+    border:1px solid var(--border);
+    border-radius:12px;
+    padding:12px;
+  }
+
+  .panel h2 {
+    margin:0 0 10px;
+    font-size:14px;
+    font-weight:800;
+    letter-spacing:.01em;
+  }
+
+  .table-wrap {
+    border:1px solid var(--border);
+    border-radius:10px;
+    overflow-x:auto;
+    overflow-y:hidden;
+  }
+  table { width:100%; min-width: 980px; border-collapse:collapse; }
+  thead th { text-align:left; font-weight:700; color:#cbd5e1; background:#0d0d10; padding:10px; border-bottom:1px solid #1f2937; user-select:none; }
+  tbody td { padding:10px; vertical-align:top; }
+  tbody tr { border-bottom:1px solid rgba(148,163,184,0.10); }
+  tbody tr:nth-child(even) { background:rgba(255,255,255,0.015); }
+  tbody tr:hover { background:var(--row-hover); }
+  .right { text-align:right; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono","Courier New", monospace; }
+
+  .linkish {
+    cursor:pointer;
+    color:#93c5fd;
+    text-decoration:underline;
+    text-underline-offset:2px;
+  }
+
+  .results {
+    display:flex;
+    flex-direction:column;
+    gap:8px;
+    max-height: 58vh;
+    overflow:auto;
+    padding-right:2px;
+  }
+  .result-item {
+    border:1px solid rgba(148,163,184,0.18);
+    background: rgba(0,0,0,0.18);
+    border-radius:10px;
+    padding:10px;
+    cursor:pointer;
+    display:flex;
+    justify-content:space-between;
+    gap:10px;
+    align-items:flex-start;
+  }
+  .result-item:hover { border-color: rgba(37,99,235,0.55); box-shadow:0 0 0 1px rgba(37,99,235,0.25); }
+  .result-main { min-width:0; }
+  .result-title { font-weight:800; font-size:13px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; max-width: 100%; }
+  .result-sub { font-size:12px; color: var(--muted); margin-top:2px; }
+  .result-meta { text-align:right; font-size:12px; color:#cbd5e1; white-space:nowrap; }
+  .result-meta .muted { font-size:11px; }
+
+  .lines {
+    display:flex;
+    flex-direction:column;
+    gap:8px;
+    max-height: 64vh;
+    overflow:auto;
+    padding-right:2px;
+  }
+  .line {
+    border:1px solid rgba(148,163,184,0.18);
+    background: rgba(0,0,0,0.18);
+    border-radius:10px;
+    padding:10px;
+    display:grid;
+    grid-template-columns: 1fr;
+    gap:10px;
+  }
+  .line-top {
+    display:flex;
+    justify-content:space-between;
+    gap:10px;
+    align-items:flex-start;
+  }
+  .line-title {
+    font-weight:800;
+    font-size:13px;
+    line-height:1.15;
+  }
+  .line-sub { font-size:12px; color: var(--muted); margin-top:2px; }
+  .line-controls {
+    display:flex;
+    gap:8px;
+    flex-wrap:wrap;
+    align-items:center;
+    margin-top:6px;
+  }
+  .line-controls .input { width:110px; min-width:110px; }
+  .line-controls .input.qty { width:86px; min-width:86px; }
+  .line-controls .btn { padding:6px 10px; font-size:12px; }
+
+  .hidden { display:none !important; }
+
+  .name-edit {
+    display:flex;
+    align-items:center;
+    gap:8px;
+    flex-wrap:wrap;
+  }
+  #editorName { font-weight:900; font-size:14px; }
+  #editorNameInput {
+    display:none;
+    min-width:320px;
+    width:min(520px, 100%);
+  }
+
+  .editor-meta-row{
+    display:flex;
+    gap:10px;
+    align-items:center;
+    flex-wrap:wrap;
+  }
+  #editorChannel{ min-width:160px; }
+
+  .kpi-grid {
+    display:grid;
+    grid-template-columns: 1fr;
+    gap:8px;
+    margin-top:10px;
+  }
+  .kpi-row {
+    display:flex;
+    justify-content:space-between;
+    gap:10px;
+    align-items:center;
+  }
+  .kpi-row b { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono","Courier New", monospace; }
+  .kpi-row .input {
+    width: 170px;
+    min-width: 170px;
+    text-align:right;
+  }
+  .kpi-note {
+    margin-top:6px;
+    font-size:11px;
+    color: var(--muted);
+    line-height:1.25;
+  }
+
+  /* NEW: override actions area */
+  .override-actions {
+    display:flex;
+    flex-direction:column;
+    gap:8px;
+    align-items:flex-end;
+    width: 100%;
+  }
+  .override-actions .btn { width: 170px; justify-content:center; }
+
+  /* NEW: command center */
+  .cc-grid {
+    display:grid;
+    grid-template-columns: 1fr 1fr;
+    gap:10px;
+  }
+  .cc-card {
+    border:1px solid rgba(148,163,184,0.18);
+    background: rgba(0,0,0,0.18);
+    border-radius:10px;
+    padding:10px;
+    min-height:72px;
+  }
+  .cc-card .label { font-size:11px; color: var(--muted); }
+  .cc-card .value {
+    font-size:16px;
+    font-weight:900;
+    margin-top:4px;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono","Courier New", monospace;
+  }
+  .cc-actions {
+    display:flex;
+    gap:8px;
+    flex-wrap:wrap;
+    margin-top:10px;
+  }
+  .cc-actions .btn { padding:7px 10px; font-size:12px; }
+  #sessionNotes {
+    width:100%;
+    margin-top:10px;
+    min-height:70px;
+    resize:vertical;
+  }
+
+  @media (max-width: 1200px) {
+    .layout { grid-template-columns: 1fr; }
+    #editorNameInput { min-width: 240px; }
+    .cc-grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+
+<body>
+
+<div class="toolbar">
+  <img class="logo" src="assets/retrocatz-logo.png" alt="RetroCatz" />
+  <h1>Live Events</h1>
+
+  <button class="btn" id="btnBack">Back to Dashboard</button>
+
+  <span class="toolbar-spacer"></span>
+
+  <!-- NEW: shows when forced/override mode is active (JS can toggle) -->
+  <span class="pill forced hidden" id="forcedAvgPill">FORCED avg: <b id="forcedAvgText">$0.00</b> on <b id="forcedLineCount">0</b> line(s)</span>
+
+  <span class="pill" id="appStatus">Loading…</span>
+</div>
+
+<!-- LANDING VIEW -->
+<div id="viewLanding">
+  <div class="section">
+    <div class="row" style="justify-content:space-between;">
+      <div class="row">
+        <div class="small">Draft + Finalized event sessions live here. Click one to open and continue.</div>
+      </div>
+
+      <div class="row tight">
+        <button class="btn ghost" id="btnExportEvents">Export Events JSON</button>
+        <button class="btn danger" id="btnClearAll">Clear All (local)</button>
+      </div>
+    </div>
+
+    <div class="row" style="margin-top:10px;">
+      <input class="input" id="newEventName" style="min-width:360px; flex:1;" placeholder="Event name (e.g., Whatnot Feb 4 - 7pm)" />
+
+      <select class="select" id="newEventChannel" title="Channel">
+        <option value="whatnot">whatnot</option>
+        <option value="ebay">ebay</option>
+        <option value="expo">expo</option>
+        <option value="popup">pop-up</option>
+        <option value="in_store">in-store</option>
+        <option value="other">other</option>
+      </select>
+
+      <button class="btn primary" id="btnCreateEvent">Create Event</button>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="row" style="justify-content:space-between;">
+      <div class="row">
+        <h2 style="margin:0;font-size:14px;font-weight:800;">Saved Events</h2>
+        <span class="pill" id="eventCountPill">0</span>
+      </div>
+      <div class="row tight">
+        <select class="select" id="filterStatus" title="Filter status">
+          <option value="">all</option>
+          <option value="draft">draft</option>
+          <option value="finalized">finalized</option>
+          <option value="voided">voided</option>
+        </select>
+        <input class="input" id="filterText" placeholder="filter by name…" />
+      </div>
+    </div>
+
+    <div class="table-wrap" style="margin-top:10px;">
+      <table>
+        <thead>
+          <tr>
+            <th>Status</th>
+            <th>Name</th>
+            <th>Channel</th>
+            <th>Updated</th>
+            <th class="right">Lines</th>
+            <th class="right">Gross</th>
+            <th class="right">Cost</th>
+            <th class="right">Profit</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody id="eventsTbody"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- EDITOR VIEW -->
+<div id="viewEditor" class="hidden">
+  <div class="section">
+    <div class="row" style="justify-content:space-between;">
+      <div class="row" style="flex:1;">
+        <span class="pill" id="editorStatusPill">draft</span>
+
+        <div>
+          <div class="editor-meta-row">
+            <div class="name-edit">
+              <div id="editorName">(no event)</div>
+              <input id="editorNameInput" class="input" type="text" placeholder="Event name…" />
+              <button class="btn ghost" id="btnEditName">Edit name</button>
+              <button class="btn primary hidden" id="btnSaveName">Save</button>
+              <button class="btn ghost hidden" id="btnCancelName">Cancel</button>
+            </div>
+
+            <select class="select" id="editorChannel" title="Sales channel">
+              <option value="whatnot">whatnot</option>
+              <option value="ebay">ebay</option>
+              <option value="expo">expo</option>
+              <option value="popup">pop-up</option>
+              <option value="in_store">in-store</option>
+              <option value="other">other</option>
+            </select>
+          </div>
+
+          <div class="small" id="editorMeta">—</div>
+        </div>
+      </div>
+
+      <div class="row tight">
+        <button class="btn" id="btnEditorBack">Back to Events</button>
+        <button class="btn" id="btnSaveDraft">Save Draft</button>
+        <button class="btn success" id="btnFinalize">Finalize + Update Inventory</button>
+        <button class="btn danger" id="btnVoidSale" style="display:none;">Void Sale + Restore Inventory</button>
+      </div>
+    </div>
+
+    <div class="small" style="margin-top:8px;">
+      Tip: scan barcode or type SKU/title → press <b>Enter</b> to add top result. Press <b>Esc</b> to return to Events.
+    </div>
+  </div>
+
+  <div class="layout">
+    <!-- LEFT COLUMN NOW STACKED -->
+    <div class="left-col">
+      <section class="panel">
+        <h2>Smart Search</h2>
+
+        <div class="row">
+          <input class="input" id="smartSearch" style="min-width:360px; flex:1;" placeholder="Scan barcode / type SKU / type title…" autocomplete="off" />
+          <button class="btn ghost" id="btnReloadInventory">Reload Inventory</button>
+        </div>
+
+        <div class="small" id="searchHint" style="margin-top:8px;">
+          Start typing to search inventory…
+        </div>
+
+        <div class="results" id="results" style="margin-top:10px;">
+          <div class="muted">No search yet.</div>
+        </div>
+      </section>
+
+      <!-- NEW: COMMAND CENTER (fills that “empty space”) -->
+      <section class="panel" id="commandCenter">
+        <h2>Command Center</h2>
+
+        <div class="cc-grid">
+          <div class="cc-card">
+            <div class="label">pace (items/min)</div>
+            <div class="value" id="ccItemsPerMin">—</div>
+          </div>
+          <div class="cc-card">
+            <div class="label">gross per hour</div>
+            <div class="value" id="ccGrossPerHr">—</div>
+          </div>
+          <div class="cc-card">
+            <div class="label">avg sold (current)</div>
+            <div class="value" id="ccAvgSold">—</div>
+          </div>
+          <div class="cc-card">
+            <div class="label">profit margin</div>
+            <div class="value" id="ccMargin">—</div>
+          </div>
+        </div>
+
+        <div class="cc-actions">
+          <!-- These are safe placeholders; JS can wire later -->
+          <button class="btn ghost" id="btnCcFocusSearch" type="button">Focus Search</button>
+          <button class="btn ghost" id="btnCcJumpLines" type="button">Jump to Lines</button>
+          <button class="btn ghost" id="btnCcMarkBundle" type="button" title="Optional future: tag the next item(s) as a bundle">Bundle Mode</button>
+        </div>
+
+        <textarea id="sessionNotes" class="input" placeholder="Quick session notes (optional) — buyer deals, bundle notes, odd shipping, etc."></textarea>
+        <div class="small">Notes are optional — JS can persist later if you want.</div>
+      </section>
+    </div>
+
+    <!-- RIGHT COLUMN -->
+    <aside class="panel">
+      <h2>Event Lines</h2>
+
+      <div class="section" style="margin-top:0;">
+        <div class="row" style="justify-content:space-between;">
+          <div class="small">
+            items: <b id="sumLines">0</b> •
+            gross: <b id="sumGross">$0.00</b> •
+            cost: <b id="sumCost">$0.00</b> •
+            profit: <b id="sumProfit">$0.00</b>
+          </div>
+          <button class="btn danger" id="btnClearLines">Clear Lines</button>
+        </div>
+
+        <div class="kpi-grid">
+          <div class="kpi-row">
+            <span class="small">anticipated gross (list)</span>
+            <b id="sumAnticipated">$0.00</b>
+          </div>
+
+          <div class="kpi-row" style="align-items:flex-start;">
+            <span class="small" style="padding-top:6px;">total sold amount (override)</span>
+            <div style="display:flex; flex-direction:column; gap:8px; align-items:flex-end;">
+              <input id="overrideTotalSold" class="input" type="number" step="0.01" min="0" placeholder="e.g. 280.03" />
+              <!-- NEW: explicit container for your 3-button block -->
+              <div id="overrideActions" class="override-actions">
+                <!-- live-events.js can inject buttons here; safe if empty -->
+              </div>
+            </div>
+          </div>
+
+          <div class="kpi-row">
+            <span class="small">avg sold per unit (override)</span>
+            <b id="overrideAvg">$0.00</b>
+          </div>
+
+          <div class="kpi-row">
+            <span class="small">gross (override)</span>
+            <b id="sumGrossOverride">$0.00</b>
+          </div>
+
+          <div class="kpi-row">
+            <span class="small">profit (override)</span>
+            <b id="sumProfitOverride">$0.00</b>
+          </div>
+
+          <div class="kpi-note">
+            If you enter an override total, the page calculates an average sold price per unit across all line quantities.
+            This does <b>not</b> overwrite per-item sold prices—it's just a quick “show total / average” view.
+          </div>
+        </div>
+      </div>
+
+      <div class="lines" id="lines" style="margin-top:10px;">
+        <div class="muted">No items added yet.</div>
+      </div>
+    </aside>
+  </div>
+</div>
+
+<script>
+/**
+ * UI glue for:
+ * - editor name inline edit + emits persist event
+ * - editor channel dropdown + emits persist event
+ * - anticipated/list gross + override totals (read-only KPI view)
+ *
+ * IMPORTANT:
+ * This script should never “fight” user typing. Consider it display-only.
+ */
+(() => {
+  const fmt$ = (n) => `$${(Number(n || 0)).toFixed(2)}`;
+  const num = (v) => {
+    const n = Number(String(v ?? '').replace(/[^0-9.\-]/g,''));
+    return Number.isFinite(n) ? n : 0;
+  };
+
+  // ---------- Back buttons / escape hatch ----------
+  const go = (page) => { window.location.href = page; };
+  const btnBack = document.getElementById('btnBack');
+  if (btnBack) btnBack.addEventListener('click', () => go('index.html'));
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key !== 'Escape') return;
+    const viewEditor = document.getElementById('viewEditor');
+    const viewLanding = document.getElementById('viewLanding');
+    const editorVisible = viewEditor && !viewEditor.classList.contains('hidden');
+    if (editorVisible) {
+      const btn = document.getElementById('btnEditorBack');
+      if (btn) btn.click();
+      else {
+        viewEditor.classList.add('hidden');
+        if (viewLanding) viewLanding.classList.remove('hidden');
+      }
+    } else {
+      go('index.html');
+    }
+  });
+
+  // ---------- Name inline edit ----------
+  const nameDiv = document.getElementById('editorName');
+  const nameInput = document.getElementById('editorNameInput');
+  const btnEditName = document.getElementById('btnEditName');
+  const btnSaveName = document.getElementById('btnSaveName');
+  const btnCancelName = document.getElementById('btnCancelName');
+
+  const editorChannel = document.getElementById('editorChannel');
+  let nameBeforeEdit = '';
+
+  function setNameEditMode(on) {
+    if (!nameDiv || !nameInput || !btnEditName || !btnSaveName || !btnCancelName) return;
+    if (on) {
+      nameBeforeEdit = (nameDiv.textContent || '').trim();
+      nameInput.value = nameBeforeEdit;
+      nameDiv.style.display = 'none';
+      nameInput.style.display = 'inline-block';
+      btnEditName.classList.add('hidden');
+      btnSaveName.classList.remove('hidden');
+      btnCancelName.classList.remove('hidden');
+      setTimeout(() => { nameInput.focus(); nameInput.select(); }, 0);
+    } else {
+      nameDiv.style.display = '';
+      nameInput.style.display = 'none';
+      btnEditName.classList.remove('hidden');
+      btnSaveName.classList.add('hidden');
+      btnCancelName.classList.add('hidden');
+    }
+  }
+
+  if (btnEditName) btnEditName.addEventListener('click', () => setNameEditMode(true));
+  if (btnCancelName) btnCancelName.addEventListener('click', () => {
+    if (nameDiv) nameDiv.textContent = nameBeforeEdit || nameDiv.textContent;
+    setNameEditMode(false);
+  });
+
+  function emitMetaChanged() {
+    const name = (nameDiv?.textContent || '').trim();
+    const channel = (editorChannel?.value || '').trim();
+    window.dispatchEvent(new CustomEvent('rcz:event-meta-changed', { detail: { name, channel } }));
+  }
+
+  function commitName() {
+    if (!nameDiv || !nameInput) return;
+    const val = (nameInput.value || '').trim();
+    if (!val) { alert('Event name cannot be blank.'); return; }
+    nameDiv.textContent = val;
+    setNameEditMode(false);
+    emitMetaChanged();
+  }
+
+  if (btnSaveName) btnSaveName.addEventListener('click', commitName);
+  if (nameInput) nameInput.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') commitName();
+    if (e.key === 'Escape') setNameEditMode(false);
+  });
+
+  if (editorChannel) editorChannel.addEventListener('change', () => emitMetaChanged());
+
+  // ---------- KPI computation ----------
+  const linesEl = document.getElementById('lines');
+  const overrideTotalSold = document.getElementById('overrideTotalSold');
+
+  const overrideAvg = document.getElementById('overrideAvg');
+  const sumAnticipated = document.getElementById('sumAnticipated');
+  const sumGrossOverride = document.getElementById('sumGrossOverride');
+  const sumProfitOverride = document.getElementById('sumProfitOverride');
+
+  function readLineQty(line) {
+    if (line.dataset && line.dataset.qty) return Math.max(0, num(line.dataset.qty));
+    const q1 = line.querySelector('input.qty');
+    if (q1) return Math.max(0, num(q1.value || q1.getAttribute('value')));
+    return 0;
+  }
+
+  function readLineCost(line) {
+    if (line.dataset && line.dataset.cost) return Math.max(0, num(line.dataset.cost));
+    const text = line.textContent || '';
+    const m = text.match(/cost:\s*\$?\s*([0-9]+(?:\.[0-9]{1,2})?)/i);
+    if (m) return Math.max(0, num(m[1]));
+    return 0;
+  }
+
+  function readLineList(line) {
+    if (line.dataset && (line.dataset.list || line.dataset.listprice || line.dataset.price)) {
+      return Math.max(0, num(line.dataset.list || line.dataset.listprice || line.dataset.price));
+    }
+    const text = line.textContent || '';
+    const m = text.match(/list:\s*\$?\s*([0-9]+(?:\.[0-9]{1,2})?)/i);
+    if (m) return Math.max(0, num(m[1]));
+    return 0;
+  }
+
+  function computeFromDom() {
+    if (!linesEl) return { units: 0, cost: 0, listGross: 0 };
+    const lineNodes = Array.from(linesEl.querySelectorAll('.line'));
+    let units = 0, cost = 0, listGross = 0;
+
+    for (const line of lineNodes) {
+      const q = readLineQty(line) || 0;
+      const c = readLineCost(line) || 0;
+      const lp = readLineList(line) || 0;
+
+      units += q;
+      cost += c * q;
+      listGross += lp * q;
+    }
+    return { units, cost, listGross };
+  }
+
+  let rafPending = false;
+  function scheduleRefresh() {
+    if (rafPending) return;
+    rafPending = true;
+    requestAnimationFrame(() => {
+      rafPending = false;
+      refreshComputed();
+    });
+  }
+
+  function refreshComputed() {
+    // Never fight typing in the override input
+    if (overrideTotalSold && document.activeElement === overrideTotalSold) return;
+
+    const { units, cost, listGross } = computeFromDom();
+
+    if (sumAnticipated) sumAnticipated.textContent = fmt$(listGross);
+
+    const override = overrideTotalSold ? num(overrideTotalSold.value) : 0;
+    const avg = (override > 0 && units > 0) ? (override / units) : 0;
+
+    if (overrideAvg) overrideAvg.textContent = fmt$(avg);
+    if (sumGrossOverride) sumGrossOverride.textContent = fmt$(override || 0);
+    if (sumProfitOverride) sumProfitOverride.textContent = fmt$((override || 0) - cost);
+  }
+
+  if (overrideTotalSold) {
+    overrideTotalSold.addEventListener('input', scheduleRefresh);
+    overrideTotalSold.addEventListener('change', scheduleRefresh);
+  }
+
+  if (linesEl) {
+    linesEl.addEventListener('input', (e) => {
+      const t = e.target;
+      if (!t || t.tagName !== 'INPUT') return;
+      scheduleRefresh();
+    });
+  }
+
+  if (linesEl && 'MutationObserver' in window) {
+    const mo = new MutationObserver(() => scheduleRefresh());
+    mo.observe(linesEl, { childList: true, subtree: true });
+  }
+
+  window.addEventListener('load', () => scheduleRefresh());
+})();
+</script>
+
+<script src="live-events.js"></script>
+</body>
+</html>

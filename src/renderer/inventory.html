@@ -1,0 +1,2565 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>Inventory • RetroCatz POS</title>
+<meta http-equiv="Content-Security-Policy"
+      content="default-src 'self' file:;
+               img-src 'self' file: data: blob: http://127.0.0.1:5175 http://localhost:5175;
+               script-src 'self' 'unsafe-inline';
+               connect-src 'self' http://127.0.0.1:5175 http://localhost:5175;
+               style-src 'self' 'unsafe-inline'">
+<style>
+  :root {
+    --bg: #0b0b0d;
+    --panel: #111827;
+    --panel-2: #0f172a;
+    --border: #374151;
+    --text: #e5e7eb;
+    --muted: #9ca3af;
+    --blue: #2563eb;
+    --danger:#7f1d1d;
+    --row-hover:#14161b;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 16px; background: var(--bg); color: var(--text); font-family: system-ui, sans-serif; }
+
+  .toolbar {
+    display:flex;
+    align-items:center;
+    gap:10px;
+    background:#091226;
+    padding:12px;
+    border-radius:8px;
+    border:1px solid #0e1b36;
+    flex-wrap:wrap;
+  }
+  .toolbar h1 { margin:0; font-size:20px; font-weight:700; }
+  .logo { height:22px; width:auto; display:block; }
+
+  .toolbar-spacer {
+    flex:1;
+  }
+
+  .btn {
+    padding:8px 12px;
+    border:1px solid var(--border);
+    border-radius:8px;
+    background:#0c0c0f;
+    color:var(--text);
+    cursor:pointer;
+    transition:box-shadow 0.12s ease, transform 0.12s ease, border-color 0.12s ease;
+    font-size:13px;
+    white-space:nowrap;
+  }
+  .btn:hover{
+    border-color:#596274;
+    box-shadow:0 0 0 1px rgba(148,163,184,.35);
+    transform:translateY(-0.5px);
+  }
+  .btn.primary{ background: var(--blue); border-color: var(--blue); }
+  .btn.primary:hover{ filter:brightness(1.1); }
+  .btn.danger{ border-color:var(--danger); background:var(--danger); }
+  .btn.ghost{ background:transparent; }
+
+  .input, .select {
+    padding:8px 10px;
+    border:1px solid var(--border);
+    border-radius:8px;
+    background:#000;
+    color:var(--text);
+  }
+  .row { display:flex; gap:8px; flex-wrap:wrap; margin:10px 0 12px; }
+  .row.stock-row { margin-top:0; }
+
+  /* table now scrolls horizontally on narrow windows, keeping all columns */
+  .table-wrap {
+    border:1px solid var(--border);
+    border-radius:10px;
+    overflow-x:auto;
+    overflow-y:hidden;
+  }
+  table { width:100%; min-width:1220px; border-collapse:collapse; }
+  thead th { text-align:left; font-weight:600; color:#cbd5e1; background:#0d0d10; padding:10px; border-bottom:1px solid #1f2937; user-select:none; }
+  tbody td { padding:10px; }
+  tbody tr { border-bottom:1px solid rgba(148,163,184,0.10); }
+  tbody tr:nth-child(even) { background:rgba(255,255,255,0.015); }
+  tbody tr:hover { background:var(--row-hover); }
+  th.sortable { cursor:pointer; }
+  th.sortable:after { content:" ⏵"; opacity:.3; }
+  th.sortable.sorted-asc:after { content:" ▲"; opacity:.8; }
+  th.sortable.sorted-desc:after { content:" ▼"; opacity:.8; }
+  .right { text-align:right; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono","Courier New", monospace; }
+
+  .stock-filters { display:flex; gap:6px; flex-wrap:wrap; }
+  .filter-pill {
+    padding:6px 10px;
+    border:1px solid var(--border);
+    border-radius:999px;
+    background:#0c0c0f;
+    color:var(--text);
+    cursor:pointer;
+    font-size:12px;
+    line-height:1;
+  }
+  .filter-pill.active {
+    border-color:#3b82f6;
+    box-shadow:0 0 0 1px rgba(59,130,246,0.5);
+  }
+  .stock-pill {
+    display:inline-flex;
+    align-items:center;
+    gap:6px;
+    padding:2px 8px;
+    border-radius:999px;
+    border:1px solid rgba(148,163,184,0.35);
+    font-size:10px;
+    text-transform:uppercase;
+    letter-spacing:.04em;
+    margin-top:4px;
+    width:max-content;
+  }
+  .stock-in { color:#86efac; border-color:rgba(34,197,94,0.6); background:rgba(22,101,52,0.2); }
+  .stock-low { color:#facc15; border-color:rgba(250,204,21,0.6); background:rgba(113,63,18,0.2); }
+  .stock-out { color:#fca5a5; border-color:rgba(239,68,68,0.6); background:rgba(127,29,29,0.25); }
+  tr.row-out td { opacity:0.6; }
+
+  .flag-pill {
+    display:inline-flex;
+    align-items:center;
+    padding:2px 8px;
+    border-radius:999px;
+    border:1px solid rgba(59,130,246,0.6);
+    background:rgba(37,99,235,0.18);
+    color:#bfdbfe;
+    font-size:10px;
+    text-transform:uppercase;
+    letter-spacing:.04em;
+    cursor:pointer;
+  }
+  .flag-pill.inactive {
+    border-color:rgba(148,163,184,0.35);
+    background:rgba(15,23,42,0.6);
+    color:#9ca3af;
+  }
+
+  .layout { display:grid; grid-template-columns: minmax(0,1fr) 320px; gap:12px; }
+  .sidebar { background: var(--panel); border:1px solid var(--border); border-radius:12px; padding:12px; position:sticky; top:12px; height:max-content; }
+  .small { font-size:12px; color: var(--muted); }
+  .section { border:1px solid var(--border); border-radius:10px; padding:10px; margin-top:10px; }
+  .muted { color: var(--muted); }
+
+  /* top summary bar */
+  .top-summary {
+    display:flex;
+    flex-wrap:wrap;
+    gap:16px;
+    align-items:center;
+    margin-top:8px;
+    padding:8px 10px;
+    background:#050814;
+    border-radius:8px;
+    border:1px solid #111827;
+  }
+  .top-summary span { white-space:nowrap; }
+  .top-summary b { color:#e5e7eb; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono","Courier New", monospace; }
+
+  /* checkboxes */
+  .chk { width:16px; height:16px; cursor:pointer; }
+  .chk-col { width:36px; }
+
+  /* bulk toolbar (fixed at bottom) */
+  .bulkbar {
+    position:fixed;
+    left:16px;
+    right:336px;
+    bottom:16px;
+    display:none;
+    align-items:center;
+    justify-content:space-between;
+    gap:12px;
+    background:#0e1424;
+    border:1px solid #1f2a45;
+    border-radius:10px;
+    padding:10px 12px;
+    box-shadow: 0 4px 24px rgba(0,0,0,.35);
+    z-index:999;
+  }
+  .bulkbar .stats { display:flex; gap:14px; flex-wrap:wrap; font-size:12px; color:#cbd5e1; }
+  .bulkbar .stats b { color:#fff; }
+  .bulkbar .actions { display:flex; gap:8px; flex-wrap:wrap; align-items:center; }
+  .bulkbar .actions .btn.small { padding:6px 10px; font-size:13px; border-radius:8px; }
+  .hidden { display:none !important; }
+
+  /* modal */
+  .modal-backdrop{position:fixed;inset:0;background:rgba(0,0,0,.5);display:flex;align-items:center;justify-content:center;z-index:9999}
+  .modal{background:#12151b;border:1px solid #2a3342;border-radius:12px;padding:16px;min-width:440px;color:var(--text)}
+  .modal h3{margin:0 0 10px 0;font-size:18px}
+  .modal .grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+  .modal label{font-size:12px;color:var(--muted)}
+  .modal input[type="text"], .modal input[type="number"]{padding:8px;border:1px solid #3a4455;border-radius:8px;background:#0b0e14;color:var(--text)}
+  .modal .actions{display:flex;gap:8px;justify-content:flex-end;margin-top:12px}
+  .chips { display:grid; grid-template-columns:repeat(4, auto); gap:8px; margin-top:8px; }
+  .chip { display:flex; align-items:center; gap:6px; padding:6px 10px; border-radius:9999px; border:1px solid #3a4455; background:#0b0e14; user-select:none; cursor:pointer; }
+  .chip input { width:14px; height:14px; }
+
+  /* barcode column visuals */
+  .bc-col { width:220px; }
+  .bc-wrap {
+    display:grid;
+    justify-items:center;
+    gap:4px;
+    cursor:pointer;
+  }
+  .bc-wrap img.bc-img {
+    display:block;
+    max-width:180px;
+    background:#ffffff;
+    padding:3px;
+    border-radius:3px;
+    border:1px solid #e5e7eb;
+  }
+  .bc-meta {
+    font-size:11px;
+    text-align:center;
+    line-height:1.2;
+    color:#e5e7eb;
+  }
+  .bc-sku {
+    font-weight:600;
+    letter-spacing:0.04em;
+  }
+  .bc-desc {
+    opacity:0.85;
+  }
+
+  /* platform logo + text with a badge/pill behind it */
+  .plat-cell {
+    display:flex;
+    align-items:center;
+    gap:6px;
+    padding:2px 10px;
+    border-radius:999px;
+    background:rgba(148,163,184,0.16); /* soft gray */
+    border:1px solid rgba(148,163,184,0.35);
+  }
+  .plat-icon {
+    width:22px;
+    height:22px;
+    object-fit:contain;
+    filter:brightness(1.35); /* help dark Xbox logos pop */
+  }
+  .plat-filter {
+    border:none;
+    background:transparent;
+    padding:0;
+    display:flex;
+    align-items:center;
+    gap:6px;
+    color:inherit;
+    cursor:pointer;
+  }
+  .plat-filter.active .plat-cell {
+    box-shadow:0 0 0 1px rgba(37,99,235,0.6);
+    border-color:rgba(59,130,246,0.8);
+  }
+
+  /* (optional) future thumbnail column */
+  .thumb-cell {
+    text-align:center;
+  }
+  .thumb-img {
+    width:40px;
+    height:24px;
+    object-fit:contain;
+    opacity:0.95;
+  }
+
+  /* alerts list (used by JS) */
+  #alerts-list {
+    margin:6px 0 0 16px;
+    padding:0;
+    list-style:disc;
+  }
+
+  /* prettier alerts + pills + age bars (v2-style visuals) */
+  .alert-list {
+    list-style:none;
+    padding-left:0;
+    margin:6px 0 0 0;
+    font-size:11px;
+  }
+  .alert-list li {
+    display:flex;
+    align-items:flex-start;
+    gap:6px;
+    padding:3px 0;
+  }
+  .alert-dot {
+    width:6px;
+    height:6px;
+    border-radius:999px;
+    margin-top:3px;
+  }
+
+  .plat-pills {
+    display:flex;
+    flex-direction:column;
+    gap:4px;
+    margin-top:6px;
+  }
+  .plat-pill {
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    font-size:11px;
+    padding:4px 6px;
+    border-radius:999px;
+    background:rgba(15,23,42,0.9);
+    border:1px solid rgba(148,163,184,0.35);
+  }
+
+  .age-bars {
+    display:flex;
+    flex-direction:column;
+    gap:4px;
+    margin-top:6px;
+  }
+  .age-bar {
+    background:#020617;
+    border:1px solid #111827;
+    border-radius:999px;
+    overflow:hidden;
+    height:10px;
+  }
+  .age-bar-inner {
+    height:100%;
+    background:linear-gradient(90deg, rgba(56,189,248,0.25), rgba(34,197,94,0.9));
+    width:0%;
+    transition:width .25s;
+  }
+
+  /* ---------- Responsive tweaks ---------- */
+
+  /* Stack sidebar under table on narrower windows */
+  @media (max-width: 1200px) {
+    .layout {
+      grid-template-columns: 1fr;
+    }
+    .sidebar {
+      position:relative;
+      top:auto;
+      margin-top:12px;
+    }
+    .bulkbar {
+      right:16px; /* no need to reserve space for sidebar */
+    }
+  }
+
+  /* Extra tightening for small widths (e.g. half-screen) */
+  @media (max-width: 900px) {
+    body { margin:10px; }
+    .toolbar { flex-wrap:wrap; gap:8px; }
+    .row { flex-direction:column; }
+    .top-summary {
+      flex-direction:column;
+      align-items:flex-start;
+      gap:4px;
+    }
+    thead th, tbody td {
+      padding:6px 8px;
+    }
+  }
+</style>
+</head>
+<body>
+
+<div class="toolbar">
+  <img class="logo" src="assets/retrocatz-logo.png" alt="RetroCatz" />
+  <h1>Inventory</h1>
+
+  <button class="btn" onclick="location.href='index.html'">Back to Dashboard</button>
+  <button class="btn" onclick="location.href='add-item.html'">Add Item</button>
+
+  <span class="toolbar-spacer"></span>
+
+  <!-- ALWAYS-VISIBLE CSV / WIX CONTROLS -->
+  <button id="btn-import" class="btn">Import CSV</button>
+  <input type="file" id="import-file" accept=".csv" style="display:none" />
+  <button id="btn-refresh-inventory" class="btn ghost">Refresh Inventory</button>
+  <button id="btn-print-inventory" class="btn ghost">Print Inventory</button>
+  <label class="small" style="display:flex; align-items:center; gap:6px;">
+    <input type="checkbox" id="print-include-zero" class="chk" />
+    Include zero-stock
+  </label>
+  <button id="btn-export-all" class="btn ghost">Export CSV</button>
+  <button id="btn-wix-export" class="btn ghost">Wix Export</button>
+</div>
+
+<div id="top-summary" class="top-summary small">
+  <span>items: <b id="top-sum-count">0</b></span>
+  <span>units: <b id="top-sum-units">0</b></span>
+  <span>value: <b id="top-sum-price">$0.00</b></span>
+  <span>profit: <b id="top-sum-profit">$0.00</b></span>
+  <span>in stock: <b id="top-sum-in">0</b></span>
+  <span>low: <b id="top-sum-low">0</b></span>
+  <span>out: <b id="top-sum-out">0</b></span>
+</div>
+
+<div class="row">
+  <input id="search" class="input" placeholder="search title or SKU" />
+  <select id="select-category" class="select" title="Category">
+    <option value="">All Categories</option>
+  </select>
+  <select id="select-platform" class="select" title="Platform">
+    <option value="">All Platforms</option>
+  </select>
+  <select id="select-condition" class="select" title="Condition">
+    <option value="">All Conditions</option>
+    <option value="new">new</option>
+    <option value="like_new">like_new</option>
+    <option value="very_good">very_good</option>
+    <option value="good">good</option>
+    <option value="acceptable">acceptable</option>
+  </select>
+  <button id="btn-clear" class="btn">Clear</button>
+</div>
+<div class="row stock-row">
+  <div id="stock-filters" class="stock-filters">
+    <button class="filter-pill active" data-stock-filter="all">All</button>
+    <button class="filter-pill" data-stock-filter="in">In Stock</button>
+    <button class="filter-pill" data-stock-filter="low">Low Stock</button>
+    <button class="filter-pill" data-stock-filter="out">Out of Stock</button>
+    <button class="filter-pill" data-stock-filter="reorder">Reorder Flagged</button>
+  </div>
+</div>
+
+<div class="layout">
+  <div>
+    <div class="table-wrap">
+      <table id="inv-table">
+        <thead>
+          <tr>
+            <th class="chk-col"><input id="chk-all" type="checkbox" class="chk" title="Select all" /></th>
+            <th data-key="sku" class="sortable">SKU</th>
+            <th>Art</th>
+            <th data-key="title" class="sortable">Title</th>
+            <th data-key="platform" class="sortable">Platform</th>
+            <th data-key="category" class="sortable">Category</th>
+            <th data-key="condition" class="sortable">Condition</th>
+            <th data-key="cost" class="sortable right">Cost</th>
+            <th data-key="price" class="sortable right">Price</th>
+            <th data-key="qty" class="sortable right">Qty</th>
+            <th>Reorder</th>
+            <th data-key="ageDays" class="sortable">Age (days)</th>
+            <th data-key="createdAt" class="sortable">Created</th>
+            <th class="bc-col">Barcode</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
+
+    <div class="section small" id="under-table-summary">
+      total inventory value: <b id="sum-price">$0.00</b> &nbsp;&nbsp;
+      cost basis: <b id="sum-cost">$0.00</b> &nbsp;&nbsp;
+      potential profit: <b id="sum-profit">$0.00</b> &nbsp;&nbsp;
+      items: <b id="sum-count">0</b> &nbsp;&nbsp;
+      units: <b id="sum-units">0</b>
+    </div>
+  </div>
+
+  <aside class="sidebar">
+    <!-- existing summary block (for current view) -->
+    <div class="small" style="margin-bottom:6px;">inventory summary (view)</div>
+    <div style="display:grid;grid-template-columns:1fr;row-gap:6px;">
+      <div>total inventory value: <b id="side-sum-price">$0.00</b></div>
+      <div>cost basis: <b id="side-sum-cost">$0.00</b></div>
+      <div>potential profit: <b id="side-sum-profit">$0.00</b></div>
+      <div>items: <b id="side-sum-count">0</b></div>
+      <div>units: <b id="side-sum-units">0</b></div>
+      <div class="small" style="margin-top:6px">showing (after filters): <b id="side-sum-showing">0</b></div>
+    </div>
+
+    <!-- Inventory age (all inventory) with bars -->
+    <div class="section" id="side-age">
+      <div class="small" style="margin-bottom:4px;">inventory age (all)</div>
+      <div class="age-bars">
+        <div>
+          <div class="small" id="age-0-30">0–30 days: 0 items • $0.00</div>
+          <div class="age-bar"><div id="agebar-0-30" class="age-bar-inner"></div></div>
+        </div>
+        <div>
+          <div class="small" id="age-31-90">31–90 days: 0 items • $0.00</div>
+          <div class="age-bar"><div id="agebar-31-90" class="age-bar-inner"></div></div>
+        </div>
+        <div>
+          <div class="small" id="age-91-180">91–180 days: 0 items • $0.00</div>
+          <div class="age-bar"><div id="agebar-91-180" class="age-bar-inner"></div></div>
+        </div>
+        <div>
+          <div class="small" id="age-181-plus">180+ days: 0 items • $0.00</div>
+          <div class="age-bar"><div id="agebar-181-plus" class="age-bar-inner"></div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Platform mix (by value, all inventory) -->
+    <div class="section" id="side-platform">
+      <div class="small" style="margin-bottom:4px;">by platform (value, all)</div>
+      <div id="plat-lines" class="plat-pills small muted">no data</div>
+    </div>
+
+    <!-- Margin snapshot (all inventory) -->
+    <div class="section" id="side-margin">
+      <div class="small" style="margin-bottom:4px;">margin snapshot (all)</div>
+      <div class="small">avg margin: <b id="margin-avg">0%</b></div>
+      <div class="small">median margin: <b id="margin-median">0%</b></div>
+      <div class="small">lowest: <b id="margin-low">0%</b></div>
+      <div class="small">highest: <b id="margin-high">0%</b></div>
+    </div>
+
+    <!-- Alerts -->
+    <div class="section" id="side-alerts">
+      <div class="small" style="margin-bottom:4px;">alerts</div>
+      <ul id="alerts-list" class="alert-list small"></ul>
+    </div>
+  </aside>
+</div>
+
+<!-- BULK TOOLBAR -->
+<div id="bulkbar" class="bulkbar">
+  <div class="stats">
+    <div>selected: <b id="sel-count">0 items</b></div>
+    <div>units: <b id="sel-units">0</b></div>
+    <div>cost: <b id="sel-cost">$0.00</b></div>
+    <div>value: <b id="sel-value">$0.00</b></div>
+    <div>profit: <b id="sel-profit">$0.00</b></div>
+  </div>
+  <div class="actions">
+    <label class="small" style="display:flex; align-items:center; gap:4px;">
+      Label size:
+      <select id="label-size-select" class="select" style="padding:4px 8px; font-size:12px;">
+        <option value="2x1">2" x 1"</option>
+        <option value="2.25x1.25">2.25" x 1.25"</option>
+        <option value="1.5x1">1.5" x 1"</option>
+        <option value="2.25x1.375">2.25" x 1.375"</option>
+      </select>
+    </label>
+
+    <button id="sel-reprint" class="btn small">Reprint</button>
+    <button id="sel-export"  class="btn small">Export CSV</button>
+    <button id="sel-markdown" class="btn small">Adjust Price</button>
+    <button id="sel-delete"  class="btn small danger">Delete</button>
+  </div>
+</div>
+
+<script>
+(() => {
+  const API_BASE = 'http://127.0.0.1:5175';
+  const API_URL  = API_BASE + '/api/items';
+  const SALES_API_URL = API_BASE + '/api/sales'; // TODO: replace or remove when live-events are wired to backend
+  function getAuthHeaders() {
+    const sid = localStorage.getItem('rc_session_id') || '';
+    return sid ? { 'rc_session_id': sid } : {};
+  }
+
+  const table = document.getElementById('inv-table');
+  const thead = table.tHead;
+  const tbody = table.tBodies[0];
+  const elSearch = document.getElementById('search');
+  const elSelCat = document.getElementById('select-category');
+  const elSelPlat = document.getElementById('select-platform');
+  const elSelCond = document.getElementById('select-condition');
+  const btnClear = document.getElementById('btn-clear');
+
+  const sumPrice = document.getElementById('sum-price');
+  const sumCost  = document.getElementById('sum-cost');
+  const sumProfit= document.getElementById('sum-profit');
+  const sumCount = document.getElementById('sum-count');
+  const sumUnits = document.getElementById('sum-units');
+
+  const topCount  = document.getElementById('top-sum-count');
+  const topUnits  = document.getElementById('top-sum-units');
+  const topPrice  = document.getElementById('top-sum-price');
+  const topProfit = document.getElementById('top-sum-profit');
+  const topIn     = document.getElementById('top-sum-in');
+  const topLow    = document.getElementById('top-sum-low');
+  const topOut    = document.getElementById('top-sum-out');
+
+  const sidePrice = document.getElementById('side-sum-price');
+  const sideCost  = document.getElementById('side-sum-cost');
+  const sideProfit= document.getElementById('side-sum-profit');
+  const sideCount = document.getElementById('side-sum-count');
+  const sideUnits = document.getElementById('side-sum-units');
+  const sideShowing = document.getElementById('side-sum-showing');
+
+  const bulkbar = document.getElementById('bulkbar');
+  const chkAll = document.getElementById('chk-all');
+
+  const selCount   = document.getElementById('sel-count');
+  const selUnits   = document.getElementById('sel-units');
+  const selCost    = document.getElementById('sel-cost');
+  const selValue   = document.getElementById('sel-value');
+  const selProfit  = document.getElementById('sel-profit');
+
+  const btnSelReprint = document.getElementById('sel-reprint');
+  const btnSelExport  = document.getElementById('sel-export');
+  const btnSelMarkdown= document.getElementById('sel-markdown');
+  const btnSelDelete  = document.getElementById('sel-delete');
+  const labelSizeSelect = document.getElementById('label-size-select');
+
+  // ALWAYS VISIBLE CSV/WIX BUTTONS
+  const btnImportCsv    = document.getElementById('btn-import');
+  const inputImportFile = document.getElementById('import-file');
+  const btnExportAll    = document.getElementById('btn-export-all');
+  const btnWixExport    = document.getElementById('btn-wix-export');
+  const btnRefreshInv   = document.getElementById('btn-refresh-inventory');
+  const btnPrintInv     = document.getElementById('btn-print-inventory');
+  const chkPrintIncludeZero = document.getElementById('print-include-zero');
+  const stockFiltersEl = document.getElementById('stock-filters');
+
+  /* sidebar insight elements */
+  const age0_30    = document.getElementById('age-0-30');
+  const age31_90   = document.getElementById('age-31-90');
+  const age91_180  = document.getElementById('age-91-180');
+  const age181Plus = document.getElementById('age-181-plus');
+
+  const agebar0_30    = document.getElementById('agebar-0-30');
+  const agebar31_90   = document.getElementById('agebar-31-90');
+  const agebar91_180  = document.getElementById('agebar-91-180');
+  const agebar181Plus = document.getElementById('agebar-181-plus');
+
+  const platLines    = document.getElementById('plat-lines');
+  const marginAvgEl  = document.getElementById('margin-avg');
+  const marginMedEl  = document.getElementById('margin-median');
+  const marginLowEl  = document.getElementById('margin-low');
+  const marginHighEl = document.getElementById('margin-high');
+  const alertsList   = document.getElementById('alerts-list');
+
+  let items = [];
+  let sortKey = null;
+  let sortDir = 1;
+  let q = '';
+  let fPlatform = '';
+  let fCategory = '';
+  let fCondition = '';
+  let fStock = 'all';
+  const LOW_STOCK_THRESHOLD = 1;
+  const REORDER_KEY = 'rc_reorder_flags';
+  const STOCK_FILTER_KEY = 'rc_inventory_stock_filter';
+
+  const selectedIds = new Set();
+  let lastShiftIndex = null;
+
+  const fmt$ = (n) => `$${(Number(n||0)).toFixed(2)}`;
+  const lc = (s) => String(s ?? '').toLowerCase();
+  const $ = (sel, root=document) => root.querySelector(sel);
+  function el(tag, attrs={}){ const n=document.createElement(tag); for(const[k,v]of Object.entries(attrs)){(k in n)?n[k]=v:n.setAttribute(k,v)} return n; }
+
+  const fmtPct = (n) => `${Number(n||0).toFixed(0)}%`;
+  const toQty = (v) => {
+    const n = Number(v);
+    return Number.isFinite(n) ? n : 0;
+  };
+
+  function loadReorderSet() {
+    try {
+      const raw = localStorage.getItem(REORDER_KEY);
+      const arr = raw ? JSON.parse(raw) : [];
+      return new Set((Array.isArray(arr) ? arr : []).map(Number));
+    } catch {
+      return new Set();
+    }
+  }
+
+  function saveReorderSet(set) {
+    try {
+      const arr = Array.from(set).filter((n) => Number.isFinite(n));
+      localStorage.setItem(REORDER_KEY, JSON.stringify(arr));
+    } catch {
+      /* ignore */
+    }
+  }
+
+  let reorderSet = loadReorderSet();
+
+  function getStockStatus(qty) {
+    const qn = toQty(qty);
+    if (qn <= 0) return 'out';
+    if (qn <= LOW_STOCK_THRESHOLD) return 'low';
+    return 'in';
+  }
+
+  function applyStockFilter(it) {
+    const status = getStockStatus(it.qty);
+    if (fStock === 'all') return true;
+    if (fStock === 'in') return status !== 'out'; // include low stock
+    if (fStock === 'low') return status === 'low';
+    if (fStock === 'out') return status === 'out';
+    if (fStock === 'reorder') return reorderSet.has(Number(it.id));
+    return true;
+  }
+
+  function setStockFilter(value) {
+    fStock = value || 'all';
+    if (stockFiltersEl) {
+      stockFiltersEl.querySelectorAll('.filter-pill').forEach((btn) => {
+        btn.classList.toggle('active', btn.dataset.stockFilter === fStock);
+      });
+    }
+    try { localStorage.setItem(STOCK_FILTER_KEY, fStock); } catch {}
+  }
+
+  /* --- PLATFORM ICON MAP --- */
+  const PLATFORM_ICON_MAP = {
+    // Nintendo
+    'nes': 'NES_logo.png',
+    'nintendo entertainment system': 'NES_logo.png',
+    'snes': 'SNES_logo.png',
+    'super nintendo': 'SNES_logo.png',
+    'n64': 'nintendo-64-2.png',
+    'nintendo 64': 'nintendo-64-2.png',
+    'gamecube': 'nintendo-gamecube.png',
+    'nintendo gamecube': 'nintendo-gamecube.png',
+    'wii': 'wii.png',
+    'wii u': 'wii-u.png',
+    'wii-u': 'wii-u.png',
+    'switch': 'Nintendo_Switch_Logo.png',
+    'nintendo switch': 'Nintendo_Switch_Logo.png',
+
+    // Xbox
+    'xbox': 'XBOX_logo_2012.png',
+    'xbox 360': 'Xbox_360_logo.png',
+    'xbox one': 'xbox_PNG101374.png',
+    'xbox series x': 'xbox_PNG101374.png',
+
+    // PlayStation
+    'ps1': 'Playstation_logo_colour.png',
+    'playstation': 'Playstation_logo_colour.png',
+    'playstation 2': 'PlayStation_2_logo.png',
+    'ps2': 'PlayStation_2_logo.png',
+    'playstation 3': 'PlayStation_3_logo.svg.png',
+    'ps3': 'PlayStation_3_logo.svg.png',
+    'playstation 4': 'playstation_4.png',
+    'ps4': 'playstation_4.png',
+    'playstation 5': 'PlayStation_5_logo_and_wordmark.svg.png',
+    'ps5': 'PlayStation_5_logo_and_wordmark.svg.png',
+
+    // Sega / Atari
+    'sega genesis': 'Sega_genesis_logo.png',
+    'genesis': 'Sega_genesis_logo.png',
+    'dreamcast': 'dreamcast-1.png',
+    'atari 2600': 'atari-26000865.jpg'
+  };
+
+  function platformLogoSrc(platform) {
+    const key = lc(platform).trim();
+    if (!key) return null;
+    const file = PLATFORM_ICON_MAP[key];
+    if (!file) return null;
+    return `assets/${file}`;
+  }
+
+  function thumbCellHtml(it) {
+    const p = it.platform || '';
+    const src = platformLogoSrc(p) || 'assets/retrocatz-logo.png';
+    return `<img class="thumb-img" src="${src}" alt="">`;
+  }
+
+  function platformCellHtml(it) {
+    const p = it.platform || '';
+    if (!p) return '';
+    const src = platformLogoSrc(p);
+    const activeClass = (fPlatform && fPlatform === p) ? ' active' : '';
+    if (src) {
+      return `<button class="plat-filter${activeClass}" data-platform="${p}">
+                <div class="plat-cell">
+                  <img class="plat-icon" src="${src}" alt="">
+                  <span>${p}</span>
+                </div>
+              </button>`;
+    }
+    return `<button class="plat-filter${activeClass}" data-platform="${p}">
+              <div class="plat-cell">
+                <span>${p}</span>
+              </div>
+            </button>`;
+  }
+
+  /* ----- BARCODE + LABEL HELPERS ----- */
+
+  function maxLabelChars() { return 26; }
+
+  function shortenDesc(desc) {
+    const max = maxLabelChars();
+    const str = String(desc || '').trim();
+    if (!str) return '';
+    if (str.length <= max) return str;
+    if (max <= 1) return '…';
+    return str.slice(0, max - 1) + '…';
+  }
+
+  function skuDigits(val) {
+    const d = String(val || '').replace(/\D/g, '');
+    return d.slice(0, 8).padStart(8, '0');
+  }
+
+  function labelDescForItem(it) {
+    const title = String(it.title || '').trim();
+    const platform = String(it.platform || '').trim();
+    const full = `${title}${platform ? ' (' + platform + ')' : ''}`.trim();
+    return shortenDesc(full || title);
+  }
+
+  function barcodeImageUrlForItem(it) {
+    const code = skuDigits(it.sku || it.barcode || '');
+    const desc = encodeURIComponent(labelDescForItem(it) || code);
+    return `${API_BASE}/barcode/${encodeURIComponent(code)}?label=${desc}`;
+  }
+
+  // Build payload for backend PDF labels, now including price for SKU line
+  function buildLabelItemsFromSelection(selItems) {
+    return selItems.map(it => ({
+      sku: skuDigits(it.sku || it.barcode || ''),
+      title: it.title || it.sku || '',
+      // NEW: send price so backend can print "SKU • $xx.xx"
+      price: Number(it.price) || 0
+    }));
+  }
+
+  // Core helper: POST to /print-labels, get single PDF, open/print it
+  async function printLabelsForItemsPayload(itemsPayload, { labelSizeOverride } = {}) {
+    if (!itemsPayload || !itemsPayload.length) {
+      alert('No items to print.');
+      return;
+    }
+
+    const labelSize =
+      labelSizeOverride ||
+      (labelSizeSelect && labelSizeSelect.value) ||
+      '2x1';
+
+    try {
+      const res = await fetch(API_BASE + '/print-labels', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', ...getAuthHeaders() },
+        body: JSON.stringify({ labelSize, items: itemsPayload })
+      });
+
+      if (!res.ok) {
+        console.error('Print labels failed:', res.status, await res.text());
+        alert('Label PDF failed to generate. Check backend logs.');
+        return;
+      }
+
+      const blob = await res.blob();
+      const url = URL.createObjectURL(blob);
+
+      const win = window.open(url);
+      if (!win) {
+        // Popup blocked → just download the PDF
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'labels.pdf';
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        return;
+      }
+
+      win.addEventListener('load', () => {
+        try {
+          win.focus();
+          win.print();
+        } catch (e) {
+          console.warn('Auto-print failed; print manually from PDF.', e);
+        }
+      });
+    } catch (err) {
+      console.error('printLabelsForItemsPayload error:', err);
+      alert('Something went wrong generating labels. Check console/backend logs.');
+    }
+  }
+
+  // Print all selected rows as one PDF
+  async function printSelectedLabels() {
+    const sel = items.filter(i => selectedIds.has(i.id));
+    if (!sel.length) {
+      alert('No items selected to print.');
+      return;
+    }
+    const payload = buildLabelItemsFromSelection(sel);
+    await printLabelsForItemsPayload(payload);
+  }
+
+  // Print a single row as a one-page PDF (for row “Reprint” or barcode click)
+  async function printSingleLabelViaPdf(it) {
+    if (!it) return;
+    const payload = buildLabelItemsFromSelection([it]);
+    await printLabelsForItemsPayload(payload);
+  }
+
+  // Old single-label HTML printer (kept as fallback)
+  function printLabelForItem(it) {
+    const code = skuDigits(it.sku || it.barcode || '');
+    const desc = labelDescForItem(it);
+    const url  = barcodeImageUrlForItem(it);
+
+    const esc = (s) => String(s || '')
+      .replace(/&/g,'&amp;')
+      .replace(/</g,'&lt;')
+      .replace(/>/g,'&gt;')
+      .replace(/"/g,'&quot;')
+      .replace(/'/g,'&#39;');
+
+    const safeDesc = esc(desc);
+    const w = window.open('', '_blank', 'width=420,height=260');
+    if (!w) {
+      alert('Popup blocked. Allow popups to print labels.');
+      return;
+    }
+    w.document.write(`<!doctype html>
+<html>
+<head>
+<meta charset="utf-8" />
+<title>Print Label</title>
+<style>
+  @page { margin: 0; }
+  body { margin:0; padding:0; background:#ffffff; }
+  .wrap { display:flex; align-items:center; justify-content:center; height:100vh; }
+  .label { padding:4px 8px; font-family: system-ui, sans-serif; }
+  .label img { display:block; margin:0 auto; }
+  .line { font-size:11px; text-align:center; line-height:1.2; margin-top:2px; }
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="label">
+      <img src="${url}" alt="Barcode" />
+      <div class="line">${esc(code)}</div>
+      <div class="line">${safeDesc}</div>
+    </div>
+  </div>
+  <script>
+    window.onload = function() {
+      window.focus();
+      window.print();
+    };
+  <\/script>
+</body>
+</html>`);
+    w.document.close();
+  }
+
+  /** Adjust Price Modal with 4 checkboxes (+%, -%, +$, -$) and a numeric field */
+  function openAdjustPriceModal() {
+    return new Promise((resolve) => {
+      const bd = el('div', { className:'modal-backdrop' });
+      const m  = el('div', { className:'modal' });
+      m.innerHTML = `
+        <h3>Adjust Price</h3>
+        <div class="grid" style="grid-template-columns:1fr;">
+          <div>
+            <label>Amount</label>
+            <input id="adj-val" type="number" step="0.01" placeholder="e.g. 10">
+          </div>
+          <div class="chips" id="adj-opts">
+            <label class="chip"><input type="checkbox" value="+%" /> +%</label>
+            <label class="chip"><input type="checkbox" value="-%" /> -%</label>
+            <label class="chip"><input type="checkbox" value="+$" /> +$</label>
+            <label class="chip"><input type="checkbox" value="-$" /> -$</label>
+          </div>
+        </div>
+        <div class="actions">
+          <button class="btn ghost" id="adj-cancel">Cancel</button>
+          <button class="btn primary" id="adj-ok">Apply</button>
+        </div>
+      `;
+      bd.appendChild(m);
+      document.body.appendChild(bd);
+
+      const boxes = Array.from(m.querySelectorAll('#adj-opts input[type="checkbox"]'));
+      boxes.forEach(b => {
+        b.addEventListener('change', () => {
+          if (b.checked) boxes.forEach(o => { if (o !== b) o.checked = false; });
+        });
+      });
+
+      const close = (result=null) => { bd.remove(); resolve(result); };
+      m.querySelector('#adj-cancel').onclick = () => close(null);
+      m.querySelector('#adj-ok').onclick = () => {
+        const raw = m.querySelector('#adj-val').value;
+        const choice = boxes.find(b => b.checked)?.value || '';
+        const amount = parseFloat(raw);
+        if (!choice) { alert('Select +% , -% , +$ , or -$'); return; }
+        if (Number.isNaN(amount) || amount < 0) { alert('Enter a non-negative number'); return; }
+        close({ choice, amount });
+      };
+      m.querySelector('#adj-val').addEventListener('keydown', (e)=>{
+        if (e.key === 'Enter') m.querySelector('#adj-ok').click();
+        if (e.key === 'Escape') m.querySelector('#adj-cancel').click();
+      });
+      m.querySelector('#adj-val').focus();
+    });
+  }
+
+  /** Generic confirm modal used for deletes (single + bulk) */
+  function openConfirmModal({ title, message, confirmLabel='Yes', cancelLabel='No', danger=false }) {
+    return new Promise((resolve) => {
+      const bd = el('div',{ className:'modal-backdrop' });
+      const m  = el('div',{ className:'modal' });
+      m.innerHTML = `
+        <h3>${title}</h3>
+        <p class="small" style="margin:6px 0 12px;">${message}</p>
+        <div class="actions">
+          <button class="btn ghost" id="c-cancel">${cancelLabel}</button>
+          <button class="btn ${danger ? 'danger' : 'primary'}" id="c-ok">${confirmLabel}</button>
+        </div>
+      `;
+      bd.appendChild(m);
+      document.body.appendChild(bd);
+
+      const close = (val) => { bd.remove(); resolve(val); };
+      m.querySelector('#c-cancel').onclick = () => close(false);
+      m.querySelector('#c-ok').onclick     = () => close(true);
+    });
+  }
+
+  /** Waste / Write-Off modal – qty + reason + notes */
+  function openWasteModal(it) {
+    return new Promise((resolve) => {
+      const maxQty = Number(it.qty) || 1;
+      const safeTitle = (it.title || it.sku || 'this item');
+
+      const bd = el('div',{ className:'modal-backdrop' });
+      const m  = el('div',{ className:'modal' });
+      m.innerHTML = `
+        <h3>Write Off Inventory</h3>
+        <div class="small" style="margin-bottom:8px;">
+          Item: <b>${safeTitle}</b><br/>
+          SKU: <b>${it.sku || ''}</b><br/>
+          Current qty on hand: <b>${maxQty}</b>
+        </div>
+        <div class="grid" style="grid-template-columns:1fr;">
+          <div>
+            <label>Quantity to write off</label>
+            <input id="w-qty" type="number" min="1" max="${maxQty}" step="1" value="1">
+          </div>
+          <div>
+            <label>Reason</label>
+            <select id="w-reason" class="select" style="width:100%;margin-top:2px;">
+              <option value="damaged">Damaged / not repairable</option>
+              <option value="failed_test">Failed testing</option>
+              <option value="missing_parts">Missing parts</option>
+              <option value="no_resale">No resale demand</option>
+              <option value="other">Other</option>
+            </select>
+          </div>
+          <div>
+            <label>Notes (optional)</label>
+            <input id="w-notes" type="text" placeholder="ex: Disc is heavily scratched">
+          </div>
+        </div>
+        <div class="actions">
+          <button class="btn ghost" id="w-cancel">Cancel</button>
+          <button class="btn primary" id="w-ok">Write Off</button>
+        </div>
+      `;
+      bd.appendChild(m);
+      document.body.appendChild(bd);
+
+      const close = (result=null) => { bd.remove(); resolve(result); };
+
+      const qtyInput   = m.querySelector('#w-qty');
+      const reasonEl   = m.querySelector('#w-reason');
+      const notesEl    = m.querySelector('#w-notes');
+      const btnCancel  = m.querySelector('#w-cancel');
+      const btnOk      = m.querySelector('#w-ok');
+
+      btnCancel.onclick = () => close(null);
+      btnOk.onclick = () => {
+        const qtyVal = Number(qtyInput.value);
+        if (!qtyVal || qtyVal < 1 || qtyVal > maxQty) {
+          alert(`Enter a quantity between 1 and ${maxQty}.`);
+          return;
+        }
+        const reason = reasonEl.value || 'other';
+        const notes  = (notesEl.value || '').trim();
+        close({ qty: qtyVal, reason, notes });
+      };
+
+      qtyInput.focus();
+      qtyInput.select();
+    });
+  }
+
+  /** NEW: Log Sale modal – qty + channel + price + notes */
+  function openLogSaleModal(it) {
+    return new Promise((resolve) => {
+      const maxQty = Number(it.qty) || 0;
+      const safeTitle = (it.title || it.sku || 'this item');
+
+      if (maxQty <= 0) {
+        alert('This item has no quantity on hand to log a sale.');
+        resolve(null);
+        return;
+      }
+
+      const bd = el('div', { className: 'modal-backdrop' });
+      const m  = el('div', { className: 'modal' });
+      const nowLocal = new Date().toLocaleString();
+
+      m.innerHTML = `
+        <h3>Log Sale</h3>
+        <div class="small" style="margin-bottom:8px;">
+          Item: <b>${safeTitle}</b><br/>
+          SKU: <b>${it.sku || ''}</b><br/>
+          Current qty on hand: <b>${maxQty}</b><br/>
+          Sale date: <b>${nowLocal}</b> (auto)
+        </div>
+        <div class="grid" style="grid-template-columns:1fr 1fr;">
+          <div>
+            <label>Qty sold</label>
+            <input id="s-qty" type="number" min="1" max="${maxQty}" step="1" value="1">
+          </div>
+          <div>
+            <label>Sale channel</label>
+            <select id="s-channel" class="select" style="width:100%;margin-top:2px;">
+              <option value="in_store">In-Store</option>
+              <option value="wix">Wix</option>
+              <option value="ebay">eBay</option>
+              <option value="other">Other</option>
+            </select>
+          </div>
+          <div>
+            <label>Sold price (per unit)</label>
+            <input id="s-price" type="number" step="0.01" value="${Number(it.price || 0).toFixed(2)}">
+          </div>
+          <div>
+            <label>Notes (optional)</label>
+            <input id="s-notes" type="text" placeholder="ex: cash sale, bundle, discount applied">
+          </div>
+        </div>
+        <div class="actions">
+          <button class="btn ghost" id="s-cancel">Cancel</button>
+          <button class="btn primary" id="s-ok">Save Sale</button>
+        </div>
+      `;
+
+      bd.appendChild(m);
+      document.body.appendChild(bd);
+
+      const qtyInput   = m.querySelector('#s-qty');
+      const channelEl  = m.querySelector('#s-channel');
+      const priceEl    = m.querySelector('#s-price');
+      const notesEl    = m.querySelector('#s-notes');
+      const btnCancel  = m.querySelector('#s-cancel');
+      const btnOk      = m.querySelector('#s-ok');
+
+      const close = (result = null) => {
+        bd.remove();
+        resolve(result);
+      };
+
+      btnCancel.onclick = () => close(null);
+      btnOk.onclick = () => {
+        const qtyVal   = Number(qtyInput.value);
+        const priceVal = Number(priceEl.value);
+        const channel  = channelEl.value || 'in_store';
+        const notes    = (notesEl.value || '').trim();
+
+        if (!qtyVal || qtyVal < 1 || qtyVal > maxQty) {
+          alert(`Enter a quantity between 1 and ${maxQty}.`);
+          return;
+        }
+        if (!Number.isFinite(priceVal) || priceVal < 0) {
+          alert('Enter a valid sold price (0 or higher).');
+          return;
+        }
+
+        close({
+          qty: qtyVal,
+          channel,
+          price: Number(priceVal.toFixed(2)),
+          notes
+        });
+      };
+
+      qtyInput.focus();
+      qtyInput.select();
+    });
+  }
+
+  async function ensureSession() {
+    const res = await fetch(API_BASE + '/api/me', { headers: { ...getAuthHeaders() } });
+    if (!res.ok) {
+      localStorage.removeItem('rc_session_id');
+      window.location.href = 'login.html';
+      throw new Error('session_invalid');
+    }
+  }
+
+  async function loadFromAPI(){
+    const res = await fetch(API_URL, { cache:'no-store', headers: { ...getAuthHeaders() }});
+    if (res.status === 401) {
+      localStorage.removeItem('rc_session_id');
+      window.location.href = 'login.html';
+      throw new Error('session_invalid');
+    }
+    if (!res.ok) throw new Error('API error: ' + res.status);
+    const data = await res.json();
+    return Array.isArray(data) ? data : (data.items || []);
+  }
+
+  // --- Age helpers ---
+  const MS_PER_DAY = 24*60*60*1000;
+  const toTS = (d) => (d ? new Date(d).getTime() : NaN);
+
+  function getAverageAgeDays(it){
+    const now = Date.now();
+
+    if (Array.isArray(it.batches) && it.batches.length){
+      let totalQty = 0, totalAgeQty = 0;
+      for (const b of it.batches){
+        const q = Number(b.qty)||0;
+        const ts = toTS(b.createdAt);
+        if (!q || !isFinite(ts)) continue;
+        const age = Math.max(0, Math.floor((now - ts)/MS_PER_DAY));
+        totalQty += q; totalAgeQty += age * q;
+      }
+      if (totalQty > 0) return Math.round(totalAgeQty / totalQty);
+    }
+
+    if (Array.isArray(it.createdAtList) && it.createdAtList.length){
+      const ages = it.createdAtList
+        .map(d => toTS(d))
+        .filter(ts => isFinite(ts))
+        .map(ts => Math.max(0, Math.floor((now - ts)/MS_PER_DAY)));
+      if (ages.length) return Math.round(ages.reduce((a,b)=>a+b,0) / ages.length);
+    }
+
+    const ts = toTS(it.createdAt);
+    if (isFinite(ts)) return Math.max(0, Math.floor((now - ts)/MS_PER_DAY));
+    return 0;
+  }
+
+  function populateFilters() {
+    const uniq = (arr) => Array.from(new Set(arr.filter(Boolean))).sort((a,b)=>String(a).localeCompare(String(b)));
+    const categories = uniq(items.map(i => i.category));
+    const platforms  = uniq(items.map(i => i.platform));
+
+    const setOptions = (selectEl, list, keep='') => {
+      const current = keep ?? selectEl.value ?? '';
+      selectEl.innerHTML = '';
+      const base = el('option'); base.value=''; base.textContent = selectEl === elSelCat ? 'All Categories' : (selectEl === elSelPlat ? 'All Platforms' : 'All Conditions');
+      selectEl.appendChild(base);
+      for (const v of list) {
+        const o = el('option'); o.value = v; o.textContent = v;
+        if (v === current) o.selected = true;
+        selectEl.appendChild(o);
+      }
+      if (keep) selectEl.value = keep;
+    };
+
+    setOptions(elSelCat, categories, fCategory);
+    setOptions(elSelPlat, platforms, fPlatform);
+    if (fCondition) elSelCond.value = fCondition;
+  }
+
+  function applySort(list) {
+    if (!sortKey) return list;
+    const isNumeric = ['cost','price','qty','ageDays'].includes(sortKey);
+    const isDate = sortKey === 'createdAt';
+
+    return list.slice().sort((a,b) => {
+      const Av = (sortKey === 'ageDays') ? getAverageAgeDays(a) : a[sortKey];
+      const Bv = (sortKey === 'ageDays') ? getAverageAgeDays(b) : b[sortKey];
+
+      let A = Av, B = Bv;
+
+      if (isNumeric) {
+        A = Number(A||0); B = Number(B||0);
+        if (A === B) return 0;
+        return A < B ? -1*sortDir : 1*sortDir;
+      }
+      if (isDate) {
+        const ta = A ? new Date(A).getTime() : 0;
+        const tb = B ? new Date(B).getTime() : 0;
+        if (ta === tb) return 0;
+        return ta < tb ? -1*sortDir : 1*sortDir;
+      }
+      A = lc(A); B = lc(B);
+      if (A === B) return 0;
+      return A < B ? -1*sortDir : 1*sortDir;
+    });
+  }
+
+  function updateSortHeaderClasses() {
+    thead.querySelectorAll('th.sortable').forEach(th => {
+      th.classList.remove('sorted-asc','sorted-desc');
+      if (th.dataset.key === sortKey) {
+        th.classList.add(sortDir === 1 ? 'sorted-asc' : 'sorted-desc');
+      }
+    });
+  }
+
+  function computeSelectionStats(list){
+    const sel = list.filter(it => selectedIds.has(it.id));
+    const totals = sel.reduce((acc,i)=>{
+      const q = toQty(i.qty);
+      acc.value += (Number(i.price)||0) * q;
+      acc.cost  += (Number(i.cost)||0)  * q;
+      acc.units += q;
+      return acc;
+    }, {value:0,cost:0,units:0});
+    return { count: sel.length, units: totals.units, cost: totals.cost, value: totals.value, profit: totals.value - totals.cost };
+  }
+
+  function updateBulkbar(list){
+    const s = computeSelectionStats(list);
+    if (s.count > 0){
+      selCount.textContent  = `${s.count} item${s.count===1?'':'s'}`;
+      selUnits.textContent  = s.units;
+      selCost.textContent   = fmt$(s.cost);
+      selValue.textContent  = fmt$(s.value);
+      selProfit.textContent = fmt$(s.profit);
+      bulkbar.style.display = 'flex';
+    } else {
+      bulkbar.style.display = 'none';
+    }
+
+    const visibleIds = new Set(list.map(i=>i.id));
+    let checked = 0, total = list.length;
+    for (const id of visibleIds) if (selectedIds.has(id)) checked++;
+    chkAll.checked = (checked>0 && checked===total);
+    chkAll.indeterminate = (checked>0 && checked<total);
+  }
+
+  /* Sidebar-insight computations (ALL inventory, not just filtered view) */
+  function updateSidebarInsights(normAll) {
+    if (!(age0_30 && platLines && marginAvgEl && marginMedEl && marginLowEl && marginHighEl && alertsList)) return;
+
+    if (!Array.isArray(normAll) || !normAll.length) {
+      age0_30.textContent    = '0–30 days: 0 items • $0.00';
+      age31_90.textContent   = '31–90 days: 0 items • $0.00';
+      age91_180.textContent  = '91–180 days: 0 items • $0.00';
+      age181Plus.textContent = '180+ days: 0 items • $0.00';
+
+      if (agebar0_30)    agebar0_30.style.width = '0%';
+      if (agebar31_90)   agebar31_90.style.width = '0%';
+      if (agebar91_180)  agebar91_180.style.width = '0%';
+      if (agebar181Plus) agebar181Plus.style.width = '0%';
+
+      platLines.innerHTML = '<div class="small muted">no data</div>';
+      marginAvgEl.textContent  = '0%';
+      marginMedEl.textContent  = '0%';
+      marginLowEl.textContent  = '0%';
+      marginHighEl.textContent = '0%';
+      alertsList.innerHTML   = '<li class="muted small">no alerts — add some inventory</li>';
+      return;
+    }
+
+    const all = normAll.map(it => ({ ...it, qty: toQty(it.qty) }));
+
+    // Age buckets
+    const buckets = {
+      '0-30':   { count:0, value:0 },
+      '31-90':  { count:0, value:0 },
+      '91-180': { count:0, value:0 },
+      '181+':   { count:0, value:0 }
+    };
+
+    for (const it of all) {
+      const age = getAverageAgeDays(it);
+      const val = (Number(it.price)||0) * it.qty;
+
+      if (age <= 30) buckets['0-30'].count++, buckets['0-30'].value += val;
+      else if (age <= 90) buckets['31-90'].count++, buckets['31-90'].value += val;
+      else if (age <= 180) buckets['91-180'].count++, buckets['91-180'].value += val;
+      else buckets['181+'].count++, buckets['181+'].value += val;
+    }
+
+    age0_30.textContent    = `0–30 days: ${buckets['0-30'].count} items • ${fmt$(buckets['0-30'].value)}`;
+    age31_90.textContent   = `31–90 days: ${buckets['31-90'].count} items • ${fmt$(buckets['31-90'].value)}`;
+    age91_180.textContent  = `91–180 days: ${buckets['91-180'].count} items • ${fmt$(buckets['91-180'].value)}`;
+    age181Plus.textContent = `180+ days: ${buckets['181+'].count} items • ${fmt$(buckets['181+'].value)}`;
+
+    const totalVal = Object.values(buckets).reduce((s,b)=>s + b.value, 0) || 1;
+    if (agebar0_30)    agebar0_30.style.width    = `${((buckets['0-30'].value)/totalVal)*100}%`;
+    if (agebar31_90)   agebar31_90.style.width   = `${((buckets['31-90'].value)/totalVal)*100}%`;
+    if (agebar91_180)  agebar91_180.style.width  = `${((buckets['91-180'].value)/totalVal)*100}%`;
+    if (agebar181Plus) agebar181Plus.style.width = `${((buckets['181+'].value)/totalVal)*100}%`;
+
+    // Platform mix
+    const platMap = new Map();
+    for (const it of all) {
+      const p = (it.platform || '').trim() || '(no platform)';
+      const val = (Number(it.price)||0) * it.qty;
+      platMap.set(p, (platMap.get(p) || 0) + val);
+    }
+    const platArr = Array.from(platMap.entries())
+      .sort((a,b) => b[1] - a[1])
+      .slice(0,5);
+
+    platLines.innerHTML = '';
+    if (!platArr.length) {
+      platLines.innerHTML = '<div class="small muted">no data</div>';
+    } else {
+      for (const [p, val] of platArr) {
+        const div = document.createElement('div');
+        div.className = 'plat-pill';
+        const left = document.createElement('span');
+        left.textContent = p;
+        const right = document.createElement('span');
+        right.textContent = fmt$(val);
+        div.appendChild(left);
+        div.appendChild(right);
+        platLines.appendChild(div);
+      }
+    }
+
+    // Margin snapshot
+    const marginEntries = [];
+    for (const it of all) {
+      const p = Number(it.price)||0;
+      const c = Number(it.cost)||0;
+      if (p <= 0) continue;
+      const pct = ((p - c) / p) * 100;
+      const valueWeight = p * it.qty;
+      marginEntries.push({ pct, valueWeight });
+    }
+
+    if (!marginEntries.length) {
+      marginAvgEl.textContent  = '0%';
+      marginMedEl.textContent  = '0%';
+      marginLowEl.textContent  = '0%';
+      marginHighEl.textContent = '0%';
+    } else {
+      let totalW = 0, totalWP = 0;
+      let minPct = +Infinity, maxPct = -Infinity;
+      const pctList = [];
+
+      for (const m of marginEntries) {
+        const pct = m.pct;
+        pctList.push(pct);
+        totalW += m.valueWeight;
+        totalWP += m.valueWeight * pct;
+        if (pct < minPct) minPct = pct;
+        if (pct > maxPct) maxPct = pct;
+      }
+
+      const avgPct = totalW > 0 ? (totalWP / totalW) : 0;
+      pctList.sort((a,b)=>a-b);
+      const mid = Math.floor(pctList.length/2);
+      const medPct = pctList.length % 2 === 0 ? (pctList[mid-1]+pctList[mid])/2 : pctList[mid];
+
+      marginAvgEl.textContent  = fmtPct(avgPct);
+      marginMedEl.textContent  = fmtPct(medPct);
+      marginLowEl.textContent  = fmtPct(minPct);
+      marginHighEl.textContent = fmtPct(maxPct);
+    }
+
+    // Alerts
+    alertsList.innerHTML = '';
+    const pushAlert = (text, color) => {
+      const li = document.createElement('li');
+      const dot = document.createElement('span');
+      dot.className = 'alert-dot';
+      dot.style.background = color || '#38bdf8';
+      const txt = document.createElement('span');
+      txt.textContent = text;
+      li.appendChild(dot);
+      li.appendChild(txt);
+      alertsList.appendChild(li);
+    };
+
+    const lowStockCount = all.filter(i => i.qty === 1).length;
+    const highValueSingles = all.filter(i => (Number(i.price)||0) >= 100).length;
+    const oldExpensive = all.filter(i => {
+      const age = getAverageAgeDays(i);
+      const price = Number(i.price)||0;
+      return age > 180 && price >= 75;
+    }).length;
+    const blankCategory = all.filter(i => !String(i.category||'').trim()).length;
+
+    if (lowStockCount > 0) {
+      pushAlert(`low stock: ${lowStockCount} items with qty = 1`, '#facc15');
+    }
+    if (highValueSingles > 0) {
+      pushAlert(`high value singles: ${highValueSingles} items priced ≥ $100`, '#34d399');
+    }
+    if (oldExpensive > 0) {
+      pushAlert(`old & expensive: ${oldExpensive} items > $75 and > 180 days`, '#f97373');
+    }
+    if (blankCategory > 0) {
+      pushAlert(`blank category: ${blankCategory} items missing category`, '#38bdf8');
+    }
+
+    if (!alertsList.children.length) {
+      alertsList.innerHTML = '<li class="muted small">no alerts — looking good</li>';
+    }
+  }
+
+  function render(){
+    const normAll = items.map(it => ({ ...it, qty: toQty(it.qty) }));
+    const validIds = new Set(normAll.map((it) => Number(it.id)));
+    const pruned = new Set([...reorderSet].filter((id) => validIds.has(id)));
+    if (pruned.size !== reorderSet.size) {
+      reorderSet = pruned;
+      saveReorderSet(reorderSet);
+    }
+    const stockCounts = normAll.reduce((acc, it) => {
+      const s = getStockStatus(it.qty);
+      if (s === 'out') acc.out += 1;
+      if (s === 'low') acc.low += 1;
+      if (s !== 'out') acc.in += 1; // include low as in-stock
+      return acc;
+    }, { in: 0, low: 0, out: 0 });
+
+    let f = normAll.filter(it => {
+      if (fPlatform && it.platform !== fPlatform) return false;
+      if (fCategory && it.category !== fCategory) return false;
+      if (fCondition && it.condition !== fCondition) return false;
+      if (q && !lc(`${it.sku} ${it.title}`).includes(lc(q))) return false;
+      if (!applyStockFilter(it)) return false;
+      return true;
+    });
+
+    f = applySort(f);
+    updateSortHeaderClasses();
+
+    tbody.innerHTML = '';
+    if (f.length === 0) {
+      const tr = el('tr');
+      const td = el('td', { colSpan: 15, className: 'muted' });
+      td.textContent = 'No items match your filters.';
+      tr.appendChild(td);
+      tbody.appendChild(tr);
+    } else {
+      f.forEach((it, idx) => {
+        const tr = document.createElement('tr');
+        const stockStatus = getStockStatus(it.qty);
+        if (stockStatus === 'out') tr.classList.add('row-out');
+        const ageDays = getAverageAgeDays(it);
+        const cb = `<input type="checkbox" class="chk row-chk" data-id="${it.id}" data-idx="${idx}" ${selectedIds.has(it.id)?'checked':''} />`;
+
+        const sku8 = skuDigits(it.sku || it.barcode || '');
+        const labelDesc = labelDescForItem(it);
+        const bcUrl = barcodeImageUrlForItem(it);
+        const platCell = platformCellHtml(it);
+        const thumb = thumbCellHtml(it);
+        const stockLabel = stockStatus === 'in'
+          ? 'In Stock'
+          : stockStatus === 'low'
+            ? 'Low Stock'
+            : 'Out of Stock';
+        const isFlagged = reorderSet.has(Number(it.id));
+        const reorderLabel = isFlagged ? 'Flagged' : 'Flag';
+        const reorderClass = isFlagged ? 'flag-pill' : 'flag-pill inactive';
+
+        const actions = `
+          <button class="btn" data-act="edit" data-id="${it.id}">Edit</button>
+          <button class="btn" data-act="waste" data-id="${it.id}">Write Off</button>
+          <button class="btn" data-act="log-sale" data-id="${it.id}">Log Sale</button>
+          <button class="btn danger" data-act="del" data-id="${it.id}">Delete</button>
+          <button class="btn ghost" data-act="print" data-id="${it.id}">Reprint</button>
+        `;
+
+        tr.innerHTML = `
+          <td class="chk-col">${cb}</td>
+          <td>${it.sku ?? ''}</td>
+          <td class="thumb-cell">${thumb}</td>
+          <td>${it.title ?? ''}</td>
+          <td>${platCell}</td>
+          <td>${it.category ?? ''}</td>
+          <td>${it.condition ?? ''}</td>
+          <td class="right">${fmt$(it.cost)}</td>
+          <td class="right">${fmt$(it.price)}</td>
+          <td class="right">${it.qty}<div class="stock-pill stock-${stockStatus}">${stockLabel}</div></td>
+          <td><button class="${reorderClass}" data-act="reorder-toggle" data-id="${it.id}">${reorderLabel}</button></td>
+          <td>${ageDays}</td>
+          <td>${it.createdAt ? new Date(it.createdAt).toLocaleString() : ''}</td>
+          <td class="bc-col">
+            <div class="bc-wrap" data-id="${it.id}">
+              <img class="bc-img" src="${bcUrl}" alt="barcode for ${sku8}" />
+              <div class="bc-meta">
+                <div class="bc-sku">${sku8}</div>
+                <div class="bc-desc">${labelDesc}</div>
+              </div>
+            </div>
+          </td>
+          <td>${actions}</td>`;
+        tbody.appendChild(tr);
+      });
+    }
+
+    const totals = f.reduce((acc,i)=>{
+      const q = toQty(i.qty);
+      acc.value += (Number(i.price)||0) * q;
+      acc.cost  += (Number(i.cost)||0)  * q;
+      acc.units += q;
+      return acc;
+    }, {value:0,cost:0,units:0});
+    const profit = totals.value - totals.cost;
+
+    sumPrice.textContent = fmt$(totals.value);
+    sumCost.textContent  = fmt$(totals.cost);
+    sumProfit.textContent= fmt$(profit);
+    sumCount.textContent = f.length;
+    sumUnits.textContent = totals.units;
+
+    topCount.textContent  = f.length;
+    topUnits.textContent  = totals.units;
+    topPrice.textContent  = fmt$(totals.value);
+    topProfit.textContent = fmt$(profit);
+    if (topIn) topIn.textContent = stockCounts.in;
+    if (topLow) topLow.textContent = stockCounts.low;
+    if (topOut) topOut.textContent = stockCounts.out;
+
+    sidePrice.textContent = fmt$(totals.value);
+    sideCost.textContent  = fmt$(totals.cost);
+    sideProfit.textContent= fmt$(profit);
+    sideCount.textContent = f.length;
+    sideUnits.textContent = totals.units;
+    sideShowing.textContent = f.length;
+
+    updateSidebarInsights(normAll);
+
+    // row checkbox handlers (with shift select)
+    tbody.querySelectorAll('.row-chk').forEach(chk => {
+      chk.addEventListener('click', (e) => {
+        const id = Number(chk.dataset.id);
+        const idx = Number(chk.dataset.idx);
+        const checked = chk.checked;
+
+        if (e.shiftKey && lastShiftIndex !== null){
+          const boxes = Array.from(tbody.querySelectorAll('.row-chk'));
+          const start = Math.min(lastShiftIndex, idx);
+          const end   = Math.max(lastShiftIndex, idx);
+          for (let i=start; i<=end; i++){
+            const b = boxes[i];
+            const bid = Number(b.dataset.id);
+            b.checked = checked;
+            if (checked) selectedIds.add(bid); else selectedIds.delete(bid);
+          }
+        } else {
+          if (checked) selectedIds.add(id); else selectedIds.delete(id);
+          lastShiftIndex = idx;
+        }
+        updateBulkbar(f);
+      });
+    });
+
+    updateBulkbar(f);
+  }
+
+  // Select all in current view
+  chkAll.addEventListener('change', () => {
+    const boxes = Array.from(tbody.querySelectorAll('.row-chk'));
+    const checked = chkAll.checked;
+    boxes.forEach(b => {
+      b.checked = checked;
+      const id = Number(b.dataset.id);
+      if (checked) selectedIds.add(id); else selectedIds.delete(id);
+    });
+    chkAll.indeterminate = false;
+
+    const normAll = items.map(it => ({ ...it, qty: toQty(it.qty) }));
+    let f = normAll.filter(it => {
+      if (fPlatform && it.platform !== fPlatform) return false;
+      if (fCategory && it.category !== fCategory) return false;
+      if (fCondition && it.condition !== fCondition) return false;
+      if (q && !lc(`${it.sku} ${it.title}`).includes(lc(q))) return false;
+      if (!applyStockFilter(it)) return false;
+      return true;
+    });
+    f = applySort(f);
+    updateBulkbar(f);
+  });
+
+  // Row interactions: barcode clicks + platform filter + actions
+  tbody.addEventListener('click', async (e) => {
+    const bcWrap = e.target.closest('.bc-wrap');
+    if (bcWrap) {
+      const id = Number(bcWrap.dataset.id);
+      const it = items.find(x => x.id === id);
+      if (it) await printSingleLabelViaPdf(it);
+      return;
+    }
+
+    const platBtn = e.target.closest('.plat-filter');
+    if (platBtn) {
+      const p = platBtn.dataset.platform || '';
+      if (fPlatform === p) {
+        fPlatform = '';
+        elSelPlat.value = '';
+      } else {
+        fPlatform = p;
+        elSelPlat.value = p;
+      }
+      render();
+      return;
+    }
+
+    const btn = e.target.closest('button[data-act]');
+    if (!btn) return;
+    const act = btn.dataset.act;
+
+    if (act === 'reorder-toggle') {
+      const id = Number(btn.dataset.id);
+      if (reorderSet.has(id)) {
+        reorderSet.delete(id);
+      } else {
+        reorderSet.add(id);
+      }
+      saveReorderSet(reorderSet);
+      render();
+      return;
+    }
+
+    if (act === 'edit') {
+      const id = Number(btn.dataset.id);
+      const it = items.find(x => x.id === id);
+      if (it) openEditModal(it);
+      return;
+    }
+
+    if (act === 'waste') {
+      const id = Number(btn.dataset.id);
+      const it = items.find(x => x.id === id);
+      if (!it) return;
+
+      const result = await openWasteModal(it);
+      if (!result) return;
+
+      const { qty, reason, notes } = result;
+
+      try {
+        // NOTE: implement this endpoint in backend: POST /api/items/:id/waste
+        const res = await fetch(API_URL + '/' + id + '/waste', {
+          method: 'POST',
+          headers: { 'Content-Type':'application/json', ...getAuthHeaders() },
+          body: JSON.stringify({ qty, reason, notes })
+        });
+        if (!res.ok) throw new Error(`Waste write-off failed ${res.status}`);
+        const data = await res.json();
+        const updated = data.item || data;
+        const idx = items.findIndex(x => x.id === id);
+        if (idx >= 0) items[idx] = updated;
+        render();
+      } catch (err) {
+        console.error(err);
+        alert('Write-off failed. Check backend /api/items/:id/waste implementation.');
+      }
+      return;
+    }
+
+    if (act === 'log-sale') {
+      const id = Number(btn.dataset.id);
+      const it = items.find(x => x.id === id);
+      if (!it) return;
+
+      alert('Logging sales from Inventory is disabled. Use the POS screen (Sales tab).');
+      return;
+
+      const result = await openLogSaleModal(it);
+      if (!result) return;
+
+      const { qty, channel, price, notes } = result;
+
+      try {
+        // NOTE: implement this endpoint in backend: POST /api/sales
+        const res = await fetch(SALES_API_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', ...getAuthHeaders() },
+          body: JSON.stringify({
+            itemId: it.id,
+            sku: it.sku,
+            qty,
+            price,
+            channel,
+            notes
+          })
+        });
+        if (!res.ok) throw new Error(`Log sale failed ${res.status}`);
+        const data = await res.json();
+        const updatedItem = data.item || null;
+        if (updatedItem) {
+          const idx = items.findIndex(x => x.id === updatedItem.id);
+          if (idx >= 0) items[idx] = updatedItem;
+        }
+        render();
+      } catch (err) {
+        console.error(err);
+        alert('Logging sale failed. Check backend /api/sales implementation.');
+      }
+      return;
+    }
+
+    if (act === 'del') {
+      const id = Number(btn.dataset.id);
+      const it = items.find(x => x.id === id);
+      if (!it) return;
+
+      const confirmed = await openConfirmModal({
+        title: 'Delete Item',
+        message: `Are you sure you want to delete "${it.title || it.sku || 'this item'}"?`,
+        confirmLabel: 'Yes, delete',
+        cancelLabel: 'No',
+        danger: true
+      });
+      if (!confirmed) return;
+
+      try {
+        const res = await fetch(API_URL + '/' + id, { method:'DELETE', headers: { ...getAuthHeaders() }});
+        if (!res.ok) throw new Error(`Delete failed ${res.status}`);
+        items = items.filter(x => x.id !== id);
+        selectedIds.delete(id);
+        render();
+      } catch(err){ console.error(err); alert('Delete failed'); }
+      return;
+    }
+
+    if (act === 'print') {
+      const id = Number(btn.dataset.id);
+      const it = items.find(x => x.id === id);
+      if (!it) return;
+      await printSingleLabelViaPdf(it);
+      return;
+    }
+  });
+
+  // Sorting
+  thead.addEventListener('click', (e) => {
+    const th = e.target.closest('th.sortable');
+    if (!th) return;
+    const key = th.dataset.key;
+    if (sortKey === key) {
+      sortDir = -sortDir;
+    } else {
+      sortKey = key;
+      sortDir = 1;
+    }
+    render();
+  });
+
+  // Filters + search
+  function debounce(fn, ms){ let t; return (...a)=>{ clearTimeout(t); t = setTimeout(()=>fn(...a), ms); }; }
+  elSearch.addEventListener('input', debounce(() => { q = elSearch.value.trim(); render(); }, 150));
+  elSelCat.addEventListener('change', () => { fCategory = elSelCat.value; render(); });
+  elSelPlat.addEventListener('change', () => { fPlatform = elSelPlat.value; render(); });
+  elSelCond.addEventListener('change', () => { fCondition = elSelCond.value; render(); });
+  if (stockFiltersEl) {
+    stockFiltersEl.addEventListener('click', (e) => {
+      const btn = e.target.closest('.filter-pill');
+      if (!btn) return;
+      setStockFilter(btn.dataset.stockFilter || 'all');
+      render();
+    });
+  }
+
+  btnClear.addEventListener('click', () => {
+    q=''; fCategory=''; fPlatform=''; fCondition=''; sortKey=null; sortDir=1;
+    elSearch.value=''; elSelCat.value=''; elSelPlat.value=''; elSelCond.value='';
+    selectedIds.clear();
+    setStockFilter('all');
+    render();
+  });
+
+  try {
+    const storedFilter = localStorage.getItem(STOCK_FILTER_KEY);
+    if (storedFilter) fStock = storedFilter;
+  } catch {}
+  setStockFilter(fStock);
+
+  // Bulk actions
+  btnSelReprint.addEventListener('click', async () => {
+    await printSelectedLabels();
+  });
+
+  btnSelExport.addEventListener('click', () => {
+    const sel = items.filter(i => selectedIds.has(i.id));
+    if (!sel.length) return;
+    const header = ['id','sku','title','platform','category','condition','qty','cost','price','createdAt'];
+    const rows = sel.map(i => [i.id,i.sku,i.title,i.platform,i.category,i.condition,toQty(i.qty),Number(i.cost)||0,Number(i.price)||0,i.createdAt||'']);
+    const csv = [header.join(','), ...rows.map(r => r.map(v => `"${String(v??'').replace(/"/g,'""')}"`).join(','))].join('\n');
+    const blob = new Blob([csv], {type:'text/csv'});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a'); a.href = url; a.download = 'inventory-selection.csv'; a.click();
+    URL.revokeObjectURL(url);
+  });
+
+  btnSelMarkdown.addEventListener('click', async () => {
+    const sel = items.filter(i => selectedIds.has(i.id));
+    if (!sel.length) return;
+
+    const result = await openAdjustPriceModal();
+    if (!result) return;
+
+    const { choice, amount } = result;
+    const isPct = choice.includes('%');
+    const sign  = choice.startsWith('+') ? 1 : -1;
+    const delta = amount;
+
+    await Promise.all(sel.map(async (it) => {
+      let newPrice = Number(it.price)||0;
+      newPrice = isPct ? newPrice * (1 + sign * (delta/100)) : newPrice + sign * delta;
+      if (newPrice < 0) newPrice = 0;
+      newPrice = Number(newPrice.toFixed(2));
+
+      try{
+        const res = await fetch(API_URL + '/' + it.id, {
+          method:'PUT',
+          headers:{'Content-Type':'application/json', ...getAuthHeaders() },
+          body: JSON.stringify({ price: newPrice })
+        });
+        if (res.ok){
+          const { item } = await res.json();
+          const idx = items.findIndex(x => x.id === it.id);
+          if (idx >= 0) items[idx] = item;
+        }
+      }catch(e){ console.error('Adjust failed', e); }
+    }));
+
+    render();
+  });
+
+  btnSelDelete.addEventListener('click', async () => {
+    const sel = items.filter(i => selectedIds.has(i.id));
+    if (!sel.length) return;
+
+    const totalValue = sel.reduce((a,i)=> a + (Number(i.price)||0)*toQty(i.qty), 0);
+
+    const confirmed = await openConfirmModal({
+      title: 'Delete Selected Items',
+      message: `Are you sure you want to delete ${sel.length} item(s) totaling ${fmt$(totalValue)} in list value?`,
+      confirmLabel: 'Yes, delete',
+      cancelLabel: 'No',
+      danger: true
+    });
+    if (!confirmed) return;
+
+    const selIds = sel.map(i => i.id);
+
+    await Promise.all(selIds.map(async (id) => {
+      try{ await fetch(`${API_URL}/${id}`, { method:'DELETE', headers: { ...getAuthHeaders() }}); }
+      catch(e){ console.error('Delete error', e); }
+    }));
+
+    selIds.forEach(id => selectedIds.delete(id));
+    items = items.filter(i => !selIds.includes(i.id));
+    render();
+  });
+
+  // Edit modal
+  function openEditModal(it){
+    const bd = el('div',{className:'modal-backdrop'});
+    const m  = el('div',{className:'modal'});
+    m.innerHTML = `
+      <h3>Edit Item</h3>
+      <div class="grid">
+        <div><label>SKU</label><input id="e-sku" value="${it.sku ?? ''}"></div>
+        <div><label>Title</label><input id="e-title" value="${it.title ?? ''}"></div>
+        <div><label>Platform</label><input id="e-platform" value="${it.platform ?? ''}"></div>
+        <div><label>Condition</label><input id="e-condition" value="${it.condition ?? ''}"></div>
+        <div><label>Variant</label><input id="e-variant" value="${it.variant ?? ''}"></div>
+        <div><label>Wix Product ID</label><input id="e-wix-id" value="${it.wix_product_id ?? ''}" placeholder="Paste Wix product ID"></div>
+        <div><label>Qty</label><input id="e-qty" type="number" step="1" value="${toQty(it.qty)}"></div>
+        <div><label>Cost</label><input id="e-cost" type="number" step="0.01" value="${it.cost ?? 0}"></div>
+        <div><label>Price</label><input id="e-price" type="number" step="0.01" value="${it.price ?? 0}"></div>
+      </div>
+      <!-- TODO: Wix photo upload disabled (requires public image hosting or OAuth-based Wix upload). -->
+      <div class="actions">
+        <button class="btn ghost" id="e-cancel">Cancel</button>
+        <button class="btn primary" id="e-save">Save</button>
+      </div>
+    `;
+    bd.appendChild(m);
+    document.body.appendChild(bd);
+
+    const close = ()=> bd.remove();
+    m.querySelector('#e-cancel').onclick = close;
+
+    // TODO: Wix photo upload disabled.
+
+    m.querySelector('#e-save').onclick = async () => {
+      const payload = {
+        sku: m.querySelector('#e-sku').value.trim(),
+        title: m.querySelector('#e-title').value.trim(),
+        platform: m.querySelector('#e-platform').value.trim(),
+        condition: m.querySelector('#e-condition').value.trim(),
+        variant: m.querySelector('#e-variant').value.trim(),
+        wix_product_id: m.querySelector('#e-wix-id').value.trim(),
+        qty: Number(m.querySelector('#e-qty').value),
+        cost: Number(m.querySelector('#e-cost').value),
+        price: Number(m.querySelector('#e-price').value),
+      };
+      try {
+        const res = await fetch(API_URL + '/' + it.id, {
+          method: 'PUT',
+          headers: { 'Content-Type':'application/json', ...getAuthHeaders() },
+          body: JSON.stringify(payload)
+        });
+        if (!res.ok) throw new Error(`Update failed ${res.status}`);
+        const { item } = await res.json();
+        const idx = items.findIndex(x => x.id === it.id);
+        if (idx >= 0) items[idx] = item;
+        render();
+        close();
+      } catch(err){
+        console.error(err);
+        alert('Save failed');
+      }
+    };
+  }
+
+  // Keyboard shortcuts
+  document.addEventListener('keydown', (e) => {
+    const tag = (e.target && e.target.tagName) ? e.target.tagName.toLowerCase() : '';
+    if (tag === 'input' || tag === 'textarea') {
+      if (e.key === 'Escape') e.target.blur();
+      return;
+    }
+    if (e.key === 'f' || e.key === 'F') {
+      e.preventDefault();
+      elSearch.focus();
+      elSearch.select();
+    } else if (e.key === 'a' || e.key === 'A') {
+      e.preventDefault();
+      location.href = 'add-item.html';
+    } else if (e.key === 'Delete') {
+      e.preventDefault();
+      btnSelDelete.click();
+    } else if ((e.key === 'p' || e.key === 'P') && (e.ctrlKey || e.metaKey)) {
+      e.preventDefault();
+      btnSelReprint.click();
+    }
+  });
+
+  /* ---------- CSV IMPORT / EXPORT HELPERS (from v2) ---------- */
+
+  function parseCsvLine(line) {
+    const out = [];
+    let cur = '';
+    let inQuotes = false;
+
+    for (let i = 0; i < line.length; i++) {
+      const ch = line[i];
+      if (inQuotes) {
+        if (ch === '"') {
+          if (line[i + 1] === '"') {
+            cur += '"';
+            i++;
+          } else {
+            inQuotes = false;
+          }
+        } else {
+          cur += ch;
+        }
+      } else {
+        if (ch === ',') {
+          out.push(cur);
+          cur = '';
+        } else if (ch === '"') {
+          inQuotes = true;
+        } else {
+          cur += ch;
+        }
+      }
+    }
+    out.push(cur);
+    return out;
+  }
+
+  async function importCsvText(csvText) {
+    const lines = csvText.split(/\r?\n/).filter(l => l.trim());
+    if (!lines.length) return;
+
+    const header = parseCsvLine(lines[0]).map(h => h.trim());
+    const idx = (name) => header.findIndex(h => h.toLowerCase() === name.toLowerCase());
+
+    const colTitle     = idx('title');
+    const colPlatform  = idx('platform');
+    const colCategory  = idx('category');
+    const colCondition = idx('condition');
+    const colQty       = idx('qty');
+    const colCost      = idx('cost');
+    const colPrice     = idx('price');
+    const colBarcode   = idx('barcode');
+
+    if (colTitle < 0) {
+      alert('CSV must have at least a "title" column.');
+      return;
+    }
+
+    for (let i = 1; i < lines.length; i++) {
+      const line = lines[i];
+      if (!line.trim()) continue;
+      const cols = parseCsvLine(line);
+
+      const body = {
+        title: cols[colTitle] || '',
+        platform: colPlatform >= 0 ? (cols[colPlatform] || '') : '',
+        category: colCategory >= 0 ? (cols[colCategory] || '') : '',
+        condition: colCondition >= 0 ? (cols[colCondition] || 'Good') : 'Good',
+        qty: colQty >= 0 ? Number(cols[colQty] || 1) : 1,
+        cost: colCost >= 0 ? Number(cols[colCost] || 0) : 0,
+        price: colPrice >= 0 ? Number(cols[colPrice] || 0) : 0,
+        barcode: colBarcode >= 0 ? (cols[colBarcode] || '') : '',
+        overridePrice: true
+      };
+
+      if (!body.title) continue;
+
+      try {
+        await fetch(API_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', ...getAuthHeaders() },
+          body: JSON.stringify(body)
+        });
+      } catch (err) {
+        console.error('Import row failed:', err, line);
+      }
+    }
+  }
+
+  // Import CSV (toolbar)
+  btnImportCsv.addEventListener('click', () => {
+    if (!inputImportFile) return;
+    inputImportFile.click();
+  });
+
+  inputImportFile.addEventListener('change', async (e) => {
+    const file = e.target.files && e.target.files[0];
+    if (!file) return;
+    try {
+      const text = await file.text();
+      await importCsvText(text);
+      items = await loadFromAPI();
+      populateFilters();
+      render();
+      alert('CSV import complete.');
+    } catch (err) {
+      console.error('CSV import failed:', err);
+      alert('CSV import failed. Check console for details.');
+    } finally {
+      e.target.value = '';
+    }
+  });
+
+  // Export ALL inventory as CSV
+  btnExportAll.addEventListener('click', () => {
+    if (!items.length) {
+      alert('No items to export.');
+      return;
+    }
+    const header = ['id','sku','title','platform','category','condition','qty','cost','price','createdAt'];
+    const rows = items.map(i => [
+      i.id,
+      i.sku,
+      i.title,
+      i.platform,
+      i.category,
+      i.condition,
+      toQty(i.qty),
+      Number(i.cost) || 0,
+      Number(i.price) || 0,
+      i.createdAt || ''
+    ]);
+    const csv = [
+      header.join(','),
+      ...rows.map(r =>
+        r.map(v => `"${String(v ?? '').replace(/"/g, '""')}"`).join(',')
+      )
+    ].join('\n');
+
+    const blob = new Blob([csv], { type: 'text/csv' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'inventory-all.csv';
+    a.click();
+    URL.revokeObjectURL(url);
+  });
+
+// Wix Export — matches Wix_Templates_Products_CSV.csv structure
+btnWixExport.addEventListener('click', () => {
+  if (!items.length) {
+    alert('No items to export.');
+    return;
+  }
+
+  // Exact header order from Wix template
+  const header = [
+    'handleId',
+    'fieldType',
+    'name',
+    'description',
+    'productImageUrl',
+    'collection',
+    'sku',
+    'ribbon',
+    'price',
+    'surcharge',
+    'visible',
+    'discountMode',
+    'discountValue',
+    'inventory',
+    'weight',
+    'cost',
+    'productOptionName1',
+    'productOptionType1',
+    'productOptionDescription1',
+    'productOptionName2',
+    'productOptionType2',
+    'productOptionDescription2',
+    'productOptionName3',
+    'productOptionType3',
+    'productOptionDescription3',
+    'productOptionName4',
+    'productOptionType4',
+    'productOptionDescription4',
+    'productOptionName5',
+    'productOptionType5',
+    'productOptionDescription5',
+    'productOptionName6',
+    'productOptionType6',
+    'productOptionDescription6',
+    'additionalInfoTitle1',
+    'additionalInfoDescription1',
+    'additionalInfoTitle2',
+    'additionalInfoDescription2',
+    'additionalInfoTitle3',
+    'additionalInfoDescription3',
+    'additionalInfoTitle4',
+    'additionalInfoDescription4',
+    'additionalInfoTitle5',
+    'additionalInfoDescription5',
+    'additionalInfoTitle6',
+    'additionalInfoDescription6',
+    'customTextField1',
+    'customTextCharLimit1',
+    'customTextMandatory1',
+    'brand'
+  ];
+
+  const rows = items.map((i, idx) => {
+    const rawSku = String(i.sku || '').trim();
+    const safeSku = rawSku || `ITEM_${i.id || (idx + 1)}`;
+
+    // handleId is the unique product handle Wix uses (URL-ish slug)
+    const handleId = `SKU_${safeSku.replace(/[^a-zA-Z0-9_-]/g, '_')}`;
+
+    const name = i.title || '';
+    const description = '';            // you can fill this in later in Wix
+    const productImageUrl = '';        // no images yet, fine to leave blank
+
+    // We'll use "platform;category" as the collection path (Wix uses ; as a separator)
+    const collectionParts = [];
+    if (i.platform) collectionParts.push(i.platform);
+    if (i.category) collectionParts.push(i.category);
+    const collection = collectionParts.join(';');
+
+    const price = Number(i.price) || 0;
+    const inventory = toQty(i.qty);
+    const cost = i.cost !== undefined && i.cost !== null && i.cost !== ''
+      ? Number(i.cost)
+      : '';
+
+    const visible = 'TRUE';            // make them live on import
+    const brand = 'Retro Catz Games';  // nice little branding touch
+
+    return [
+      // 0–15 core fields
+      handleId,           // handleId
+      'Product',          // fieldType
+      name,               // name
+      description,        // description
+      productImageUrl,    // productImageUrl
+      collection,         // collection
+      safeSku,            // sku
+      '',                 // ribbon
+      price,              // price
+      '',                 // surcharge
+      visible,            // visible
+      '',                 // discountMode
+      '',                 // discountValue
+      inventory,          // inventory
+      '',                 // weight
+      cost,               // cost
+
+      // 16–33: product options (not used yet, all blank)
+      '', '', '',         // productOptionName1, productOptionType1, productOptionDescription1
+      '', '', '',         // productOptionName2, productOptionType2, productOptionDescription2
+      '', '', '',         // productOptionName3, productOptionType3, productOptionDescription3
+      '', '', '',         // productOptionName4, productOptionType4, productOptionDescription4
+      '', '', '',         // productOptionName5, productOptionType5, productOptionDescription5
+      '', '', '',         // productOptionName6, productOptionType6, productOptionDescription6
+
+      // 34–45: additional info sections (blank for now)
+      '', '',             // additionalInfoTitle1, additionalInfoDescription1
+      '', '',             // additionalInfoTitle2, additionalInfoDescription2
+      '', '',             // additionalInfoTitle3, additionalInfoDescription3
+      '', '',             // additionalInfoTitle4, additionalInfoDescription4
+      '', '',             // additionalInfoTitle5, additionalInfoDescription5
+      '', '',             // additionalInfoTitle6, additionalInfoDescription6
+
+      // 46–48: custom text field (blank)
+      '',                 // customTextField1
+      '',                 // customTextCharLimit1
+      '',                 // customTextMandatory1
+
+      // 49: brand
+      brand               // brand
+    ];
+  });
+
+  const csv = [
+    header.join(','),
+    ...rows.map(r =>
+      r.map(v => `"${String(v ?? '').replace(/"/g, '""')}"`).join(',')
+    )
+  ].join('\n');
+
+  const blob = new Blob([csv], { type: 'text/csv' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'retrocats-wix-products.csv';
+  a.click();
+  URL.revokeObjectURL(url);
+});
+
+  function openPrintWindow(rows) {
+    const now = new Date();
+    const title = `Inventory Print - ${now.toLocaleString()}`;
+
+    const style = '\n' +
+      '<style>' +
+      '@page { size: letter; margin: 0.5in; }' +
+      'body { font-family: Arial, sans-serif; color:#111; }' +
+      'h1 { font-size: 16px; margin: 0 0 6px; }' +
+      '.meta { font-size: 11px; color:#444; margin-bottom: 10px; }' +
+      'table { width:100%; border-collapse: collapse; font-size: 11px; }' +
+      'th, td { border: 1px solid #999; padding: 4px 6px; text-align: left; }' +
+      'th { background: #f2f2f2; }' +
+      '.right { text-align:right; }' +
+      '</style>';
+
+    const header = '\n' +
+      '<h1>RetroCatz Inventory</h1>' +
+      `<div class="meta">${title} - <span id="row-count">${rows.length}</span> items</div>` +
+      '<div style="margin:8px 0 12px; font-size:12px;">' +
+      '<label>Sort by:</label>' +
+      '<select id="sort-by" style="margin-left:6px;">' +
+      '<option value="sku" selected>SKU</option>' +
+      '<option value="title">Title</option>' +
+      '<option value="category">Category</option>' +
+      '<option value="platform">Platform</option>' +
+      '<option value="qty">Qty</option>' +
+      '<option value="price">Price</option>' +
+      '<option value="cost">Cost</option>' +
+      '<option value="profit">Profit</option>' +
+      '</select>' +
+      '<select id="sort-dir" style="margin-left:6px;">' +
+      '<option value="asc" selected>Ascending</option>' +
+      '<option value="desc">Descending</option>' +
+      '</select>' +
+      '<span style="margin-left:10px;">' +
+      '<label><input type="checkbox" id="col-qty" checked> Qty</label>' +
+      '<label style="margin-left:8px;"><input type="checkbox" id="col-price" checked> Price</label>' +
+      '<label style="margin-left:8px;"><input type="checkbox" id="col-cost"> Cost</label>' +
+      '<label style="margin-left:8px;"><input type="checkbox" id="show-totals"> Totals</label>' +
+      '</span>' +
+      '<button onclick="window.print()" style="margin-left:10px; padding:6px 10px; border:1px solid #555; background:#eee; cursor:pointer;">Print</button>' +
+      '</div>';
+
+    const table = '\n' +
+      '<table>' +
+      '<thead><tr>' +
+      '<th>SKU</th><th>Title</th><th>Platform</th><th>Category</th>' +
+      '<th class="right" data-col="qty">Qty</th><th class="right" data-col="price">Price</th><th class="right" data-col="cost">Cost</th>' +
+      '</tr></thead>' +
+      '<tbody id="print-body"></tbody>' +
+      '</table>' +
+      '<div id="print-totals" style="margin-top:8px; display:none; font-size:12px;">' +
+      '<strong>Totals:</strong> ' +
+      '<span id="total-price" style="margin-left:8px;">Price: $0.00</span>' +
+      '<span id="total-cost" style="margin-left:12px;">Cost: $0.00</span>' +
+      '</div>';
+
+    const rowsJson = JSON.stringify(rows).replace(/</g, '\u003c');
+    const script = '\n<script>' +
+      'const rows = ' + rowsJson + ';' +
+      'const body = document.getElementById("print-body");' +
+      'const sortBy = document.getElementById("sort-by");' +
+      'const sortDir = document.getElementById("sort-dir");' +
+      'const colQty = document.getElementById("col-qty");' +
+      'const colPrice = document.getElementById("col-price");' +
+      'const colCost = document.getElementById("col-cost");' +
+      'const showTotals = document.getElementById("show-totals");' +
+      'const totalsWrap = document.getElementById("print-totals");' +
+      'const totalPriceEl = document.getElementById("total-price");' +
+      'const totalCostEl = document.getElementById("total-cost");' +
+      'function fixText(s){' +
+      '  const t = String(s ?? "");' +
+      '  if (!t) return t;' +
+      '  const looksMojibake = /Ã|â€”|â€“|â€™|â€œ|â€|â€˜/.test(t);' +
+      '  if (looksMojibake) {' +
+      '    try {' +
+      '      const bytes = Uint8Array.from(t, c => c.charCodeAt(0) & 0xff);' +
+      '      const decoded = new TextDecoder("utf-8").decode(bytes);' +
+      '      if (decoded && decoded !== t) return decoded;' +
+      '    } catch {}' +
+      '    try {' +
+      '      const decoded = decodeURIComponent(escape(t));' +
+      '      if (decoded && decoded !== t) return decoded;' +
+      '    } catch {}' +
+      '  }' +
+      '  return t;' +
+      '}' +
+      'function toNum(v){ const n = Number(v); return Number.isFinite(n) ? n : 0; }' +
+      'function cmp(a,b){ return a < b ? -1 : a > b ? 1 : 0; }' +
+      'function sortRows(){' +
+      '  const key = sortBy.value; const dir = sortDir.value === "desc" ? -1 : 1;' +
+      '  rows.sort((a,b)=>{' +
+      '    let av = (a[key] ?? ""); let bv = (b[key] ?? "");' +
+      '    if (key === "qty") { return (toNum(av) - toNum(bv)) * dir; }' +
+      '    if (key === "price") { return (toNum(av) - toNum(bv)) * dir; }' +
+      '    if (key === "cost") { return (toNum(av) - toNum(bv)) * dir; }' +
+      '    if (key === "profit") {' +
+      '      return ((toNum(a.price) - toNum(a.cost)) - (toNum(b.price) - toNum(b.cost))) * dir;' +
+      '    }' +
+      '    if (key === "sku") { const an = toNum(av), bn = toNum(bv); if (an && bn) return (an - bn) * dir; }' +
+      '    return cmp(String(av).toLowerCase(), String(bv).toLowerCase()) * dir;' +
+      '  });' +
+      '}' +
+      'function applyColVis(){' +
+      '  const showQty = !!colQty.checked;' +
+      '  const showPrice = !!colPrice.checked;' +
+      '  const showCost = !!colCost.checked;' +
+      '  document.querySelectorAll("[data-col=qty]").forEach(el=>el.style.display = showQty ? "" : "none");' +
+      '  document.querySelectorAll("[data-col=price]").forEach(el=>el.style.display = showPrice ? "" : "none");' +
+      '  document.querySelectorAll("[data-col=cost]").forEach(el=>el.style.display = showCost ? "" : "none");' +
+      '  totalsWrap.style.display = showTotals.checked ? "" : "none";' +
+      '}' +
+      'function renderTotals(){' +
+      '  let totalPrice = 0;' +
+      '  let totalCost = 0;' +
+      '  for (const i of rows) {' +
+      '    const qty = toNum(i.qty ?? 0);' +
+      '    totalPrice += toNum(i.price ?? 0) * qty;' +
+      '    totalCost += toNum(i.cost ?? 0) * qty;' +
+      '  }' +
+      '  totalPriceEl.textContent = "Price: $" + totalPrice.toFixed(2);' +
+      '  totalCostEl.textContent = "Cost: $" + totalCost.toFixed(2);' +
+      '}' +
+      'function render(){' +
+      '  body.innerHTML = "";' +
+      '  for (const i of rows) {' +
+      '    const tr = document.createElement("tr");' +
+      '    tr.innerHTML = "<td>" + (i.sku ?? "") + "</td>" +' +
+      '      "<td>" + fixText(i.title ?? "") + "</td>" +' +
+      '      "<td>" + fixText(i.platform ?? "") + "</td>" +' +
+      '      "<td>" + fixText(i.category ?? "") + "</td>" +' +
+      '      "<td class=\\"right\\" data-col=\\"qty\\">" + (i.qty ?? 0) + "</td>" +' +
+      '      "<td class=\\"right\\" data-col=\\"price\\">" + Number(i.price || 0).toFixed(2) + "</td>" +' +
+      '      "<td class=\\"right\\" data-col=\\"cost\\">" + Number(i.cost || 0).toFixed(2) + "</td>";' +
+      '    body.appendChild(tr);' +
+      '  }' +
+      '  applyColVis();' +
+      '  renderTotals();' +
+      '}' +
+      'sortBy.addEventListener("change", ()=>{ sortRows(); render(); });' +
+      'sortDir.addEventListener("change", ()=>{ sortRows(); render(); });' +
+      'colQty.addEventListener("change", applyColVis);' +
+      'colPrice.addEventListener("change", applyColVis);' +
+      'colCost.addEventListener("change", applyColVis);' +
+      'showTotals.addEventListener("change", applyColVis);' +
+      'sortRows(); render();' +
+      '<\/script>';
+
+    const html = '<!doctype html><html><head><meta charset="utf-8"><title>' + title + '</title>' + style + '</head><body>' + header + table + script + '</body></html>';
+    const w = window.open('', 'inventory-print');
+    if (!w) {
+      alert('Popup blocked. Please allow popups to print.');
+      return;
+    }
+    w.document.open();
+    w.document.write(html);
+    w.document.close();
+    try { w.focus(); } catch {}
+  }
+
+  if (btnPrintInv) {
+    btnPrintInv.addEventListener('click', () => {
+      const includeZero = !!(chkPrintIncludeZero && chkPrintIncludeZero.checked);
+      const normAll = items.map(it => ({ ...it, qty: toQty(it.qty) }));
+      let f = normAll.filter(it => {
+        if (fPlatform && it.platform !== fPlatform) return false;
+        if (fCategory && it.category !== fCategory) return false;
+        if (fCondition && it.condition !== fCondition) return false;
+        if (q && !(String(it.title||'').toLowerCase().includes(q) || String(it.sku||'').toLowerCase().includes(q))) return false;
+        if (!includeZero && toQty(it.qty) <= 0) return false;
+        return true;
+      });
+      openPrintWindow(f);
+    });
+  }
+
+
+  (async()=>{
+    try {
+      await ensureSession();
+      items = await loadFromAPI();
+      populateFilters();
+      render();
+    } catch(err){
+      console.error('Inventory load failed:', err);
+    }
+  })();
+
+  // Refresh inventory when returning to this page or on interval
+  let lastRefresh = 0;
+  async function refreshInventory(reason = 'manual') {
+    const now = Date.now();
+    if (now - lastRefresh < 1500) return;
+    lastRefresh = now;
+    try {
+      items = await loadFromAPI();
+      populateFilters();
+      render();
+      if (reason === 'manual') {
+        console.log('Inventory refreshed.');
+      }
+    } catch (err) {
+      console.error('Inventory refresh failed:', err);
+    }
+  }
+
+  window.addEventListener('focus', () => refreshInventory('focus'));
+  document.addEventListener('visibilitychange', () => {
+    if (!document.hidden) refreshInventory('focus');
+  });
+
+  if (btnRefreshInv) {
+    btnRefreshInv.addEventListener('click', () => refreshInventory('manual'));
+  }
+
+  // Auto-refresh every 15s while visible
+  setInterval(() => {
+    if (!document.hidden) refreshInventory('auto');
+  }, 15000);
+})();
+</script>
+</body>
+</html>
+
+
+
+
+
+
+

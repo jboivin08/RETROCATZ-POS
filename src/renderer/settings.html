@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Settings • RetroCatz POS</title>
+  <meta http-equiv="Content-Security-Policy"
+        content="default-src 'self';
+                 script-src 'self' 'unsafe-inline';
+                 style-src 'self' 'unsafe-inline'">
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    :root {
+      --bg: #0b0b0f;
+      --panel: #11121a;
+      --border: #1f2937;
+      --text: #e5e7eb;
+      --muted: #9ca3af;
+      --accent: #38bdf8;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: system-ui, Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+    }
+    .page {
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      min-height: 100vh;
+    }
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+    .btn {
+      background: #151826;
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 8px 12px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 12px;
+    }
+    .btn:hover { border-color: #334155; }
+    .panel {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .panel h2 {
+      margin: 0;
+      font-size: 14px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--muted);
+    }
+    .muted { color: var(--muted); font-size: 12px; }
+    .settings-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+    input, select {
+      width: 100%;
+      padding: 8px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      background: #0f1118;
+      color: var(--text);
+      font-size: 12px;
+    }
+    .settings-toggles {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 8px;
+    }
+    .settings-toggle {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 12px;
+      color: var(--muted);
+      border: 1px solid var(--border);
+      padding: 8px;
+      border-radius: 8px;
+      background: #0f1118;
+    }
+    .row-actions {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    @media (max-width: 700px) {
+      .settings-row { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <div class="topbar">
+      <button id="back-btn" class="btn">Back to Main</button>
+      <h1>Settings</h1>
+    </div>
+
+    <section class="panel">
+      <h2>Tax Settings</h2>
+      <div class="settings-row">
+        <div>
+          <label class="muted" for="settingsTaxRate">Default Sales Tax (%)</label>
+          <input type="number" min="0" max="25" step="0.01" id="settingsTaxRate" placeholder="e.g. 7.00">
+        </div>
+        <div>
+          <label class="muted" for="settingsManagerPin">Manager PIN (optional)</label>
+          <input type="password" id="settingsManagerPin" placeholder="Leave blank to disable">
+        </div>
+      </div>
+      <div class="settings-toggles">
+        <div class="settings-toggle">
+          <input type="checkbox" id="chkTaxIncluded" disabled>
+          <label for="chkTaxIncluded">Tax is included in prices (future)</label>
+        </div>
+        <div class="settings-toggle">
+          <input type="checkbox" id="chkAutoApplyTax" checked disabled>
+          <label for="chkAutoApplyTax">Apply tax automatically</label>
+        </div>
+      </div>
+      <div class="row-actions">
+        <button class="btn" id="btnSaveTaxSettings">Save Tax Settings</button>
+      </div>
+      <div id="settingsStatus" class="muted">Tax changes apply to new totals immediately.</div>
+    </section>
+
+    <section class="panel">
+      <h2>Inventory Behavior</h2>
+      <div class="settings-toggles">
+        <div class="settings-toggle">
+          <input type="checkbox" id="chkRemoveOnSale" checked disabled>
+          <label for="chkRemoveOnSale">Remove inventory on sale</label>
+        </div>
+        <div class="settings-toggle">
+          <input type="checkbox" id="chkRestockOnReturn" checked disabled>
+          <label for="chkRestockOnReturn">Restock inventory on void/refund</label>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>Register Behavior</h2>
+      <div class="settings-toggles">
+        <div class="settings-toggle">
+          <input type="checkbox" id="chkAutoClearCart" checked disabled>
+          <label for="chkAutoClearCart">Auto-clear cart after sale</label>
+        </div>
+        <div class="settings-toggle">
+          <input type="checkbox" id="chkAutoFocusScan" checked disabled>
+          <label for="chkAutoFocusScan">Auto-focus scan field</label>
+        </div>
+        <div class="settings-toggle">
+          <input type="checkbox" id="chkShowQuickKeys" checked disabled>
+          <label for="chkShowQuickKeys">Show quick keys</label>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>Customer CSV Export</h2>
+      <div class="muted">Choose columns for the Customers export (saved locally).</div>
+      <div class="settings-toggles">
+        <div class="settings-toggle"><input type="checkbox" class="export-col" data-col="name" checked><label>Name</label></div>
+        <div class="settings-toggle"><input type="checkbox" class="export-col" data-col="type" checked><label>Type</label></div>
+        <div class="settings-toggle"><input type="checkbox" class="export-col" data-col="email" checked><label>Email (Primary)</label></div>
+        <div class="settings-toggle"><input type="checkbox" class="export-col" data-col="email2"><label>Email 2</label></div>
+        <div class="settings-toggle"><input type="checkbox" class="export-col" data-col="email3"><label>Email 3</label></div>
+        <div class="settings-toggle"><input type="checkbox" class="export-col" data-col="phone" checked><label>Phone (Primary)</label></div>
+        <div class="settings-toggle"><input type="checkbox" class="export-col" data-col="phone2"><label>Phone 2</label></div>
+        <div class="settings-toggle"><input type="checkbox" class="export-col" data-col="phone3"><label>Phone 3</label></div>
+        <div class="settings-toggle"><input type="checkbox" class="export-col" data-col="address1"><label>Address 1</label></div>
+        <div class="settings-toggle"><input type="checkbox" class="export-col" data-col="address2"><label>Address 2</label></div>
+        <div class="settings-toggle"><input type="checkbox" class="export-col" data-col="city"><label>City</label></div>
+        <div class="settings-toggle"><input type="checkbox" class="export-col" data-col="state"><label>State</label></div>
+        <div class="settings-toggle"><input type="checkbox" class="export-col" data-col="zip"><label>ZIP</label></div>
+        <div class="settings-toggle"><input type="checkbox" class="export-col" data-col="ein"><label>EIN</label></div>
+        <div class="settings-toggle"><input type="checkbox" class="export-col" data-col="tags"><label>Tags</label></div>
+        <div class="settings-toggle"><input type="checkbox" class="export-col" data-col="tax_exempt"><label>Tax Exempt</label></div>
+        <div class="settings-toggle"><input type="checkbox" class="export-col" data-col="store_credit_cents"><label>Store Credit</label></div>
+        <div class="settings-toggle"><input type="checkbox" class="export-col" data-col="active"><label>Active</label></div>
+      </div>
+      <div class="row-actions">
+        <button class="btn" id="btnSaveExportCols">Save Export Columns</button>
+      </div>
+      <div id="exportColsStatus" class="muted">Used by Customers → Export CSV.</div>
+    </section>
+  </div>
+
+  <script src="./settings.js"></script>
+</body>
+</html>

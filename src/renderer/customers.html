@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Customers • RetroCatz POS</title>
+  <meta http-equiv="Content-Security-Policy"
+        content="default-src 'self';
+                 script-src 'self' 'unsafe-inline';
+                 connect-src 'self' http://127.0.0.1:5175 http://localhost:5175;
+                 style-src 'self' 'unsafe-inline'">
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    :root {
+      --bg: #0b0b0f;
+      --panel: #11121a;
+      --border: #1f2937;
+      --text: #e5e7eb;
+      --muted: #9ca3af;
+      --accent: #38bdf8;
+      --accent-2: #22c55e;
+      --danger: #f87171;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: system-ui, Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+    }
+    .page {
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      min-height: 100vh;
+    }
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+    .btn {
+      background: #151826;
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 8px 12px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 12px;
+    }
+    .btn:hover { border-color: #334155; }
+    .btn.primary { background: #0ea5e9; border-color: #0ea5e9; color: #07131f; font-weight: 600; }
+    .btn.ghost { background: transparent; }
+    .btn.danger { background: transparent; border-color: #7f1d1d; color: #fecaca; }
+    .muted { color: var(--muted); font-size: 12px; }
+    .layout {
+      display: grid;
+      grid-template-columns: 1.05fr 1.35fr;
+      gap: 12px;
+      min-height: 0;
+      flex: 1;
+    }
+    .panel {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      min-height: 0;
+    }
+    .panel h2 {
+      margin: 0;
+      font-size: 14px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--muted);
+    }
+    .toolbar {
+      display: grid;
+      grid-template-columns: 1fr 160px 140px 140px;
+      gap: 8px;
+    }
+    input, select, textarea {
+      width: 100%;
+      padding: 8px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      background: #0f1118;
+      color: var(--text);
+      font-size: 12px;
+    }
+    textarea { min-height: 80px; resize: vertical; }
+    .list {
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      overflow: auto;
+      min-height: 0;
+      flex: 1;
+    }
+    .list-row {
+      display: grid;
+      grid-template-columns: 1.5fr 1fr 0.8fr 0.7fr;
+      gap: 8px;
+      padding: 8px 10px;
+      border-bottom: 1px solid #131a2a;
+      font-size: 12px;
+      cursor: pointer;
+    }
+    .list-row:hover { background: #0f141f; }
+    .list-row.active { background: rgba(56,189,248,0.12); }
+    .pill {
+      display: inline-block;
+      font-size: 10px;
+      padding: 2px 6px;
+      border-radius: 999px;
+      border: 1px solid #334155;
+      color: var(--muted);
+    }
+    .pill.good { border-color: #14532d; color: #86efac; }
+    .pill.warn { border-color: #7c2d12; color: #fdba74; }
+    .form-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+    .form-grid .full { grid-column: 1 / -1; }
+    .field-group {
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 8px;
+      background: #0f1118;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .field-group-title {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--muted);
+    }
+    .stack-fields {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 6px;
+    }
+    .section-title {
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--muted);
+      margin-top: 6px;
+    }
+    .row-actions {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+    .status-line {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      font-size: 12px;
+      color: var(--muted);
+    }
+    .tag {
+      font-size: 11px;
+      padding: 2px 6px;
+      border-radius: 6px;
+      border: 1px solid #1f2937;
+    }
+    .alerts {
+      border: 1px solid #3f1f1f;
+      background: #140b0b;
+      border-radius: 10px;
+      padding: 8px;
+      font-size: 12px;
+      color: #fecaca;
+      display: none;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .tag-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+    .timeline {
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      overflow: auto;
+      max-height: 260px;
+    }
+    .timeline-row {
+      display: grid;
+      grid-template-columns: 90px 1fr 120px;
+      gap: 8px;
+      padding: 6px 8px;
+      border-bottom: 1px solid #131a2a;
+      font-size: 11px;
+    }
+    .timeline-row:last-child { border-bottom: none; }
+    .timeline-kind {
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--muted);
+      font-size: 10px;
+    }
+    .credit-panel {
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 8px;
+      background: #0f1118;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    @media (max-width: 1100px) {
+      .layout { grid-template-columns: 1fr; }
+      .toolbar { grid-template-columns: 1fr 1fr; }
+    }
+    @media (max-width: 700px) {
+      .toolbar { grid-template-columns: 1fr; }
+      .form-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <div class="topbar">
+      <button id="back-btn" class="btn">Back to Main</button>
+      <h1>Customers</h1>
+      <div class="row-actions">
+        <button id="btnNew" class="btn">New Customer</button>
+        <button id="btnSave" class="btn primary">Save</button>
+        <button id="btnToggleActive" class="btn ghost">Deactivate</button>
+      </div>
+    </div>
+
+    <div class="layout">
+      <section class="panel">
+        <h2>Directory</h2>
+        <div class="toolbar">
+          <input id="custSearch" type="text" placeholder="Search name, phone, email, EIN" />
+          <select id="custTypeFilter">
+            <option value="">All Types</option>
+            <option value="regular">Regular</option>
+            <option value="business">Business</option>
+          </select>
+          <select id="custTaxFilter">
+            <option value="">All Tax</option>
+            <option value="exempt">Tax Exempt</option>
+            <option value="standard">Standard Tax</option>
+          </select>
+          <select id="custActiveFilter">
+            <option value="active">Active</option>
+            <option value="inactive">Inactive</option>
+            <option value="">All</option>
+          </select>
+        </div>
+        <div class="row-actions">
+          <button id="btnExportEmails" class="btn">Export CSV</button>
+        </div>
+        <div class="list" id="custList"></div>
+        <div class="muted" id="custCount">0 customers</div>
+
+        <div class="section-title">Duplicates</div>
+        <div class="row-actions">
+          <button id="btnFindDupes" class="btn">Find Duplicates</button>
+          <input id="mergeSourceId" type="number" placeholder="Source ID" />
+          <input id="mergeTargetId" type="number" placeholder="Target ID" />
+          <button id="btnMergeCustomers" class="btn danger">Merge</button>
+        </div>
+        <div class="list" id="dupeList" style="max-height:180px;"></div>
+      </section>
+
+      <section class="panel">
+        <h2>Customer Profile</h2>
+        <div class="status-line">
+          <span class="tag" id="custStatusTag">New</span>
+          <span class="tag" id="custTypeTag">Regular</span>
+          <span class="tag" id="custTaxTag">Tax: Standard</span>
+        </div>
+        <div class="alerts" id="custAlerts"></div>
+
+        <div class="section-title">Identity</div>
+        <div class="form-grid">
+          <input id="custId" type="text" placeholder="ID" disabled />
+          <select id="custType">
+            <option value="regular">Regular</option>
+            <option value="business">Business</option>
+          </select>
+          <input id="custName" type="text" placeholder="Name or Business Name" class="full" />
+
+          <div class="field-group">
+            <div class="field-group-title">Phones</div>
+            <div class="stack-fields">
+              <input id="custPhone" type="text" placeholder="Primary" />
+              <input id="custPhone2" type="text" placeholder="Secondary" />
+              <input id="custPhone3" type="text" placeholder="Third" />
+            </div>
+          </div>
+
+          <div class="field-group">
+            <div class="field-group-title">Emails</div>
+            <div class="stack-fields">
+              <input id="custEmail" type="text" placeholder="Primary" />
+              <input id="custEmail2" type="text" placeholder="Secondary" />
+              <input id="custEmail3" type="text" placeholder="Third" />
+            </div>
+          </div>
+
+          <input id="custEin" type="text" placeholder="EIN (business only)" class="full" />
+          <div class="full">
+            <label class="muted"><input id="custTaxExempt" type="checkbox" /> Tax Exempt</label>
+          </div>
+          <input id="custTaxExemptExpires" type="date" class="full" placeholder="Tax Exempt Expiration" />
+          <div class="tag-row full">
+            <input id="custTags" type="text" placeholder="Tags (comma separated: VIP, Collector, Reseller)" />
+            <input id="custFlagReason" type="text" placeholder="Flag reason (optional)" />
+          </div>
+          <div class="full">
+            <label class="muted"><input id="custFlagged" type="checkbox" /> Flagged customer</label>
+          </div>
+        </div>
+
+        <div class="section-title">Address</div>
+        <div class="form-grid">
+          <input id="custAddress1" type="text" placeholder="Address line 1" class="full" />
+          <input id="custAddress2" type="text" placeholder="Address line 2" class="full" />
+          <input id="custCity" type="text" placeholder="City" />
+          <input id="custState" type="text" placeholder="State" />
+          <input id="custZip" type="text" placeholder="ZIP" />
+        </div>
+
+        <div class="section-title">Value & History</div>
+        <div class="status-line">
+          <span>Total Spend: <strong id="custTotalSpend">$0.00</strong></span>
+          <span>Transactions: <strong id="custTxnCount">0</strong></span>
+          <span>Last Visit: <strong id="custLastVisit">--</strong></span>
+        </div>
+        <div class="credit-panel">
+          <div class="status-line">
+            <span>Store Credit: <strong id="custStoreCredit">$0.00</strong></span>
+          </div>
+          <div class="tag-row">
+            <input id="custCreditAmount" type="number" step="0.01" placeholder="Adjust amount (+/-)" />
+            <input id="custCreditReason" type="text" placeholder="Reason" />
+          </div>
+          <div class="row-actions">
+            <button id="btnApplyCredit" class="btn">Apply Adjustment</button>
+          </div>
+          <div class="muted">Manager-only: adjustments update store credit balance.</div>
+        </div>
+        <div class="section-title">Activity Timeline</div>
+        <div class="timeline" id="custTimeline"></div>
+        <div class="list" id="custHistory"></div>
+
+        <div class="section-title">Notes</div>
+        <textarea id="custNotes" placeholder="Notes, preferences, repair history, etc."></textarea>
+        <div class="row-actions">
+          <button id="btnAddNote" class="btn">Add Note</button>
+        </div>
+      </section>
+    </div>
+  </div>
+
+  <script src="./customers.js"></script>
+</body>
+</html>

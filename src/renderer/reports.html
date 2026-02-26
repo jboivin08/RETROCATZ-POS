@@ -1,0 +1,537 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>Reports - RetroCatz POS</title>
+<meta http-equiv="Content-Security-Policy"
+      content="default-src 'self' file:;
+               img-src 'self' file: data: http://127.0.0.1:5175 http://localhost:5175;
+               script-src 'self' 'unsafe-inline';
+               connect-src 'self' http://127.0.0.1:5175 http://localhost:5175;
+               style-src 'self' 'unsafe-inline'">
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<style>
+  :root {
+    --bg: #0b0b0d;
+    --panel: #111827;
+    --panel-2: #0f172a;
+    --border: #374151;
+    --text: #e5e7eb;
+    --muted: #9ca3af;
+    --blue: #2563eb;
+    --danger:#7f1d1d;
+    --row-hover:#14161b;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 16px; background: var(--bg); color: var(--text); font-family: system-ui, sans-serif; }
+
+  .toolbar {
+    display:flex;
+    align-items:center;
+    gap:10px;
+    background:#091226;
+    padding:12px;
+    border-radius:8px;
+    border:1px solid #0e1b36;
+    flex-wrap:wrap;
+  }
+  .toolbar h1 { margin:0; font-size:20px; font-weight:700; }
+  .logo { height:22px; width:auto; display:block; }
+  .toolbar-spacer { flex:1; }
+
+  .btn {
+    padding:8px 12px;
+    border:1px solid var(--border);
+    border-radius:8px;
+    background:#0c0c0f;
+    color:var(--text);
+    cursor:pointer;
+    transition:box-shadow 0.12s ease, transform 0.12s ease, border-color 0.12s ease;
+    font-size:13px;
+    white-space:nowrap;
+  }
+  .btn:hover{
+    border-color:#596274;
+    box-shadow:0 0 0 1px rgba(148,163,184,.35);
+    transform:translateY(-0.5px);
+  }
+  .btn.primary{ background: var(--blue); border-color: var(--blue); }
+  .btn.primary:hover{ filter:brightness(1.1); }
+  .btn.danger{ border-color:var(--danger); background:var(--danger); }
+  .btn.ghost{ background:transparent; }
+
+  .input, .select {
+    padding:8px 10px;
+    border:1px solid var(--border);
+    border-radius:8px;
+    background:#000;
+    color:var(--text);
+  }
+
+  .row { display:flex; gap:8px; flex-wrap:wrap; align-items:center; margin:10px 0 12px; }
+  .muted { color: var(--muted); }
+  .small { font-size:12px; color: var(--muted); }
+
+  .panel { background: var(--panel); border:1px solid var(--border); border-radius:12px; padding:12px; margin-top:12px; }
+  .section { border:1px solid var(--border); border-radius:10px; padding:10px; margin-top:10px; background: rgba(255,255,255,0.02); }
+
+  .table-wrap {
+    border:1px solid var(--border);
+    border-radius:10px;
+    overflow-x:auto;
+    overflow-y:hidden;
+  }
+  table { width:100%; border-collapse:collapse; }
+  thead th { text-align:left; font-weight:600; color:#cbd5e1; background:#0d0d10; padding:10px; border-bottom:1px solid #1f2937; user-select:none; }
+  tbody td { padding:10px; }
+  tbody tr { border-bottom:1px solid rgba(148,163,184,0.10); }
+  tbody tr:nth-child(even) { background:rgba(255,255,255,0.015); }
+  tbody tr:hover { background:var(--row-hover); }
+  .right { text-align:right; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono","Courier New", monospace; }
+
+  .kpi {
+    display:grid;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap:10px;
+  }
+  .kpi-card {
+    border:1px solid var(--border);
+    border-radius:10px;
+    padding:10px;
+    background:#0c1017;
+  }
+  .kpi-card .label { font-size:11px; color: var(--muted); }
+  .kpi-card .value { font-size:16px; font-weight:700; margin-top:4px; }
+
+  .two-col {
+    display:grid;
+    grid-template-columns: 1fr 1fr;
+    gap:12px;
+  }
+  @media (max-width: 1000px) { .two-col { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+  <div class="toolbar">
+    <img class="logo" src="assets/retrocatz-logo.png" alt="RetroCatz" />
+    <h1>Reports</h1>
+    <button class="btn" id="btnBack">Back to Dashboard</button>
+    <span class="toolbar-spacer"></span>
+    <span class="small" id="statusText">Ready</span>
+  </div>
+
+  <div class="panel">
+    <div class="row">
+      <label class="small">Start</label>
+      <input class="input" type="date" id="startDate" />
+      <label class="small">End</label>
+      <input class="input" type="date" id="endDate" />
+      <button class="btn primary" id="btnRun">Run Reports</button>
+      <button class="btn ghost" id="btnRefreshInventory">Refresh Inventory Report</button>
+    </div>
+    <div class="small muted">Sales reports use the selected date range. Inventory report is current as of now.</div>
+  </div>
+
+  <div class="panel">
+    <h2>Sales Summary</h2>
+    <div class="kpi" id="salesSummary"></div>
+    <div class="two-col">
+      <div class="section">
+        <h3>Payment Mix</h3>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Method</th><th class="right">Total</th></tr></thead>
+            <tbody id="paymentMixBody"></tbody>
+          </table>
+        </div>
+      </div>
+      <div class="section">
+        <h3>Sales by Category</h3>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Category</th><th class="right">Net Qty</th><th class="right">Net Total</th></tr></thead>
+            <tbody id="salesByCategoryBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+    <div class="section">
+      <h3>Sales by Item</h3>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>SKU</th><th>Title</th><th class="right">Net Qty</th><th class="right">Net Total</th></tr></thead>
+          <tbody id="salesByItemBody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <div class="panel">
+    <h2>Inventory Report</h2>
+    <div class="kpi" id="inventorySummary"></div>
+
+    <div class="two-col">
+      <div class="section">
+        <h3>Inventory Aging</h3>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Bucket (days)</th><th class="right">Items</th><th class="right">Value</th></tr></thead>
+            <tbody id="agingBody"></tbody>
+          </table>
+        </div>
+      </div>
+      <div class="section">
+        <h3>Top Value Items</h3>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>SKU</th><th>Title</th><th class="right">Qty</th><th class="right">Value</th></tr></thead>
+            <tbody id="topValueBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <div class="two-col">
+      <div class="section">
+        <h3>Low Stock (qty <= 1)</h3>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>SKU</th><th>Title</th><th class="right">Qty</th></tr></thead>
+            <tbody id="lowStockBody"></tbody>
+          </table>
+        </div>
+      </div>
+      <div class="section">
+        <h3>Zero Stock</h3>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>SKU</th><th>Title</th><th class="right">Qty</th></tr></thead>
+            <tbody id="zeroStockBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <div class="section">
+      <h3>Inventory by Platform</h3>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Platform</th><th class="right">Items</th><th class="right">Units</th><th class="right">Value</th></tr></thead>
+          <tbody id="byPlatformBody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="section">
+      <h3>Inventory by Category</h3>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Category</th><th class="right">Items</th><th class="right">Units</th><th class="right">Value</th></tr></thead>
+          <tbody id="byCategoryBody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="section">
+      <h3>Full Inventory</h3>
+      <div class="row">
+        <input class="input" id="inventoryFilter" placeholder="Filter by SKU/title/platform/category" style="min-width:300px;" />
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>SKU</th><th>Title</th><th>Platform</th><th>Category</th><th class="right">Qty</th><th class="right">Cost</th><th class="right">Price</th><th class="right">Value</th><th class="right">Age (days)</th>
+            </tr>
+          </thead>
+          <tbody id="inventoryBody"></tbody>
+        </table>
+      </div>
+      <div class="small muted" id="inventoryCount"></div>
+    </div>
+  </div>
+
+  <div class="panel">
+    <h2>Write-Offs and Deleted Items</h2>
+    <div class="two-col">
+      <div class="section">
+        <h3>Write-Offs</h3>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Date</th><th>SKU</th><th>Title</th><th class="right">Qty</th><th class="right">Total Cost</th><th class="right">Total Price</th><th>Reason</th></tr></thead>
+            <tbody id="wasteBody"></tbody>
+          </table>
+        </div>
+      </div>
+      <div class="section">
+        <h3>Deleted Items</h3>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Date</th><th>SKU</th><th>Title</th><th>Reason</th><th class="right">Qty</th></tr></thead>
+            <tbody id="deletedBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+<script>
+(() => {
+  const API_BASE = 'http://127.0.0.1:5175';
+  const fmt$ = (n) => `$${(Number(n||0)).toFixed(2)}`;
+  const statusText = document.getElementById('statusText');
+
+  const startDate = document.getElementById('startDate');
+  const endDate = document.getElementById('endDate');
+  const btnRun = document.getElementById('btnRun');
+  const btnBack = document.getElementById('btnBack');
+  const btnRefreshInventory = document.getElementById('btnRefreshInventory');
+
+  const salesSummary = document.getElementById('salesSummary');
+  const paymentMixBody = document.getElementById('paymentMixBody');
+  const salesByCategoryBody = document.getElementById('salesByCategoryBody');
+  const salesByItemBody = document.getElementById('salesByItemBody');
+
+  const inventorySummary = document.getElementById('inventorySummary');
+  const agingBody = document.getElementById('agingBody');
+  const topValueBody = document.getElementById('topValueBody');
+  const lowStockBody = document.getElementById('lowStockBody');
+  const zeroStockBody = document.getElementById('zeroStockBody');
+  const byPlatformBody = document.getElementById('byPlatformBody');
+  const byCategoryBody = document.getElementById('byCategoryBody');
+  const inventoryBody = document.getElementById('inventoryBody');
+  const inventoryCount = document.getElementById('inventoryCount');
+  const inventoryFilter = document.getElementById('inventoryFilter');
+
+  const wasteBody = document.getElementById('wasteBody');
+  const deletedBody = document.getElementById('deletedBody');
+
+  let inventoryCache = [];
+
+  function getHeaders() {
+    const sid = localStorage.getItem('rc_session_id') || '';
+    return { 'Content-Type': 'application/json', 'rc_session_id': sid };
+  }
+
+  async function apiGet(path) {
+    const res = await fetch(API_BASE + path, { headers: getHeaders() });
+    if (res.status === 401) {
+      localStorage.removeItem('rc_session_id');
+      window.location.href = 'login.html';
+      throw new Error('session_invalid');
+    }
+    if (!res.ok) {
+      const text = await res.text().catch(() => '');
+      throw new Error(`${res.status} ${text}`.trim());
+    }
+    return res.json();
+  }
+
+  function setStatus(msg) { statusText.textContent = msg; }
+
+  function setDefaultDates() {
+    const today = new Date();
+    const end = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+    const start = new Date(end);
+    start.setDate(start.getDate() - 7);
+    const toInput = (d) => d.toISOString().slice(0,10);
+    startDate.value = toInput(start);
+    endDate.value = toInput(end);
+  }
+
+  function kpiCard(label, value) {
+    const div = document.createElement('div');
+    div.className = 'kpi-card';
+    div.innerHTML = `<div class="label">${label}</div><div class="value">${value}</div>`;
+    return div;
+  }
+
+  function renderSalesSummary(summary, refunds) {
+    salesSummary.innerHTML = '';
+    salesSummary.appendChild(kpiCard('Transactions', summary.transactionCount));
+    salesSummary.appendChild(kpiCard('Subtotal', fmt$(summary.subtotal)));
+    salesSummary.appendChild(kpiCard('Tax', fmt$(summary.tax)));
+    salesSummary.appendChild(kpiCard('Total', fmt$(summary.total)));
+    salesSummary.appendChild(kpiCard('Refunds', fmt$(refunds)));
+    salesSummary.appendChild(kpiCard('Net', fmt$(summary.total - refunds)));
+  }
+
+  function renderRows(body, rows, cols, emptyMsg) {
+    body.innerHTML = '';
+    if (!rows || !rows.length) {
+      const tr = document.createElement('tr');
+      tr.innerHTML = `<td colspan="${cols}" class="muted">${emptyMsg}</td>`;
+      body.appendChild(tr);
+      return;
+    }
+    for (const r of rows) body.appendChild(r);
+  }
+
+  async function runSalesReports() {
+    const start = startDate.value;
+    const end = endDate.value;
+    setStatus('Loading sales reports...');
+
+    const daily = await apiGet(`/api/reports/daily-sales?start=${encodeURIComponent(start)}&end=${encodeURIComponent(end)}`);
+    renderSalesSummary(daily.summary, daily.summary.refunds || 0);
+
+    const payment = await apiGet(`/api/reports/payment-mix?start=${encodeURIComponent(start)}&end=${encodeURIComponent(end)}`);
+    renderRows(paymentMixBody, (payment.rows || []).map(r => {
+      const tr = document.createElement('tr');
+      tr.innerHTML = `<td>${r.method}</td><td class="right">${fmt$(r.total)}</td>`;
+      return tr;
+    }), 2, 'No data');
+
+    const sbi = await apiGet(`/api/reports/sales-by-item?start=${encodeURIComponent(start)}&end=${encodeURIComponent(end)}`);
+    renderRows(salesByItemBody, (sbi.rows || []).map(r => {
+      const tr = document.createElement('tr');
+      tr.innerHTML = `<td>${r.sku}</td><td>${r.title}</td><td class="right">${r.net_qty}</td><td class="right">${fmt$(r.net_total)}</td>`;
+      return tr;
+    }), 4, 'No data');
+
+    const sbc = await apiGet(`/api/reports/sales-by-category?start=${encodeURIComponent(start)}&end=${encodeURIComponent(end)}`);
+    renderRows(salesByCategoryBody, (sbc.rows || []).map(r => {
+      const tr = document.createElement('tr');
+      tr.innerHTML = `<td>${r.category}</td><td class="right">${r.net_qty}</td><td class="right">${fmt$(r.net_total)}</td>`;
+      return tr;
+    }), 3, 'No data');
+  }
+
+  async function runInventoryReport() {
+    setStatus('Loading inventory report...');
+    const inv = await apiGet('/api/reports/inventory');
+    inventoryCache = inv.items || [];
+
+    inventorySummary.innerHTML = '';
+    inventorySummary.appendChild(kpiCard('Items', inv.summary.itemCount));
+    inventorySummary.appendChild(kpiCard('Units', inv.summary.totalUnits));
+    inventorySummary.appendChild(kpiCard('Value', fmt$(inv.summary.totalValue)));
+    inventorySummary.appendChild(kpiCard('Cost', fmt$(inv.summary.totalCost)));
+    inventorySummary.appendChild(kpiCard('Profit', fmt$(inv.summary.totalProfit)));
+    inventorySummary.appendChild(kpiCard('Low Stock', inv.summary.lowStockCount));
+    inventorySummary.appendChild(kpiCard('Zero Stock', inv.summary.zeroStockCount));
+
+    renderRows(agingBody, (inv.agingBuckets || []).map(b => {
+      const tr = document.createElement('tr');
+      tr.innerHTML = `<td>${b.label}</td><td class="right">${b.count}</td><td class="right">${fmt$(b.value)}</td>`;
+      return tr;
+    }), 3, 'No data');
+
+    renderRows(topValueBody, (inv.topValue || []).map(i => {
+      const tr = document.createElement('tr');
+      tr.innerHTML = `<td>${i.sku}</td><td>${i.title}</td><td class="right">${i.qty}</td><td class="right">${fmt$(i.value)}</td>`;
+      return tr;
+    }), 4, 'No data');
+
+    renderRows(lowStockBody, (inv.lowStock || []).map(i => {
+      const tr = document.createElement('tr');
+      tr.innerHTML = `<td>${i.sku}</td><td>${i.title}</td><td class="right">${i.qty}</td>`;
+      return tr;
+    }), 3, 'No data');
+
+    renderRows(zeroStockBody, (inv.zeroStock || []).map(i => {
+      const tr = document.createElement('tr');
+      tr.innerHTML = `<td>${i.sku}</td><td>${i.title}</td><td class="right">${i.qty}</td>`;
+      return tr;
+    }), 3, 'No data');
+
+    renderRows(byPlatformBody, (inv.byPlatform || []).map(i => {
+      const tr = document.createElement('tr');
+      tr.innerHTML = `<td>${i.platform}</td><td class="right">${i.count}</td><td class="right">${i.units}</td><td class="right">${fmt$(i.value)}</td>`;
+      return tr;
+    }), 4, 'No data');
+
+    renderRows(byCategoryBody, (inv.byCategory || []).map(i => {
+      const tr = document.createElement('tr');
+      tr.innerHTML = `<td>${i.category}</td><td class="right">${i.count}</td><td class="right">${i.units}</td><td class="right">${fmt$(i.value)}</td>`;
+      return tr;
+    }), 4, 'No data');
+
+    renderInventoryTable(inventoryCache);
+    inventoryCount.textContent = `${inventoryCache.length} items total`;
+  }
+
+  function renderInventoryTable(list) {
+    inventoryBody.innerHTML = '';
+    if (!list.length) {
+      const tr = document.createElement('tr');
+      tr.innerHTML = `<td colspan="9" class="muted">No inventory</td>`;
+      inventoryBody.appendChild(tr);
+      return;
+    }
+    for (const i of list) {
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td>${i.sku}</td>
+        <td>${i.title}</td>
+        <td>${i.platform}</td>
+        <td>${i.category}</td>
+        <td class="right">${i.qty}</td>
+        <td class="right">${fmt$(i.cost)}</td>
+        <td class="right">${fmt$(i.price)}</td>
+        <td class="right">${fmt$(i.value)}</td>
+        <td class="right">${i.ageDays}</td>
+      `;
+      inventoryBody.appendChild(tr);
+    }
+  }
+
+  function filterInventory() {
+    const q = (inventoryFilter.value || '').trim().toLowerCase();
+    if (!q) {
+      renderInventoryTable(inventoryCache);
+      inventoryCount.textContent = `${inventoryCache.length} items total`;
+      return;
+    }
+    const filtered = inventoryCache.filter(i =>
+      String(i.sku || '').toLowerCase().includes(q) ||
+      String(i.title || '').toLowerCase().includes(q) ||
+      String(i.platform || '').toLowerCase().includes(q) ||
+      String(i.category || '').toLowerCase().includes(q)
+    );
+    renderInventoryTable(filtered);
+    inventoryCount.textContent = `${filtered.length} items match`;
+  }
+
+  async function runWasteDeletedReports() {
+    const start = startDate.value;
+    const end = endDate.value;
+    const waste = await apiGet(`/api/reports/waste?start=${encodeURIComponent(start)}&end=${encodeURIComponent(end)}`);
+    renderRows(wasteBody, (waste.rows || []).map(r => {
+      const tr = document.createElement('tr');
+      tr.innerHTML = `<td>${r.created_at || ''}</td><td>${r.sku || ''}</td><td>${r.title || ''}</td><td class="right">${r.qty || 0}</td><td class="right">${fmt$(r.total_cost || 0)}</td><td class="right">${fmt$(r.total_price || 0)}</td><td>${r.reason || ''}</td>`;
+      return tr;
+    }), 7, 'No write-offs in range');
+
+    const deleted = await apiGet(`/api/reports/deleted?start=${encodeURIComponent(start)}&end=${encodeURIComponent(end)}`);
+    renderRows(deletedBody, (deleted.rows || []).map(r => {
+      const tr = document.createElement('tr');
+      tr.innerHTML = `<td>${r.deleted_at || ''}</td><td>${r.sku || ''}</td><td>${r.title || ''}</td><td>${r.reason || ''}</td><td class="right">${r.qty || 0}</td>`;
+      return tr;
+    }), 5, 'No deletions in range');
+  }
+
+  async function runAll() {
+    try {
+      await runSalesReports();
+      await runInventoryReport();
+      await runWasteDeletedReports();
+      setStatus('Reports loaded');
+    } catch (e) {
+      console.error(e);
+      setStatus('Report load failed');
+      alert('Report load failed. Check server connectivity and session.');
+    }
+  }
+
+  btnRun.addEventListener('click', runAll);
+  btnBack.addEventListener('click', () => { window.location.href = 'index.html'; });
+  btnRefreshInventory.addEventListener('click', runInventoryReport);
+  inventoryFilter.addEventListener('input', filterInventory);
+
+  setDefaultDates();
+  runAll();
+})();
+</script>
+</body>
+</html>

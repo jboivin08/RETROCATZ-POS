@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>RetroCatz POS – Sign in</title>
+    <meta http-equiv="Content-Security-Policy"
+      content="default-src 'self';
+               script-src 'self';
+               connect-src 'self' http://127.0.0.1:5175 http://localhost:5175;
+               style-src 'self' 'unsafe-inline';
+               img-src 'self' data:;
+               font-src 'self';">
+    <style>
+      body { font-family: system-ui, sans-serif; margin: 40px; }
+      .card { max-width: 360px; margin: 40px auto; padding: 16px; border: 1px solid #e5e7eb; border-radius: 12px; }
+      .row { display: grid; gap: 8px; }
+      input, button { padding: 10px; border-radius: 8px; border: 1px solid #d1d5db; }
+      button { background: #000; color: #fff; border-color: #000; cursor: pointer; }
+      .error { color: #b00020; font-size: 12px; min-height: 16px; }
+    </style>
+  </head>
+  <body>
+    <div id="app"></div>
+    <script src="./login.js"></script>
+  </body>
+</html>
