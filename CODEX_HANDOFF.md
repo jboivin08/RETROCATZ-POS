@@ -404,3 +404,11 @@ Files touched: src/renderer/trade-in.html, backend/index.js, backend/providers/p
 - Files: src/renderer/users.html, src/renderer/users.js, CODEX_HANDOFF.md
 - Status: Completed (committing/pushing now)
 - Notes/Ideas: Updated Users page CSP to allow Electron file-context script loading and added non-JS fallback navigation by converting Back control to anchor link. Added runtime load marker window.__vaultcoreUsersJsLoaded for quick console verification.
+
+## Entry
+- Timestamp: 2026-02-26 16:12:38
+- Window/Owner: This Codex window
+- Task: Fix Users parse-time crash (Identifier 'api' has already been declared)
+- Files: src/renderer/users.js, CODEX_HANDOFF.md
+- Status: Completed (committing/pushing now)
+- Notes/Ideas: Wrapped users page script in idempotent IIFE guard (__vaultcoreUsersBooted) and renamed request helper from pi to equestApi to avoid global symbol collisions if script is injected/loaded more than once.

@@ -1,5 +1,11 @@
-const API = "http://127.0.0.1:5175";
+(() => {
+if (window.__vaultcoreUsersBooted) {
+  return;
+}
+window.__vaultcoreUsersBooted = true;
 window.__vaultcoreUsersJsLoaded = true;
+
+const API_BASE = "http://127.0.0.1:5175";
 
 (function bootstrapSession() {
   const q = new URLSearchParams(location.search);
@@ -67,8 +73,8 @@ function setFatalError(message) {
   setNotice(message || "Users page failed to initialize.", "error");
 }
 
-async function api(path, opts = {}) {
-  const response = await fetch(`${API}${path}`, {
+async function requestApi(path, opts = {}) {
+  const response = await fetch(`${API_BASE}${path}`, {
     ...opts,
     headers: {
       ...(opts.headers || {}),
@@ -242,12 +248,12 @@ function renderEditor() {
 }
 
 async function loadMe() {
-  const data = await api("/api/me", { method: "GET", headers: { "Content-Type": "application/json" } });
+  const data = await requestApi("/api/me", { method: "GET", headers: { "Content-Type": "application/json" } });
   state.me = data && data.user ? data.user : null;
 }
 
 async function loadUsers() {
-  const users = await api("/api/users", { method: "GET", headers: { "Content-Type": "application/json" } });
+  const users = await requestApi("/api/users", { method: "GET", headers: { "Content-Type": "application/json" } });
   state.users = Array.isArray(users) ? users : [];
 
   if (state.selectedId && !getSelectedUser()) {
@@ -282,7 +288,7 @@ function attachTableHandlers() {
         const user = state.users.find(u => Number(u.id) === id);
         if (!user) return;
         const nextActive = Number(user.active) === 1 ? 0 : 1;
-        await api(`/api/users/${id}/active`, {
+        await requestApi(`/api/users/${id}/active`, {
           method: "PUT",
           body: JSON.stringify({ active: nextActive })
         });
@@ -297,7 +303,7 @@ function attachTableHandlers() {
         const ok = confirm(`Delete user \"${user.username}\"? This cannot be undone.`);
         if (!ok) return;
 
-        await api(`/api/users/${id}`, { method: "DELETE" });
+        await requestApi(`/api/users/${id}`, { method: "DELETE" });
         if (Number(state.selectedId) === id) state.selectedId = null;
         setNotice("User deleted.", "success");
         await loadUsers();
@@ -363,7 +369,7 @@ function attachCreateForm() {
     }
 
     try {
-      await api("/api/users", {
+      await requestApi("/api/users", {
         method: "POST",
         body: JSON.stringify({ username, display_name, role, password, active })
       });
@@ -423,12 +429,12 @@ function attachEditForms() {
     }
 
     try {
-      await api(`/api/users/${id}`, {
+      await requestApi(`/api/users/${id}`, {
         method: "PUT",
         body: JSON.stringify({ username, display_name, role, active })
       });
 
-      await api(`/api/users/${id}/permissions`, {
+      await requestApi(`/api/users/${id}/permissions`, {
         method: "PUT",
         body: JSON.stringify(collectPermissionPayload())
       });
@@ -473,7 +479,7 @@ function attachEditForms() {
     }
 
     try {
-      await api(`/api/users/${user.id}/password`, {
+      await requestApi(`/api/users/${user.id}/password`, {
         method: "PUT",
         body: JSON.stringify({ password: pw1 })
       });
@@ -500,7 +506,7 @@ function attachEditForms() {
     if (!ok) return;
 
     try {
-      await api(`/api/users/${user.id}`, { method: "DELETE" });
+      await requestApi(`/api/users/${user.id}`, { method: "DELETE" });
       state.selectedId = null;
       setNotice("User deleted.", "success");
       await loadUsers();
@@ -580,3 +586,4 @@ async function init() {
 }
 
 document.addEventListener("DOMContentLoaded", init);
+})();
