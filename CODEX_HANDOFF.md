@@ -254,3 +254,11 @@ Files touched: src/renderer/trade-in.html, backend/index.js, backend/providers/p
 - Files: src/renderer/ai.html, src/renderer/categories.html, src/renderer/users.html, src/renderer/settings.html, CODEX_HANDOFF.md
 - Status: Completed (committing/pushing now)
 - Notes/Ideas: Converted AI back control from span to button semantics; added missing muted text style in Categories header; normalized selected page titles to ASCII separators (`-`) for encoding-safe rendering across terminals/editors.
+
+## Entry
+- Timestamp: 2026-02-26 12:37:33
+- Window/Owner: This Codex window
+- Task: UI cleanup micro-batch (global page title consistency)
+- Files: src/renderer/add-item.html, src/renderer/ai.html, src/renderer/customers.html, src/renderer/inventory.html, src/renderer/live-events.html, src/renderer/pos.html, src/renderer/sync.html, CODEX_HANDOFF.md
+- Status: Completed (committing/pushing now)
+- Notes/Ideas: Standardized renderer page titles to `Page - RetroCatz POS` format for consistency across tabs/windows. Inventory change is title-only (no body/behavior change).
