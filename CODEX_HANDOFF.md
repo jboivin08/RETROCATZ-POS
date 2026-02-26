@@ -246,3 +246,11 @@ Files touched: src/renderer/trade-in.html, backend/index.js, backend/providers/p
 - Files: src/renderer/ai.html, src/renderer/pos.html, src/renderer/trade-in.html, CODEX_HANDOFF.md
 - Status: Completed (committing/pushing now)
 - Notes/Ideas: Added logo-brand grouping on AI header; moved POS back action out of status strip and normalized button sizing; aligned Trade-In top-right action/button density with app toolbar style and updated status-strip panel tone.
+
+## Entry
+- Timestamp: 2026-02-26 12:33:08
+- Window/Owner: This Codex window
+- Task: UI cleanup micro-batch (accessibility + encoding-safe labels)
+- Files: src/renderer/ai.html, src/renderer/categories.html, src/renderer/users.html, src/renderer/settings.html, CODEX_HANDOFF.md
+- Status: Completed (committing/pushing now)
+- Notes/Ideas: Converted AI back control from span to button semantics; added missing muted text style in Categories header; normalized selected page titles to ASCII separators (`-`) for encoding-safe rendering across terminals/editors.

@@ -185,6 +185,10 @@
       box-shadow:0 0 0 1px rgba(148,163,184,.35);
       transform:translateY(-0.5px);
     }
+    .back-link-btn {
+      appearance: none;
+      -webkit-appearance: none;
+    }
     .top-row-actions {
       display: flex;
       gap: 6px;
@@ -443,7 +447,7 @@
       </div>
     </div>
     <div class="brain-controls">
-      <span class="back-link" onclick="window.location.href='index.html'">&larr; Back to Dashboard</span>
+      <button type="button" class="back-link back-link-btn" onclick="window.location.href='index.html'">Back to Dashboard</button>
       <span class="toolbar-spacer"></span>
       <span id="aiLiveStatus" class="live-status">AI status unknown</span>
       <label>
