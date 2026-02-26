@@ -374,3 +374,9 @@ Files touched: src/renderer/trade-in.html, backend/index.js, backend/providers/p
 - Files: src/renderer/users.html, src/renderer/users.js, CODEX_HANDOFF.md
 - Status: Completed (committing/pushing now)
 - Notes/Ideas: Replaced inline create panel with in-page Add User button opening modal; create form now uses orm.elements access to avoid fragile field binding issues and closes modal on successful creation.
+- Timestamp: 2026-02-26 13:01:12
+- Window/Owner: This Codex window
+- Task: Rebrand to VaultCore (name + logo swap)
+- Files: src/renderer/*.html, src/renderer/inventory.html, src/components/Login.jsx, src/app.jsx, src/renderer/assets/VaultCore_Logo_White.png, CODEX_HANDOFF.md
+- Status: Completed
+- Notes/Ideas: Replaced RetroCatz branding with VaultCore across renderer titles/headers/buttons and login/app text. Swapped logo references from retrocatz-logo.png to VaultCore_Logo_White.png and copied the new logo into src/renderer/assets for local use. Data/storage keys left unchanged to avoid data resets.

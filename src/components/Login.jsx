@@ -24,7 +24,7 @@ export default function Login({ onLoggedIn }) {
 
   return (
     <div style={{maxWidth:360, margin:"80px auto", padding:16}}>
-      <h1 style={{fontWeight:700, fontSize:20, marginBottom:12}}>RetroCatz POS – Sign in</h1>
+      <h1 style={{fontWeight:700, fontSize:20, marginBottom:12}}>VaultCore POS – Sign in</h1>
       <form onSubmit={submit} style={{display:"grid", gap:8}}>
         <input placeholder="Username" value={username} onChange={e=>setUsername(e.target.value)} autoFocus style={{padding:8, border:"1px solid #ccc", borderRadius:6}}/>
         <input type="password" placeholder="Password" value={password} onChange={e=>setPassword(e.target.value)} style={{padding:8, border:"1px solid #ccc", borderRadius:6}}/>

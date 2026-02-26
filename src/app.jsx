@@ -21,7 +21,7 @@ export default function App() {
   return (
     <div>
       <div style={{display:"flex", justifyContent:"space-between", alignItems:"center", padding:"8px 12px", borderBottom:"1px solid #eee"}}>
-        <div style={{fontWeight:600}}>RetroCatz POS</div>
+        <div style={{fontWeight:600}}>VaultCore POS</div>
         <div style={{display:"flex", gap:12, alignItems:"center"}}>
           <span style={{fontSize:12, opacity:.7}}>
             {(session?.user?.display_name || session?.user?.username) + " (" + role + ")"}

@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
-<title>Inventory - RetroCatz POS</title>
+<title>Inventory - VaultCore POS</title>
 <meta http-equiv="Content-Security-Policy"
       content="default-src 'self' file:;
                img-src 'self' file: data: blob: http://127.0.0.1:5175 http://localhost:5175;
@@ -375,7 +375,7 @@
 <body>
 
 <div class="toolbar">
-  <img class="logo" src="assets/retrocatz-logo.png" alt="RetroCatz" />
+  <img class="logo" src="assets/VaultCore_Logo_White.png" alt="VaultCore" />
   <h1>Inventory</h1>
 
   <button class="btn" onclick="location.href='index.html'">Back to Dashboard</button>
@@ -764,7 +764,7 @@
 
   function thumbCellHtml(it) {
     const p = it.platform || '';
-    const src = platformLogoSrc(p) || 'assets/retrocatz-logo.png';
+    const src = platformLogoSrc(p) || 'assets/VaultCore_Logo_White.png';
     return `<img class="thumb-img" src="${src}" alt="">`;
   }
 
@@ -2349,7 +2349,7 @@ btnWixExport.addEventListener('click', () => {
       '</style>';
 
     const header = '\n' +
-      '<h1>RetroCatz Inventory</h1>' +
+      '<h1>VaultCore Inventory</h1>' +
       `<div class="meta">${title} - <span id="row-count">${rows.length}</span> items</div>` +
       '<div style="margin:8px 0 12px; font-size:12px;">' +
       '<label>Sort by:</label>' +

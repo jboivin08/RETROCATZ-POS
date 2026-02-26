@@ -1,9 +1,9 @@
-<!-- src/renderer/pos.html : RetroCatz POS - ergonomic register with tabs, recent sales, refunds/voids, settings -->
+<!-- src/renderer/pos.html : VaultCore POS - ergonomic register with tabs, recent sales, refunds/voids, settings -->
 <!doctype html>
 <html lang="en">
 <head>
   <meta charset="utf-8" />
-  <title>Register - RetroCatz POS</title>
+  <title>Register - VaultCore POS</title>
   <!-- CSP now allows talking to backend API -->
   <meta http-equiv="Content-Security-Policy"
         content="default-src 'self' file:;
@@ -1270,9 +1270,9 @@
   <div class="app-shell">
     <header>
       <div class="brand">
-        <img class="brand-logo" src="assets/retrocatz-logo.png" alt="RetroCatz" />
+        <img class="brand-logo" src="assets/VaultCore_Logo_White.png" alt="VaultCore" />
         <div class="brand-title">
-          <span>RetroCatz POS</span>
+          <span>VaultCore POS</span>
           <span>Register - In-Store Checkout</span>
         </div>
       </div>
@@ -1620,7 +1620,7 @@
 
 
     <footer>
-      Front-end register for RetroCatz POS. Transactions and inventory are stored locally; backend API can enhance this.
+      Front-end register for VaultCore POS. Transactions and inventory are stored locally; backend API can enhance this.
     </footer>
   </div>
 
@@ -2834,7 +2834,7 @@
         </style>
         </head><body>
           <div class="center">
-            <div style="font-weight:700;">RetroCatz POS</div>
+            <div style="font-weight:700;">VaultCore POS</div>
             <div class="muted">${new Date(sale.created_at || sale.ts || Date.now()).toLocaleString()}</div>
             <div class="muted">${sale.id}</div>
             <div><img class="barcode" src="${barcodeUrl}" alt="Sale barcode"></div>

@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <rect width="512" height="512" rx="96" fill="#000000"/>
+  
+  <!-- Vault Rings -->
+  <circle cx="256" cy="220" r="120" stroke="#FFFFFF" stroke-width="18" fill="none"/>
+  <circle cx="256" cy="220" r="90" stroke="#FFFFFF" stroke-width="18" fill="none"/>
+  <circle cx="256" cy="220" r="60" stroke="#FFFFFF" stroke-width="18" fill="none"/>
+  
+  <!-- Keyhole -->
+  <circle cx="256" cy="205" r="18" fill="#FFFFFF"/>
+  <rect x="244" y="220" width="24" height="55" fill="#FFFFFF"/>
+</svg>
