@@ -286,3 +286,11 @@ Files touched: src/renderer/trade-in.html, backend/index.js, backend/providers/p
 - Files: src/renderer/users.html, CODEX_HANDOFF.md
 - Status: Completed (committing/pushing now)
 - Notes/Ideas: Wrapped user management form/table in a shared panel container to match page rhythm used elsewhere; preserved all existing form/table IDs and script hooks.
+
+## Entry
+- Timestamp: 2026-02-26 12:49:06
+- Window/Owner: This Codex window
+- Task: Body consistency micro-pass on Sync page tables
+- Files: src/renderer/sync.html, CODEX_HANDOFF.md
+- Status: Completed (committing/pushing now)
+- Notes/Ideas: Replaced inline overflow wrappers with shared `.table-wrap` pattern (border/radius/overflow), matching table treatment used on Inventory/Reports style pages.

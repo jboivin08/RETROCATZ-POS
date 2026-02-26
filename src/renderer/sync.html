@@ -82,6 +82,12 @@
     table { width:100%; border-collapse: collapse; font-size:12px; }
     th, td { padding:10px 8px; border-bottom:1px solid #1f2937; text-align:left; }
     th { color:#cbd5e1; font-weight:600; background:#0d0d10; }
+    .table-wrap {
+      margin-top:10px;
+      overflow:auto;
+      border:1px solid var(--border);
+      border-radius:10px;
+    }
     .ok { color:#10b981; }
     .fail { color:#ef4444; }
     .muted { color:var(--muted); font-size:12px; }
@@ -114,7 +120,7 @@
     <section class="panel">
       <div class="section-title">Latest Status per SKU</div>
       <div class="muted" id="status-meta">Loading...</div>
-      <div style="margin-top:10px; overflow:auto;">
+      <div class="table-wrap">
         <table>
           <thead>
             <tr>
@@ -133,7 +139,7 @@
     <section class="panel">
       <div class="section-title">Recent Sync Log</div>
       <div class="muted" id="log-meta">Loading...</div>
-      <div style="margin-top:10px; overflow:auto;">
+      <div class="table-wrap">
         <table>
           <thead>
             <tr>
