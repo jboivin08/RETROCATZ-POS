@@ -1,6 +1,9 @@
-appId: com.vaultcore.pos
-productName: VaultCore POS
+appId: com.retrocats.pos
+productName: Retro Catz POS
 npmRebuild: false
+artifactName: "RetroCatz-POS-${version}-${arch}.${ext}"
+asarUnpack:
+  - node_modules/better-sqlite3/**
 files:
   - "**/*"
   - "!**/.env"
@@ -37,9 +40,15 @@ extraResources:
     to: barcodes
 win:
   target:
-    - nsis
+    - target: nsis
+      arch:
+        - x64
+    - target: zip
+      arch:
+        - x64
 nsis:
   oneClick: true
   perMachine: false
   allowToChangeInstallationDirectory: false
-  artifactName: "${productName}-Setup-${version}.exe"
+  deleteAppDataOnUninstall: false
+  artifactName: "RetroCatz-POS-Setup-${version}-${arch}.exe"

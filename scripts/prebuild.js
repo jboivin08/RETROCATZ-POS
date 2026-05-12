@@ -18,6 +18,14 @@ function readElectronVersion() {
   return raw.replace(/^[^0-9]*/, "");
 }
 
+function readElectronPath() {
+  try {
+    return require("electron");
+  } catch {
+    return "";
+  }
+}
+
 function ensureDir(dir) {
   fs.mkdirSync(dir, { recursive: true });
 }
@@ -45,6 +53,7 @@ const projectRoot = path.join(__dirname, "..");
 const cacheDir = path.join(projectRoot, ".npm-cache");
 const logsDir = path.join(cacheDir, "_logs");
 const electronVersion = readElectronVersion();
+const electronPath = readElectronPath();
 
 ensureDir(logsDir);
 
@@ -54,6 +63,18 @@ if (!electronVersion) {
 }
 
 console.log(`prebuild: rebuilding better-sqlite3 for Electron ${electronVersion}`);
+
+if (electronPath) {
+  const verify = spawnSync(electronPath, ["-e", "require('better-sqlite3')"], {
+    cwd: projectRoot,
+    stdio: "ignore",
+    env: { ...process.env, ELECTRON_RUN_AS_NODE: "1" }
+  });
+  if (verify.status === 0) {
+    console.log("prebuild: existing better-sqlite3 binary already works with Electron");
+    process.exit(0);
+  }
+}
 
 const env = {
   NPM_CONFIG_CACHE: cacheDir,

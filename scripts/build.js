@@ -22,8 +22,18 @@ const projectRoot = path.join(__dirname, "..");
 const userProfile = process.env.USERPROFILE || process.env.HOME || projectRoot;
 const cacheDir = path.join(userProfile, "npm-cache");
 const logsDir = path.join(cacheDir, "_logs");
+const distDir = path.join(projectRoot, "dist");
 
 ensureDir(logsDir);
+if (fs.existsSync(distDir)) {
+  const resolvedDist = path.resolve(distDir);
+  const resolvedRoot = path.resolve(projectRoot);
+  if (!resolvedDist.startsWith(resolvedRoot + path.sep)) {
+    console.error("Refusing to clean dist outside project root:", resolvedDist);
+    process.exit(1);
+  }
+  fs.rmSync(resolvedDist, { recursive: true, force: true });
+}
 
 const env = {
   NPM_CONFIG_CACHE: cacheDir,
@@ -32,4 +42,4 @@ const env = {
 };
 
 const electronBuilderCli = path.join(projectRoot, "node_modules", "electron-builder", "out", "cli", "cli.js");
-run(process.execPath, [electronBuilderCli, "--win", "--x64"], env);
+run(process.execPath, [electronBuilderCli, "--win", "--x64", "--publish", "never"], env);

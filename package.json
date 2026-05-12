@@ -1,6 +1,8 @@
 {
   "name": "vaultcore-pos",
-  "version": "1.0.0",
+  "version": "1.0.1",
+  "description": "Retro Catz local point of sale and inventory system",
+  "author": "Retro Catz",
   "main": "main.js",
   "type": "commonjs",
   "scripts": {
@@ -8,7 +10,8 @@
     "backend": "node scripts/run-backend.js",
     "prebuild": "node scripts/prebuild.js",
     "build": "node scripts/build.js",
-    "build:win:local": "npm run build"
+    "build:win:local": "npm run build",
+    "release:windows": "npm run build:win:local"
   },
   "dependencies": {
     "bcryptjs": "^3.0.3",
