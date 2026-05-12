@@ -205,9 +205,9 @@
     }
 
     .nav-tab-return-active {
-      border-color: var(--accent);
-      box-shadow: 0 0 0 1px rgba(37,99,235,0.8);
-      background: #0f172a;
+      border-color: #ef4444;
+      box-shadow: 0 0 0 1px rgba(239,68,68,0.65);
+      background: #7f1d1d;
       color: #e5e7eb;
     }
 
@@ -216,10 +216,68 @@
       color: var(--muted);
     }
 
+    .return-mode-banner {
+      border: 1px solid #991b1b;
+      background: #1a0d0d;
+      color: #fecaca;
+      border-radius: 8px;
+      padding: 9px 12px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      font-size: 12px;
+      box-shadow: inset 0 0 0 1px rgba(239,68,68,0.18);
+    }
+
+    .return-mode-banner[hidden] {
+      display: none !important;
+    }
+
+    .return-mode-banner strong {
+      color: #fee2e2;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      font-size: 11px;
+    }
+
+    .return-mode-banner span {
+      color: #fca5a5;
+      flex: 1;
+    }
+
+    .return-mode-banner .btn {
+      border-color: #b91c1c;
+      background: #450a0a;
+    }
+
+    body.return-mode-active .status-strip,
+    body.return-mode-active .nav-bar {
+      border-color: #7f1d1d;
+      background: #120d12;
+    }
+
+    body.return-mode-active #modeLabel,
+    body.return-mode-active #statusModeLabel {
+      color: #fca5a5;
+    }
+
+    body.return-mode-active .register-flow-panel,
+    body.return-mode-active .register-cart-panel,
+    body.return-mode-active .register-checkout-panel {
+      border-color: #7f1d1d;
+    }
+
+    body.return-mode-active .op-section.primary-flow,
+    body.return-mode-active .total-big {
+      border-color: #991b1b;
+      background: #160d0f;
+    }
+
     main {
       flex: 1 1 auto;
       display: grid;
-      grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr);
+      grid-template-columns: minmax(270px, 0.9fr) minmax(420px, 1.25fr) minmax(320px, 0.9fr);
       gap: 12px;
       min-height: 0;
       align-content: start;
@@ -246,6 +304,10 @@
       .nav-bar {
         flex-direction: column;
         align-items: flex-start;
+      }
+      .return-mode-banner {
+        flex-direction: column;
+        align-items: stretch;
       }
       .nav-tabs {
         flex-wrap: wrap;
@@ -357,6 +419,140 @@
       overflow: visible;
     }
 
+    .register-flow-panel,
+    .register-cart-panel,
+    .register-checkout-panel {
+      min-height: calc(100vh - 178px);
+    }
+
+    .register-checkout-panel .panel-body {
+      gap: 10px;
+    }
+
+    .checkout-rail {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      min-height: 0;
+    }
+
+    .checkout-body {
+      display: grid;
+      grid-template-rows: minmax(420px, 1fr) auto auto;
+      gap: 10px;
+      flex: 1;
+    }
+
+    .checkout-dock {
+      border: 1px solid #263247;
+      background: #0a101b;
+      border-radius: 10px;
+      padding: 10px;
+      display: grid;
+      grid-template-columns: minmax(220px, 0.72fr) minmax(0, 1.28fr);
+      gap: 10px;
+      align-items: start;
+    }
+
+    .checkout-summary {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      min-width: 0;
+    }
+
+    .discount-actions,
+    .quick-discounts,
+    .sale-actions {
+      display: grid;
+      gap: 6px;
+    }
+
+    .quick-discounts {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+
+    .discount-actions {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .sale-actions {
+      grid-template-columns: minmax(160px, 1.5fr) repeat(3, minmax(104px, 1fr));
+    }
+
+    .register-checkout-panel .totals-card {
+      grid-template-columns: 1fr;
+    }
+
+    .register-checkout-panel .quick-discounts {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .register-checkout-panel .sale-actions {
+      grid-template-columns: 1fr;
+    }
+
+    .register-checkout-panel .tender-buttons {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .register-checkout-panel .tender-buttons #btnTenderStoreCredit {
+      grid-column: 1 / -1;
+    }
+
+    .sale-actions .btn,
+    .quick-discounts .btn,
+    .discount-actions .btn {
+      justify-content: center;
+      min-width: 0;
+    }
+
+    .side-mini-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+      gap: 8px;
+    }
+
+    .register-flow-panel .search-results {
+      max-height: 260px;
+    }
+
+    .register-flow-panel .quick-keys {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 6px;
+      margin-top: 0;
+    }
+
+    .register-flow-panel .quick-key {
+      min-width: 0;
+      border-radius: 8px;
+      align-items: flex-start;
+    }
+
+    @media (max-width: 1180px) {
+      .checkout-dock {
+        grid-template-columns: 1fr;
+      }
+      .sale-actions {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+      .sale-actions #btnCompleteSale {
+        grid-column: 1 / -1;
+      }
+    }
+
+    @media (max-width: 760px) {
+      .quick-discounts,
+      .discount-actions,
+      .sale-actions,
+      .side-mini-grid,
+      .register-flow-panel .quick-keys {
+        grid-template-columns: 1fr;
+      }
+    }
+
     .content-panel-hidden {
       display: none !important;
     }
@@ -373,6 +569,10 @@
       overflow: hidden;
       display: flex;
       flex-direction: column;
+    }
+
+    .checkout-body > .cart-table-wrapper {
+      min-height: 360px;
     }
 
     .cart-table-header {
@@ -531,6 +731,15 @@
       font-size: 11px;
       color: var(--muted);
     }
+    .checkout-summary .cart-summary-strip {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      margin: 0;
+    }
+    .checkout-summary .cart-summary-strip div:last-child {
+      grid-column: 1 / -1;
+      border-top: 1px dashed #253247;
+      padding-top: 6px;
+    }
     .cart-summary-strip strong {
       color: var(--text);
       font-weight: 600;
@@ -545,6 +754,13 @@
       gap: 4px;
       font-size: 11px;
       color: var(--muted);
+    }
+    .checkout-summary .receipt-preview {
+      margin-top: 0;
+      border: 1px dashed #253247;
+      border-radius: 8px;
+      padding: 8px;
+      background: #080d15;
     }
     .receipt-preview .line {
       display: flex;
@@ -643,7 +859,6 @@
     /* CASH KEYPAD UNDER CART */
 
     .cash-keypad {
-      margin-top: 8px;
       border-radius: 12px;
       border: 1px solid var(--border);
       background: #0c0c0f;
@@ -731,14 +946,23 @@
     /* Totals + Tender */
 
     .totals-card {
-      margin-top: 8px;
       border-radius: 12px;
       border: 1px solid var(--border);
-      background: #0c0c0f;
-      padding: 8px 10px;
+      background: #080d15;
+      padding: 10px;
       display: grid;
       grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
       gap: 10px;
+    }
+
+    .payment-card {
+      border-radius: 10px;
+      border: 1px solid #263247;
+      background: #090f19;
+      padding: 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
     }
 
     @media (max-width: 900px) {
@@ -875,6 +1099,66 @@
       color: var(--danger);
     }
 
+    .tender-lines-header {
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--muted);
+      margin-top: 2px;
+    }
+
+    .tender-lines {
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background: #0b0e14;
+      overflow: hidden;
+      min-height: 34px;
+    }
+
+    .tender-line,
+    .tender-line-empty {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 92px auto;
+      gap: 6px;
+      align-items: center;
+      padding: 6px;
+      border-bottom: 1px solid #131a2a;
+      font-size: 11px;
+      color: var(--muted);
+    }
+
+    .tender-line:last-child {
+      border-bottom: none;
+    }
+
+    .tender-line-empty {
+      display: block;
+      color: var(--muted);
+    }
+
+    .tender-line strong {
+      color: var(--text);
+      font-weight: 600;
+    }
+
+    .tender-line input {
+      width: 100%;
+      min-width: 0;
+      padding: 5px 6px;
+      border-radius: 6px;
+      border: 1px solid var(--border);
+      background: #000;
+      color: var(--text);
+      font-size: 11px;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .tender-line input:focus {
+      border-color: var(--accent);
+      outline: none;
+      box-shadow: 0 0 0 1px rgba(56,189,248,0.6);
+    }
+
     /* Right Panel: Scan/Search */
 
     .stack {
@@ -892,6 +1176,10 @@
       display: flex;
       flex-direction: column;
       gap: 6px;
+    }
+    .op-section.primary-flow {
+      border-color: #2d4774;
+      background: #0b1424;
     }
     .op-header {
       font-size: 11px;
@@ -1255,7 +1543,185 @@
       flex-wrap: wrap;
     }
 
-    
+    .refund-modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(2, 6, 23, 0.72);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 18px;
+      z-index: 50;
+    }
+
+    .refund-modal-backdrop[hidden] {
+      display: none !important;
+    }
+
+    .refund-modal {
+      width: min(760px, 100%);
+      max-height: min(760px, calc(100vh - 36px));
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: var(--bg-elevated);
+      box-shadow: 0 20px 70px rgba(0, 0, 0, 0.5);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .refund-modal-header,
+    .refund-modal-footer {
+      padding: 12px;
+      background: var(--toolbar-bg);
+      border-color: var(--toolbar-border);
+    }
+
+    .refund-modal-header {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      align-items: flex-start;
+      border-bottom: 1px solid var(--toolbar-border);
+    }
+
+    .refund-modal-title {
+      font-size: 16px;
+      font-weight: 700;
+    }
+
+    .refund-modal-sub {
+      margin-top: 3px;
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .refund-modal-body {
+      padding: 12px;
+      overflow: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .refund-summary {
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background: var(--panel-bg);
+      padding: 9px 10px;
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 8px;
+      font-size: 11px;
+      color: var(--muted);
+    }
+
+    .refund-summary strong {
+      display: block;
+      color: var(--text);
+      margin-top: 2px;
+      overflow-wrap: anywhere;
+    }
+
+    .refund-items {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .refund-item-row {
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background: var(--panel-bg);
+      padding: 9px;
+      display: grid;
+      grid-template-columns: minmax(0, 1.5fr) 86px 98px 96px;
+      gap: 8px;
+      align-items: center;
+      font-size: 12px;
+    }
+
+    .refund-item-title {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      min-width: 0;
+    }
+
+    .refund-item-title strong {
+      color: var(--text);
+      overflow-wrap: anywhere;
+    }
+
+    .refund-item-title span,
+    .refund-item-meta {
+      color: var(--muted);
+      font-size: 11px;
+    }
+
+    .refund-item-row input {
+      width: 100%;
+      min-width: 0;
+      padding: 6px;
+      border-radius: 6px;
+      border: 1px solid var(--border);
+      background: #000;
+      color: var(--text);
+    }
+
+    .refund-modal-footer {
+      border-top: 1px solid var(--toolbar-border);
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 10px;
+      align-items: end;
+    }
+
+    .refund-reason-grid {
+      display: grid;
+      grid-template-columns: minmax(160px, 0.5fr) minmax(0, 1fr);
+      gap: 8px;
+      align-items: end;
+    }
+
+    .refund-actions {
+      display: flex;
+      gap: 8px;
+      justify-content: flex-end;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .refund-total {
+      color: var(--muted);
+      font-size: 12px;
+      min-width: 128px;
+      text-align: right;
+    }
+
+    .refund-total strong {
+      display: block;
+      color: var(--text);
+      font-size: 16px;
+    }
+
+    .refund-status {
+      color: var(--muted);
+      font-size: 12px;
+      min-height: 16px;
+    }
+
+    @media (max-width: 760px) {
+      .refund-summary,
+      .refund-item-row,
+      .refund-modal-footer,
+      .refund-reason-grid {
+        grid-template-columns: 1fr;
+      }
+      .refund-total {
+        text-align: left;
+      }
+    }
 
     footer {
       margin-top: 4px;
@@ -1265,6 +1731,8 @@
       opacity: 0.8;
     }
   </style>
+  <script src="theme.js"></script>
+  <link rel="stylesheet" href="themes.css" />
 </head>
 <body>
   <div class="app-shell">
@@ -1305,193 +1773,23 @@
       <div class="nav-right">F1 Scan | F2 Search | F12 Complete</div>
     </div>
 
+    <div class="return-mode-banner" id="returnModeBanner" hidden>
+      <strong>Return Mode Active</strong>
+      <span>Find the original sale, then choose refund or void.</span>
+      <button class="btn btn-soft btn-mini" id="btnReturnModeSales" type="button">Open Recent Sales</button>
+    </div>
+
     <!-- REGISTER PANEL (DEFAULT) -->
     <main id="panel-register">
-      <!-- LEFT: CART + KEYPAD + TOTALS -->
-      <section class="panel">
+      <section class="panel register-flow-panel">
         <div class="panel-header">
           <h2>
             <span class="accent-dot"></span>
-            Active Cart
+            Start Sale
           </h2>
-          <div class="subtext">Items in current transaction | <span id="cartCount">0 items</span></div>
         </div>
         <div class="panel-body">
-          <div class="cart-summary-strip" id="cartSummaryStrip">
-            <div>Items<strong id="sumItems">0</strong></div>
-            <div>Subtotal<strong id="sumSubtotal">$0.00</strong></div>
-            <div>Discount<strong id="sumDiscount">$0.00</strong></div>
-            <div>Tax<strong id="sumTax">$0.00</strong></div>
-            <div>Total<strong id="sumTotal">$0.00</strong></div>
-          </div>
-          <div class="receipt-preview" id="receiptPreview">
-            <div class="line"><span>Receipt preview</span><span>-</span></div>
-          </div>
-          <div class="totals-card">
-            <div class="totals-left">
-              <div class="totals-row">
-                <label>Subtotal</label>
-                <div class="value" id="subtotalValue">$0.00</div>
-              </div>
-              <div class="totals-row">
-                <label>
-                  Discount
-                  <span class="badge" id="discountLabel">None</span>
-                </label>
-                <div class="value" id="discountValue">- $0.00</div>
-              </div>
-              <div class="totals-row">
-                <label>
-                  Tax
-                  <span class="badge" id="taxModeLabel">Standard</span>
-                </label>
-                <div class="value" id="taxValue">$0.00</div>
-              </div>
-              <div class="totals-row total">
-                <label>Total Due</label>
-                <div class="value" id="totalValue">$0.00</div>
-              </div>
-
-              <div class="row">
-                <button class="btn btn-soft btn-mini" data-discount-percent="5">5% Off</button>
-                <button class="btn btn-soft btn-mini" data-discount-percent="10">10% Off</button>
-                <button class="btn btn-soft btn-mini" data-discount-amount="5">$5 Off</button>
-                <button class="btn btn-soft btn-mini" data-discount-amount="10">$10 Off</button>
-              </div>
-
-              <div class="input-group">
-                <input type="number" min="0" step="0.01" id="discountAmountInput" placeholder="Discount $ (entire sale)">
-                <button class="btn btn-soft" id="btnApplyDiscountAmount">Apply $</button>
-              </div>
-              <div class="input-group">
-                <input type="number" min="0" max="100" step="0.1" id="discountPercentInput" placeholder="Discount % (e.g. employee)">
-                <button class="btn btn-soft" id="btnApplyDiscountPercent">Apply %</button>
-              </div>
-              <div class="row">
-                <button class="btn btn-soft" id="btnClearDiscounts">Clear Discounts</button>
-                <button class="btn btn-soft" id="btnToggleTaxExempt">Tax Exempt</button>
-              </div>
-            </div>
-
-            <div class="totals-right">
-              <div class="total-big">
-                <span class="label">Amount Due</span>
-                <span id="totalBigValue">$0.00</span>
-              </div>
-              <div class="tender-row">
-                <div class="input-group">
-                  <input type="number" min="0" step="0.01" id="tenderAmountInput" placeholder="Amount tendered">
-                </div>
-              </div>
-
-              <div class="tender-buttons">
-                <button class="btn btn-primary" id="btnTenderCash">Cash</button>
-                <button class="btn btn-soft" id="btnTenderCard">Card</button>
-                <button class="btn btn-soft" id="btnTenderStoreCredit">Store Credit</button>
-                <button class="btn btn-soft btn-mini" id="btnTenderExact">Exact</button>
-                <button class="btn btn-soft btn-mini" id="btnTenderRoundUp">Round Up</button>
-              </div>
-
-              <div class="tender-status">
-                <span>Paid: <strong id="paidSoFar">$0.00</strong></span>
-                <span>Change: <strong id="changeDue">$0.00</strong></span>
-              </div>
-              <div class="tender-status">
-                <span>Balance: <strong id="balanceDue">$0.00</strong></span>
-                <span id="tenderMessage" class="success"></span>
-              </div>
-
-              <div class="row">
-                <button class="btn btn-primary" id="btnCompleteSale">
-                  Complete Sale (F12)
-                </button>
-                <button class="btn btn-soft" id="btnPrintReceipt">
-                  Print Receipt
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-
-          <div class="cart-table-wrapper">
-            <div class="cart-table-header">
-              <div>Item</div>
-              <div>Platform</div>
-              <div>Qty</div>
-              <div>Price</div>
-              <div>Total</div>
-              <div></div>
-            </div>
-            <div class="cart-table-body" id="cartBody">
-              <div class="cart-empty" id="cartEmpty">
-                Scan a barcode or search for a game to start a sale.
-              </div>
-            </div>
-            <div class="cart-footer">
-              <div class="cart-footer-left">
-                <span id="cartSummary">0 items • $0.00</span>
-                <span>F1: Scan, F2: Search, F12: Complete</span>
-              </div>
-              <div class="cart-footer-right">
-                <button class="btn btn-soft" id="btnHoldSale">
-                  Hold
-                </button>
-                <button class="btn btn-soft" id="btnRecallSale">
-                  Recall
-                </button>
-                <button class="btn btn-soft" id="btnClearSale">
-                  Clear
-                </button>
-              </div>
-            </div>
-          </div>
-
-          <!-- CASH KEYPAD FOR TOUCH ENTRY -->
-          <div class="cash-keypad">
-            <div class="cash-keypad-header">
-              <span>Cash / Tender Entry</span>
-              <span>Tap amounts instead of typing</span>
-              <button class="cash-keypad-toggle" id="btnToggleKeypad">Hide</button>
-            </div>
-            <div class="cash-keypad-display" id="cashKeypadDisplay">$0.00</div>
-            <div class="cash-keypad-grid">
-              <button class="cash-keypad-btn" data-cash-key="7">7</button>
-              <button class="cash-keypad-btn" data-cash-key="8">8</button>
-              <button class="cash-keypad-btn" data-cash-key="9">9</button>
-              <button class="cash-keypad-btn special" data-cash-key="C">C</button>
-
-              <button class="cash-keypad-btn" data-cash-key="4">4</button>
-              <button class="cash-keypad-btn" data-cash-key="5">5</button>
-              <button class="cash-keypad-btn" data-cash-key="6">6</button>
-              <button class="cash-keypad-btn special" data-cash-key="BS">⌫</button>
-
-              <button class="cash-keypad-btn" data-cash-key="1">1</button>
-              <button class="cash-keypad-btn" data-cash-key="2">2</button>
-              <button class="cash-keypad-btn" data-cash-key="3">3</button>
-              <button class="cash-keypad-btn" data-cash-key="00">00</button>
-
-              <button class="cash-keypad-btn" data-cash-key="0">0</button>
-              <button class="cash-keypad-btn" data-cash-key=".">.</button>
-              <button class="cash-keypad-btn accent" data-cash-key="EXACT" style="grid-column: span 2;">EXACT TOTAL</button>
-            </div>
-          </div>
-
-          
-      </section>
-
-      <!-- RIGHT: SCAN / SEARCH / QUICK KEYS / SESSION -->
-      <section class="panel">
-        <div class="panel-header">
-          <h2>
-            <span class="accent-dot"></span>
-            Operations
-          </h2>
-          <div class="subtext">
-            Fast lookup + customer tagging
-          </div>
-        </div>
-        <div class="panel-body">
-          <div class="op-section">
+          <div class="op-section primary-flow">
             <div class="op-header">Scan / Search</div>
             <div class="row">
               <div class="input-group">
@@ -1502,20 +1800,12 @@
             <div class="search-results scan-results" id="scanResults"></div>
             <div class="status-bar">
               <span id="scanStatus">Ready to scan or search.</span>
-              <span class="right">Auto-matches while typing.</span>
             </div>
           </div>
 
           <div class="op-section">
-            <div class="op-header">Last Scanned</div>
-            <div class="status-bar" style="justify-content:space-between;">
-              <span id="lastScanTitle">None yet</span>
-              <span id="lastScanPrice" class="right">$0.00</span>
-            </div>
-            <div class="status-bar">
-              <span id="lastScanMeta" class="muted">?</span>
-              <span class="right">Tap to add again later</span>
-            </div>
+            <div class="op-header">Quick Add</div>
+            <div class="quick-keys" id="quickKeys"></div>
           </div>
 
           <div class="op-section">
@@ -1542,23 +1832,220 @@
               <span id="customerTypeHint">Regular customer.</span>
               <span class="right" id="customerTaxHint">Tax: Standard</span>
             </div>
+            <div class="row">
+              <button class="btn btn-soft btn-mini" id="btnLookupCustomer">Lookup</button>
+              <button class="btn btn-soft btn-mini" id="btnWalkIn">Walk-in</button>
+            </div>
           </div>
 
-          <div class="row">
-            <button class="btn btn-soft btn-mini" id="btnLookupCustomer">Lookup</button>
-            <button class="btn btn-soft btn-mini" id="btnWalkIn">Walk-in</button>
+          <div class="side-mini-grid">
+            <div class="op-section">
+              <div class="op-header">Last Scanned</div>
+              <div class="status-bar" style="justify-content:space-between;">
+                <span id="lastScanTitle">None yet</span>
+                <span id="lastScanPrice" class="right">$0.00</span>
+              </div>
+              <div class="status-bar">
+                <span id="lastScanMeta" class="muted">-</span>
+              </div>
+            </div>
+
+            <div class="op-section">
+              <div class="op-header">Session</div>
+              <div class="status-bar">
+                <span>Mode</span>
+                <span class="right"><strong id="statusModeLabel">Sale</strong></span>
+              </div>
+            </div>
           </div>
 
           <div class="op-section">
             <div class="op-header">Held Sales</div>
             <div class="hold-list" id="holdList"></div>
           </div>
+        </div>
+      </section>
 
-          <div class="op-section">
-            <div class="op-header">Session</div>
-            <div style="font-size: 11px; color: var(--muted); display:flex; flex-direction:column; gap:4px;">
-              <div>Active Mode: <strong id="statusModeLabel">Sale</strong></div>
-              <div>Keyboard: F1 Scan | F2 Search | F12 Complete | Del Remove line</div>
+      <section class="panel register-cart-panel">
+        <div class="panel-header">
+          <h2>
+            <span class="accent-dot"></span>
+            Cart
+          </h2>
+          <div class="subtext"><span id="cartCount">0 items</span></div>
+        </div>
+        <div class="panel-body checkout-body">
+          <div class="cart-table-wrapper">
+            <div class="cart-table-header">
+              <div>Item</div>
+              <div>Platform</div>
+              <div>Qty</div>
+              <div>Price</div>
+              <div>Total</div>
+              <div></div>
+            </div>
+            <div class="cart-table-body" id="cartBody">
+              <div class="cart-empty" id="cartEmpty">
+                Scan a barcode or search for a game to start a sale.
+              </div>
+            </div>
+            <div class="cart-footer">
+              <div class="cart-footer-left">
+                <span id="cartSummary">0 items - $0.00</span>
+              </div>
+              <div class="cart-footer-right">
+                <button class="btn btn-soft" id="btnHoldSale">
+                  Hold
+                </button>
+                <button class="btn btn-soft" id="btnRecallSale">
+                  Recall
+                </button>
+                <button class="btn btn-soft" id="btnClearSale">
+                  Clear
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div class="cart-summary-strip" id="cartSummaryStrip">
+            <div>Items<strong id="sumItems">0</strong></div>
+            <div>Subtotal<strong id="sumSubtotal">$0.00</strong></div>
+            <div>Discount<strong id="sumDiscount">$0.00</strong></div>
+            <div>Tax<strong id="sumTax">$0.00</strong></div>
+            <div>Total<strong id="sumTotal">$0.00</strong></div>
+          </div>
+
+          <div class="receipt-preview" id="receiptPreview">
+            <div class="line"><span>Receipt preview</span><span>-</span></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="panel register-checkout-panel">
+        <div class="panel-header">
+          <h2>
+            <span class="accent-dot"></span>
+            Checkout
+          </h2>
+          <div class="subtext" id="checkoutModeHint">Tender and complete</div>
+        </div>
+        <div class="panel-body checkout-rail">
+          <div class="total-big">
+            <span class="label">Amount Due</span>
+            <span id="totalBigValue">$0.00</span>
+          </div>
+
+          <div class="totals-card">
+            <div class="totals-left">
+              <div class="totals-row">
+                <label>Subtotal</label>
+                <div class="value" id="subtotalValue">$0.00</div>
+              </div>
+              <div class="totals-row">
+                <label>
+                  Discount
+                  <span class="badge" id="discountLabel">None</span>
+                </label>
+                <div class="value" id="discountValue">- $0.00</div>
+              </div>
+              <div class="totals-row">
+                <label>
+                  Tax
+                  <span class="badge" id="taxModeLabel">Standard</span>
+                </label>
+                <div class="value" id="taxValue">$0.00</div>
+              </div>
+              <div class="totals-row total">
+                <label>Total Due</label>
+                <div class="value" id="totalValue">$0.00</div>
+              </div>
+
+              <div class="quick-discounts">
+                <button class="btn btn-soft btn-mini" data-discount-percent="5">5% Off</button>
+                <button class="btn btn-soft btn-mini" data-discount-percent="10">10% Off</button>
+                <button class="btn btn-soft btn-mini" data-discount-amount="5">$5 Off</button>
+                <button class="btn btn-soft btn-mini" data-discount-amount="10">$10 Off</button>
+              </div>
+
+              <div class="input-group">
+                <input type="number" min="0" step="0.01" id="discountAmountInput" placeholder="Discount $">
+                <button class="btn btn-soft" id="btnApplyDiscountAmount">Apply $</button>
+              </div>
+              <div class="input-group">
+                <input type="number" min="0" max="100" step="0.1" id="discountPercentInput" placeholder="Discount %">
+                <button class="btn btn-soft" id="btnApplyDiscountPercent">Apply %</button>
+              </div>
+              <div class="discount-actions">
+                <button class="btn btn-soft" id="btnClearDiscounts">Clear Discounts</button>
+                <button class="btn btn-soft" id="btnToggleTaxExempt">Tax Exempt</button>
+              </div>
+            </div>
+
+            <div class="payment-card">
+              <div class="totals-right">
+                <div class="tender-row">
+                  <div class="input-group">
+                    <input type="number" min="0" step="0.01" id="tenderAmountInput" placeholder="Amount tendered">
+                  </div>
+                </div>
+
+                <div class="tender-buttons">
+                  <button class="btn btn-primary" id="btnTenderCash">Cash</button>
+                  <button class="btn btn-soft" id="btnTenderCard">Card</button>
+                  <button class="btn btn-soft" id="btnTenderStoreCredit">Store Credit</button>
+                  <button class="btn btn-soft btn-mini" id="btnTenderExact">Exact</button>
+                  <button class="btn btn-soft btn-mini" id="btnTenderRoundUp">Round Up</button>
+                </div>
+
+                <div class="tender-lines-header">Payments</div>
+                <div class="tender-lines" id="tenderLines">
+                  <div class="tender-line-empty">No payments entered.</div>
+                </div>
+
+                <div class="tender-status">
+                  <span>Paid: <strong id="paidSoFar">$0.00</strong></span>
+                  <span>Change: <strong id="changeDue">$0.00</strong></span>
+                </div>
+                <div class="tender-status">
+                  <span>Balance: <strong id="balanceDue">$0.00</strong></span>
+                  <span id="tenderMessage" class="success"></span>
+                </div>
+
+                <div class="sale-actions">
+                  <button class="btn btn-primary" id="btnCompleteSale">Complete Sale (F12)</button>
+                  <button class="btn btn-soft" id="btnCreateLayaway">Create Layaway</button>
+                  <button class="btn btn-soft" id="btnPrintReceipt">Print Receipt</button>
+                  <button class="btn btn-soft" id="btnPrintGiftReceipt">Gift Receipt</button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="cash-keypad">
+            <div class="cash-keypad-header">
+              <span>Cash / Tender Entry</span>
+              <button class="cash-keypad-toggle" id="btnToggleKeypad">Hide</button>
+            </div>
+            <div class="cash-keypad-display" id="cashKeypadDisplay">$0.00</div>
+            <div class="cash-keypad-grid">
+              <button class="cash-keypad-btn" data-cash-key="7">7</button>
+              <button class="cash-keypad-btn" data-cash-key="8">8</button>
+              <button class="cash-keypad-btn" data-cash-key="9">9</button>
+              <button class="cash-keypad-btn special" data-cash-key="C">C</button>
+
+              <button class="cash-keypad-btn" data-cash-key="4">4</button>
+              <button class="cash-keypad-btn" data-cash-key="5">5</button>
+              <button class="cash-keypad-btn" data-cash-key="6">6</button>
+              <button class="cash-keypad-btn special" data-cash-key="BS">DEL</button>
+
+              <button class="cash-keypad-btn" data-cash-key="1">1</button>
+              <button class="cash-keypad-btn" data-cash-key="2">2</button>
+              <button class="cash-keypad-btn" data-cash-key="3">3</button>
+              <button class="cash-keypad-btn" data-cash-key="00">00</button>
+
+              <button class="cash-keypad-btn" data-cash-key="0">0</button>
+              <button class="cash-keypad-btn" data-cash-key=".">.</button>
+              <button class="cash-keypad-btn accent" data-cash-key="EXACT" style="grid-column: span 2;">EXACT TOTAL</button>
             </div>
           </div>
         </div>
@@ -1618,6 +2105,46 @@
       </div>
     </section>
 
+    <div class="refund-modal-backdrop" id="refundWizard" hidden>
+      <div class="refund-modal" role="dialog" aria-modal="true" aria-labelledby="refundWizardTitle">
+        <div class="refund-modal-header">
+          <div>
+            <div class="refund-modal-title" id="refundWizardTitle">Refund Sale</div>
+            <div class="refund-modal-sub" id="refundWizardSubtitle">Select refundable items</div>
+          </div>
+          <button class="btn btn-soft btn-mini" id="btnCloseRefundWizard" type="button">Close</button>
+        </div>
+        <div class="refund-modal-body">
+          <div class="refund-summary" id="refundWizardSummary"></div>
+          <div class="refund-items" id="refundWizardItems"></div>
+          <div class="refund-status" id="refundWizardStatus"></div>
+        </div>
+        <div class="refund-modal-footer">
+          <div class="refund-reason-grid">
+            <div>
+              <label for="refundReasonSelect">Reason</label>
+              <select id="refundReasonSelect">
+                <option value="Customer return">Customer return</option>
+                <option value="Defective item">Defective item</option>
+                <option value="Wrong item">Wrong item</option>
+                <option value="Price adjustment">Price adjustment</option>
+                <option value="Other">Other</option>
+              </select>
+            </div>
+            <div>
+              <label for="refundReasonInput">Note</label>
+              <input type="text" id="refundReasonInput" maxlength="180" placeholder="Optional note">
+            </div>
+          </div>
+          <div class="refund-actions">
+            <div class="refund-total">Selected<strong id="refundWizardTotal">$0.00</strong></div>
+            <button class="btn btn-soft" id="btnCancelRefundWizard" type="button">Cancel</button>
+            <button class="btn btn-primary" id="btnSubmitRefundWizard" type="button">Submit Refund</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
 
     <footer>
       Front-end register for VaultCore POS. Transactions and inventory are stored locally; backend API can enhance this.
@@ -1650,6 +2177,39 @@
       return sid ? { "rc_session_id": sid } : {};
     }
 
+    function loadCachedUser() {
+      try {
+        const cached = JSON.parse(localStorage.getItem("user") || "null");
+        if (cached && typeof cached === "object") state.me = cached;
+      } catch {}
+    }
+
+    async function loadCurrentUser() {
+      loadCachedUser();
+      try {
+        const res = await fetch(`${API_BASE}/api/me`, { headers: { ...getAuthHeaders() } });
+        if (res.status === 401) {
+          window.location.href = "../../public/index.html";
+          return null;
+        }
+        if (!res.ok) return state.me || null;
+        const data = await res.json();
+        if (data && data.user) {
+          state.me = data.user;
+          try { localStorage.setItem("user", JSON.stringify(data.user)); } catch {}
+        }
+      } catch {}
+      return state.me || null;
+    }
+
+    function currentUserHasPermission(permission) {
+      const user = state.me || {};
+      const role = (user.role || "").toLowerCase();
+      if (role === "owner") return true;
+      if (permission === "void_refund" && role !== "manager") return false;
+      return !!(user.permissions && Number(user.permissions[permission] || 0) === 1);
+    }
+
     function rebuildCatalogIndex(list = []) {
       catalogSearchIndex = list.map((item) => ({
         item,
@@ -1678,7 +2238,7 @@
         const res = await fetch(`${API_BASE}/api/items`, { headers: { ...getAuthHeaders() } });
         if (res.status === 401) {
           console.warn("POS: unauthorized, redirecting to login");
-          window.location.href = "login.html";
+          window.location.href = "../../public/index.html";
           return;
         }
         const data = await res.json();
@@ -1720,6 +2280,7 @@
 
     // --- Sales log (backend DB) ----------------------------------------------
     let salesCache = [];
+    let heldSalesCache = [];
     async function loadSales() {
       try {
         const res = await fetch(`${API_BASE}/api/sales`, { headers: { ...getAuthHeaders() } });
@@ -1733,11 +2294,18 @@
       }
     }
 
+    async function loadSaleDetail(saleId) {
+      const res = await fetch(`${API_BASE}/api/sales/${encodeURIComponent(saleId)}`, { headers: { ...getAuthHeaders() } });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        throw new Error(data.error || `sale_detail_failed_${res.status}`);
+      }
+      return data;
+    }
+
     // --- Tax settings ---------------------------------------------------------
-    const TAX_RATE_KEY = 'posTaxRate';
     const HOLD_SALES_KEY = 'posHeldSales';
     const KEYPAD_COLLAPSED_KEY = 'posKeypadCollapsed';
-    const MANAGER_PIN_KEY = 'posManagerPin';
 
     // forward declaration used later
     let currentTotals = {
@@ -1747,25 +2315,83 @@
       total: 0
     };
 
-    function loadTaxRate() {
-      let baseRate = 0.07; // default 7%
-      try {
-        const stored = localStorage.getItem(TAX_RATE_KEY);
-        if (stored != null) {
-          const v = parseFloat(stored);
-          if (!isNaN(v) && v >= 0 && v <= 0.25) {
-            baseRate = v;
-          }
-        }
-      } catch {}
+    function applyRegisterSettings(settings = {}) {
+      const taxRate = Number(settings.tax_rate);
+      const baseRate = Number.isFinite(taxRate) && taxRate >= 0 && taxRate <= 0.25 ? taxRate : 0.07;
       state.taxRate = baseRate;
+      state.registerSettings = {
+        ...state.registerSettings,
+        tax_label: settings.tax_label || "Sales Tax",
+        require_pin_for_price_override: settings.require_pin_for_price_override !== false,
+        require_pin_for_discounts: settings.require_pin_for_discounts !== false,
+        require_pin_for_tax_exempt: settings.require_pin_for_tax_exempt !== false,
+        require_customer_for_sale: settings.require_customer_for_sale === true,
+        allow_split_tender: settings.allow_split_tender !== false,
+        payment_cash_enabled: settings.payment_cash_enabled !== false,
+        payment_card_enabled: settings.payment_card_enabled !== false,
+        payment_store_credit_enabled: settings.payment_store_credit_enabled !== false,
+        payment_other_enabled: settings.payment_other_enabled !== false,
+        receipt_print_after_sale: settings.receipt_print_after_sale !== false,
+        receipt_show_sku: settings.receipt_show_sku !== false,
+        receipt_show_platform_condition: settings.receipt_show_platform_condition !== false,
+        receipt_show_tax_rate: settings.receipt_show_tax_rate !== false,
+        receipt_show_barcode: settings.receipt_show_barcode !== false,
+        receipt_show_customer: settings.receipt_show_customer === true,
+        receipt_return_policy: settings.receipt_return_policy || "",
+        sale_id_prefix: settings.sale_id_prefix || "SO",
+        max_held_sales: Math.max(1, Math.min(100, Number(settings.max_held_sales || 20))),
+        quick_discount_percent_1: Number(settings.quick_discount_percent_1 ?? 5),
+        quick_discount_percent_2: Number(settings.quick_discount_percent_2 ?? 10),
+        quick_discount_amount_1: Number(settings.quick_discount_amount_1 ?? 5),
+        quick_discount_amount_2: Number(settings.quick_discount_amount_2 ?? 10),
+        owner_locked: settings.owner_locked || {}
+      };
       const input = $('settingsTaxRate');
       if (input) {
         input.value = (baseRate * 100).toFixed(2);
       }
-      const pinInput = $('settingsManagerPin');
-      if (pinInput) {
-        try { pinInput.value = localStorage.getItem(MANAGER_PIN_KEY) || ""; } catch {}
+      updateRegisterPolicyUi();
+    }
+
+    function applyStoreSettings(settings = {}) {
+      state.storeSettings = {
+        ...state.storeSettings,
+        store_name: settings.store_name || "VaultCore POS",
+        store_phone: settings.store_phone || "",
+        store_email: settings.store_email || "",
+        store_website: settings.store_website || "",
+        store_address1: settings.store_address1 || "",
+        store_address2: settings.store_address2 || "",
+        store_city: settings.store_city || "",
+        store_state: settings.store_state || "",
+        store_zip: settings.store_zip || "",
+        receipt_footer: settings.receipt_footer || ""
+      };
+    }
+
+    async function loadTaxRate() {
+      applyRegisterSettings({
+        tax_rate: 0.07,
+        require_pin_for_price_override: true,
+        require_pin_for_discounts: true
+      });
+      try {
+        const res = await fetch(`${API_BASE}/api/settings/register`, { headers: { ...getAuthHeaders() } });
+        if (!res.ok) throw new Error(`settings_load_${res.status}`);
+        const data = await res.json();
+        if (data && data.settings) {
+          applyRegisterSettings(data.settings);
+        }
+      } catch (err) {
+        console.warn("POS: backend register settings unavailable; using built-in defaults for display only", err);
+      }
+      try {
+        const res = await fetch(`${API_BASE}/api/settings/store`, { headers: { ...getAuthHeaders() } });
+        if (!res.ok) throw new Error(`store_settings_load_${res.status}`);
+        const data = await res.json();
+        if (data && data.settings) applyStoreSettings(data.settings);
+      } catch (err) {
+        console.warn("POS: backend store settings unavailable; using built-in receipt defaults", err);
       }
     }
 
@@ -1782,13 +2408,6 @@
       }
       const rate = pct / 100;
       state.taxRate = rate;
-      try {
-        localStorage.setItem(TAX_RATE_KEY, rate.toString());
-      } catch {}
-      const pinInput = $('settingsManagerPin');
-      if (pinInput) {
-        try { localStorage.setItem(MANAGER_PIN_KEY, pinInput.value.trim()); } catch {}
-      }
       msg.textContent = 'Tax rate saved as ' + pct.toFixed(2) + '%.';
       msg.style.color = '#9ca3af';
       recalcAndRender();
@@ -1802,12 +2421,60 @@
       discountAmount: 0,
       discountPercent: 0,
       taxRate: 0.07,
+      registerSettings: {
+        tax_label: "Sales Tax",
+        require_pin_for_price_override: true,
+        require_pin_for_discounts: true,
+        require_pin_for_tax_exempt: true,
+        require_customer_for_sale: false,
+        allow_split_tender: true,
+        payment_cash_enabled: true,
+        payment_card_enabled: true,
+        payment_store_credit_enabled: true,
+        payment_other_enabled: true,
+        receipt_print_after_sale: true,
+        receipt_show_sku: true,
+        receipt_show_platform_condition: true,
+        receipt_show_tax_rate: true,
+        receipt_show_barcode: true,
+        receipt_show_customer: false,
+        receipt_return_policy: "All sales final. Defective items may be exchanged with receipt.",
+        sale_id_prefix: "SO",
+        max_held_sales: 20,
+        quick_discount_percent_1: 5,
+        quick_discount_percent_2: 10,
+        quick_discount_amount_1: 5,
+        quick_discount_amount_2: 10,
+        owner_locked: {}
+      },
+      storeSettings: {
+        store_name: "VaultCore POS",
+        store_phone: "",
+        store_email: "",
+        store_website: "",
+        store_address1: "",
+        store_address2: "",
+        store_city: "",
+        store_state: "",
+        store_zip: "",
+        receipt_footer: "Thank you for shopping with us."
+      },
+      managerApprovals: {},
+      currentTxnUuid: null,
+      completingSale: false,
+      me: null,
       taxExempt: false,
       customerType: "regular",
       customerId: null,
       mode: "sale", // "sale" | "return" (soft mode: affects UI only)
       paidAmount: 0,
+      tenders: [],
       lastTenderMethod: null, // "cash" | "card" | "store_credit"
+      refundWizard: {
+        sale: null,
+        items: [],
+        submitting: false
+      }
     };
 
     let lastSale = null;
@@ -1846,6 +2513,10 @@
     const changeDueEl = $("changeDue");
     const balanceDueEl = $("balanceDue");
     const tenderMessageEl = $("tenderMessage");
+    const tenderLinesEl = $("tenderLines");
+    const returnModeBannerEl = $("returnModeBanner");
+    const btnReturnModeSales = $("btnReturnModeSales");
+    const checkoutModeHintEl = $("checkoutModeHint");
 
     const modeLabelEl = $("modeLabel");
     const statusModeLabelEl = $("statusModeLabel");
@@ -1876,12 +2547,24 @@
     const holdListEl = $("holdList");
     const btnHoldSale = $("btnHoldSale");
     const btnRecallSale = $("btnRecallSale");
+    const btnCreateLayaway = $("btnCreateLayaway");
     const btnToggleKeypad = $("btnToggleKeypad");
 
     const recentSalesBodyEl = $("recentSalesBody");
     const salesDetailEl = $("salesDetail");
     const btnVoidSale = $("btnVoidSale");
     const btnRefundSale = $("btnRefundSale");
+    const refundWizardEl = $("refundWizard");
+    const refundWizardSubtitleEl = $("refundWizardSubtitle");
+    const refundWizardSummaryEl = $("refundWizardSummary");
+    const refundWizardItemsEl = $("refundWizardItems");
+    const refundWizardStatusEl = $("refundWizardStatus");
+    const refundWizardTotalEl = $("refundWizardTotal");
+    const refundReasonSelectEl = $("refundReasonSelect");
+    const refundReasonInputEl = $("refundReasonInput");
+    const btnCloseRefundWizard = $("btnCloseRefundWizard");
+    const btnCancelRefundWizard = $("btnCancelRefundWizard");
+    const btnSubmitRefundWizard = $("btnSubmitRefundWizard");
 
     const salesSearchInput = $("salesSearchInput");
 
@@ -1893,6 +2576,54 @@
     function formatMoney(value) {
       const n = Number.isFinite(value) ? value : 0;
       return "$" + n.toFixed(2);
+    }
+
+    function htmlEscape(value) {
+      return String(value ?? "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#39;");
+    }
+
+    function itemAvailableQty(item) {
+      const n = Number(item?.available_to_sell ?? item?.sellable_qty ?? item?.qty ?? 0);
+      return Number.isFinite(n) ? Math.max(0, n) : 0;
+    }
+
+    function setPaymentButton(id, enabled) {
+      const btn = $(id);
+      if (!btn) return;
+      btn.disabled = !enabled;
+      btn.title = enabled ? "" : "Disabled in Settings";
+    }
+
+    function updateQuickDiscountButton(selector, value, suffix, attr) {
+      const btn = document.querySelector(selector);
+      if (!btn) return;
+      const amount = Number(value || 0);
+      btn.setAttribute(attr, String(Math.max(0, amount)));
+      const label = Number.isInteger(amount) ? String(amount) : amount.toFixed(2);
+      btn.textContent = `${label}${suffix}`;
+    }
+
+    function updateRegisterPolicyUi() {
+      const cfg = state.registerSettings || {};
+      setPaymentButton("btnTenderCash", cfg.payment_cash_enabled !== false);
+      setPaymentButton("btnTenderCard", cfg.payment_card_enabled !== false);
+      setPaymentButton("btnTenderStoreCredit", cfg.payment_store_credit_enabled !== false);
+      updateQuickDiscountButton('[data-discount-percent="5"]', cfg.quick_discount_percent_1 ?? 5, "% Off", "data-discount-percent");
+      updateQuickDiscountButton('[data-discount-percent="10"]', cfg.quick_discount_percent_2 ?? 10, "% Off", "data-discount-percent");
+      updateQuickDiscountButton('[data-discount-amount="5"]', cfg.quick_discount_amount_1 ?? 5, " Off", "data-discount-amount");
+      updateQuickDiscountButton('[data-discount-amount="10"]', cfg.quick_discount_amount_2 ?? 10, " Off", "data-discount-amount");
+      document.querySelectorAll("[data-discount-amount]").forEach((btn) => {
+        const amount = Number(btn.getAttribute("data-discount-amount") || 0);
+        btn.textContent = `${formatMoney(amount)} Off`;
+      });
+      if (taxModeLabelEl && !state.taxExempt) {
+        taxModeLabelEl.textContent = cfg.tax_label || "Standard";
+      }
     }
 
     function findItemByCode(code) {
@@ -1932,12 +2663,12 @@
     }
 
     function clearResults(targetEl) {
-      if (targetEl) targetEl.innerHTML = "";
+      if (targetEl) targetEl.replaceChildren();
     }
 
     function renderResults(targetEl, results, { onPick } = {}) {
       if (!targetEl) return;
-      targetEl.innerHTML = "";
+      targetEl.replaceChildren();
       if (!results || !results.length) return;
       const fragment = document.createDocumentFragment();
       results.slice(0, 20).forEach(item => {
@@ -1951,7 +2682,7 @@
         main.textContent = item.title || item.sku || "Untitled";
         const meta = document.createElement("div");
         meta.className = "title-meta";
-        meta.textContent = (item.platform || "N/A") + " • " + (item.condition || "N/A");
+        meta.textContent = (item.platform || "N/A") + " - " + (item.condition || "N/A") + " - sellable " + itemAvailableQty(item);
         titleEl.appendChild(main);
         titleEl.appendChild(meta);
 
@@ -1995,6 +2726,14 @@
 
     function addItemToCartFromInventory(item, qty = 1) {
       if (!item || qty === 0) return;
+      const availableQty = itemAvailableQty(item);
+      if (qty > 0 && availableQty <= 0) {
+        if (scanStatus) {
+          scanStatus.textContent = "This item is unavailable.";
+          scanStatus.classList.add("error");
+        }
+        return;
+      }
 
       const price = +(+item.price || 0);
       const sku = item.sku || "";
@@ -2003,14 +2742,23 @@
       const condition = item.condition || "N/A";
 
       if (lastScanTitleEl) lastScanTitleEl.textContent = title || sku || "Item";
-      if (lastScanMetaEl) lastScanMetaEl.textContent = (platform || "N/A") + " • " + (condition || "N/A") + (sku ? " • " + sku : "");
+      if (lastScanMetaEl) lastScanMetaEl.textContent = (platform || "N/A") + " - " + (condition || "N/A") + (sku ? " - " + sku : "");
       if (lastScanPriceEl) lastScanPriceEl.textContent = formatMoney(price);
 
       const cartItem = state.cart.find(ci =>
         ci.sku === sku && ci.price === price
       );
+      const currentCartQty = cartItem ? Number(cartItem.qty || 0) : 0;
+      if (qty > 0 && currentCartQty + qty > availableQty) {
+        if (scanStatus) {
+          scanStatus.textContent = "Not enough sellable stock.";
+          scanStatus.classList.add("error");
+        }
+        return;
+      }
 
       if (cartItem) {
+        cartItem.available_qty = availableQty;
         cartItem.qty += qty;
         if (cartItem.qty <= 0) {
           state.cart = state.cart.filter(ci => ci !== cartItem);
@@ -2022,7 +2770,10 @@
           platform,
           condition,
           price,
-          qty
+          qty,
+          available_qty: availableQty,
+          barcode: item.barcode || "",
+          source: item.source || ""
         });
       }
 
@@ -2047,7 +2798,7 @@
     }
 
     // --- Cash keypad helpers --------------------------------------------------
-    function updateCashKeypadFromBuffer() {
+    function updateCashKeypadFromBuffer(writeInput = true) {
       let numeric = 0;
       if (cashKeypadBuffer) {
         const parsed = parseFloat(cashKeypadBuffer);
@@ -2056,7 +2807,7 @@
       if (cashKeypadDisplayEl) {
         cashKeypadDisplayEl.textContent = formatMoney(numeric);
       }
-      if (tenderAmountInput) {
+      if (tenderAmountInput && writeInput) {
         tenderAmountInput.value = cashKeypadBuffer;
       }
     }
@@ -2067,8 +2818,8 @@
       } else if (key === "BS") {
         cashKeypadBuffer = cashKeypadBuffer.slice(0, -1);
       } else if (key === "EXACT") {
-        const total = currentTotals.total || 0;
-        cashKeypadBuffer = total > 0 ? total.toFixed(2) : "";
+        const balance = Math.max(0, (currentTotals.total || 0) - (state.paidAmount || 0));
+        cashKeypadBuffer = balance > 0 ? balance.toFixed(2) : "";
       } else if (key === ".") {
         if (!cashKeypadBuffer.includes(".")) {
           cashKeypadBuffer = cashKeypadBuffer ? cashKeypadBuffer + "." : "0.";
@@ -2093,9 +2844,13 @@
       state.selectedIndex = -1;
       state.discountAmount = 0;
       state.discountPercent = 0;
+      state.managerApprovals = {};
+      state.currentTxnUuid = null;
+      state.completingSale = false;
       state.taxExempt = false;
       state.customerId = null;
       state.paidAmount = 0;
+      state.tenders = [];
       state.lastTenderMethod = null;
       if (tenderAmountInput) tenderAmountInput.value = "";
       if (discountAmountInput) discountAmountInput.value = "";
@@ -2119,36 +2874,95 @@
       setTenderMessage("Sale cleared.", "success");
     }
 
-    function toggleReturnMode() {
-      state.mode = state.mode === "sale" ? "return" : "sale";
+    async function openReturnSalesLookup(query = "") {
+      state.mode = "return";
       updateModeLabels();
       recalcAndRender();
+      switchPanel("sales");
+      if (salesSearchInput) {
+        salesSearchInput.value = query;
+        salesFilter.search = query;
+      }
+      await renderRecentSales();
+      if (salesSearchInput) {
+        salesSearchInput.focus();
+        salesSearchInput.select();
+      }
+    }
+
+    async function toggleReturnMode() {
+      const nextMode = state.mode === "sale" ? "return" : "sale";
+      state.mode = nextMode;
+      updateModeLabels();
+      recalcAndRender();
+      if (nextMode === "return") {
+        await openReturnSalesLookup("");
+      } else {
+        switchPanel("register");
+        setTenderMessage("Sale mode active.", "success");
+      }
     }
 
     function updateModeLabels() {
-      if (modeLabelEl) modeLabelEl.textContent = state.mode === "sale" ? "Sale" : "Return";
-      if (statusModeLabelEl) statusModeLabelEl.textContent = state.mode === "sale" ? "Sale" : "Return";
+      const isReturn = state.mode === "return";
+      if (modeLabelEl) modeLabelEl.textContent = isReturn ? "Return" : "Sale";
+      if (statusModeLabelEl) statusModeLabelEl.textContent = isReturn ? "Return" : "Sale";
+      document.body.classList.toggle("return-mode-active", isReturn);
+      if (returnModeBannerEl) returnModeBannerEl.hidden = !isReturn;
+      if (checkoutModeHintEl) checkoutModeHintEl.textContent = isReturn ? "Refund workflow active" : "Tender and complete";
+      if (cartEmptyEl) {
+        cartEmptyEl.textContent = isReturn
+          ? "Return mode is active. Find the original sale in Recent Sales."
+          : "Scan a barcode or search for a game to start a sale.";
+      }
+      if (scanInput) {
+        scanInput.placeholder = isReturn ? "Scan receipt, sale ID, item, SKU, or barcode" : "Scan barcode, SKU, or title";
+      }
+      const btnScanAdd = $("btnScanAdd");
+      if (btnScanAdd) btnScanAdd.textContent = isReturn ? "Lookup" : "Add";
+      ["btnTenderCash", "btnTenderCard", "btnTenderStoreCredit", "btnTenderExact", "btnTenderRoundUp", "btnCompleteSale", "btnCreateLayaway"].forEach((id) => {
+        const el = $(id);
+        if (el) el.disabled = isReturn;
+      });
+      if (btnRefundSale) btnRefundSale.textContent = isReturn ? "Refund Selected Sale" : "Refund Sale";
+      if (btnVoidSale) btnVoidSale.textContent = isReturn ? "Void Selected Sale" : "Void Sale";
       const tabReturn = $("btnReturnMode");
       if (tabReturn) {
-        if (state.mode === "return") {
+        tabReturn.setAttribute("aria-pressed", isReturn ? "true" : "false");
+        tabReturn.textContent = isReturn ? "Return Mode: ON" : "Return Mode";
+        if (isReturn) {
           tabReturn.classList.add("nav-tab-return-active");
         } else {
           tabReturn.classList.remove("nav-tab-return-active");
         }
       }
+      if (scanStatus && !(scanInput && (scanInput.value || "").trim())) {
+        scanStatus.textContent = isReturn ? "Return lookup ready." : "Ready to scan or search.";
+        scanStatus.classList.remove("error");
+      }
     }
 
-    function applyDiscountAmount() {
+    async function applyDiscountAmount() {
       const value = parseFloat(discountAmountInput.value || "0");
-      state.discountAmount = isNaN(value) ? 0 : Math.max(0, value);
+      const amount = isNaN(value) ? 0 : Math.max(0, value);
+      if (amount > 0) {
+        const approved = await ensureManagerApproval("discount_override", "sale discount");
+        if (!approved) return;
+      }
+      state.discountAmount = amount;
       state.discountPercent = 0;
       discountPercentInput.value = "";
       recalcAndRender();
     }
 
-    function applyDiscountPercent() {
+    async function applyDiscountPercent() {
       const value = parseFloat(discountPercentInput.value || "0");
-      state.discountPercent = isNaN(value) ? 0 : Math.max(0, Math.min(100, value));
+      const percent = isNaN(value) ? 0 : Math.max(0, Math.min(100, value));
+      if (percent > 0) {
+        const approved = await ensureManagerApproval("discount_override", "sale discount");
+        if (!approved) return;
+      }
+      state.discountPercent = percent;
       state.discountAmount = 0;
       discountAmountInput.value = "";
       recalcAndRender();
@@ -2157,6 +2971,7 @@
     function clearDiscounts() {
       state.discountAmount = 0;
       state.discountPercent = 0;
+      delete state.managerApprovals.discount_override;
       discountAmountInput.value = "";
       discountPercentInput.value = "";
       recalcAndRender();
@@ -2194,7 +3009,9 @@
         customerSelectedEl.textContent = "";
         return;
       }
-      const label = `${cust.name || "Customer"}${cust.type === "business" ? " • Business" : ""}`;
+      const creditCents = Number(cust.store_credit_cents || 0);
+      const creditLabel = creditCents > 0 ? ` - Credit ${formatMoney(creditCents / 100)}` : "";
+      const label = `${cust.name || "Customer"}${cust.type === "business" ? " - Business" : ""}${creditLabel}`;
       customerSelectedEl.textContent = `Selected: ${label}`;
       customerSelectedEl.style.display = "block";
     }
@@ -2231,14 +3048,21 @@
         row.className = "customer-row";
         const phone = c.phone || c.phone2 || c.phone3 || "";
         const email = c.email || c.email2 || c.email3 || "";
-        row.innerHTML = `
-          <div>
-            <strong>${c.name || "Customer"}</strong>
-            <div class="muted">${email || phone}</div>
-          </div>
-          <div>${c.type || "regular"}</div>
-          <div>${c.tax_exempt ? "Exempt" : "Standard"}</div>
-        `;
+        const main = document.createElement("div");
+        const name = document.createElement("strong");
+        name.textContent = c.name || "Customer";
+        const contact = document.createElement("div");
+        contact.className = "muted";
+        contact.textContent = email || phone;
+        main.appendChild(name);
+        main.appendChild(contact);
+        const type = document.createElement("div");
+        type.textContent = c.type || "regular";
+        const tax = document.createElement("div");
+        tax.textContent = c.tax_exempt ? "Exempt" : "Standard";
+        row.appendChild(main);
+        row.appendChild(type);
+        row.appendChild(tax);
         row.addEventListener("click", () => applyCustomerFromRecord(c));
         customerResultsEl.appendChild(row);
       });
@@ -2262,7 +3086,11 @@
       recalcAndRender();
     }
 
-    function toggleTaxExempt() {
+    async function toggleTaxExempt() {
+      if (!state.taxExempt) {
+        const approved = await ensureManagerApproval("tax_admin", "tax-exempt sale");
+        if (!approved) return;
+      }
       state.taxExempt = !state.taxExempt;
       recalcAndRender();
     }
@@ -2284,31 +3112,173 @@
         case "card": return "Card";
         case "store_credit": return "Store Credit";
         case "refund": return "Refund";
+        case "other": return "Other";
         default: return "Payment";
       }
     }
 
+    function paymentMethodEnabled(method) {
+      const cfg = state.registerSettings || {};
+      if (method === "cash") return cfg.payment_cash_enabled !== false;
+      if (method === "card") return cfg.payment_card_enabled !== false;
+      if (method === "store_credit") return cfg.payment_store_credit_enabled !== false;
+      return cfg.payment_other_enabled !== false;
+    }
+
+    function syncPaidFromTenders() {
+      const saleTotal = Number(currentTotals.total || 0);
+      let runningPaid = 0;
+      state.tenders = (state.tenders || []).reduce((lines, line) => {
+        if (!line) return lines;
+        const method = line.method || "cash";
+        let amount = Number(line.amount || 0);
+        if (!Number.isFinite(amount) || amount <= 0) return lines;
+        if (method !== "cash") {
+          amount = Math.min(amount, Math.max(0, saleTotal - runningPaid));
+        }
+        amount = Number(amount.toFixed(2));
+        if (amount <= 0) return lines;
+        runningPaid += amount;
+        lines.push({ method, amount });
+        return lines;
+      }, []);
+      state.paidAmount = Number(state.tenders.reduce((sum, line) => sum + Number(line.amount || 0), 0).toFixed(2));
+      if (!state.tenders.length) {
+        state.lastTenderMethod = null;
+      } else if (!state.tenders.some((line) => line.method === state.lastTenderMethod)) {
+        state.lastTenderMethod = state.tenders[state.tenders.length - 1].method;
+      }
+    }
+
+    function updateTenderLine(index, rawAmount) {
+      const line = state.tenders[index];
+      if (!line) return;
+      let amount = parseFloat(rawAmount || "0");
+      if (!Number.isFinite(amount) || amount < 0) {
+        setTenderMessage("Enter a valid payment amount.", "error");
+        renderTotals();
+        return;
+      }
+
+      const otherPaid = (state.tenders || []).reduce((sum, entry, entryIndex) => {
+        return entryIndex === index ? sum : sum + Number(entry.amount || 0);
+      }, 0);
+      if (line.method !== "cash") {
+        amount = Math.min(amount, Math.max(0, currentTotals.total - otherPaid));
+      }
+
+      if (amount <= 0) {
+        state.tenders.splice(index, 1);
+        setTenderMessage(methodLabel(line.method) + " payment removed.", "success");
+      } else {
+        line.amount = Number(amount.toFixed(2));
+        setTenderMessage(methodLabel(line.method) + " payment updated.", "success");
+      }
+      syncPaidFromTenders();
+      recalcAndRender();
+    }
+
+    function removeTenderLine(index) {
+      const line = state.tenders[index];
+      if (!line) return;
+      state.tenders.splice(index, 1);
+      syncPaidFromTenders();
+      recalcAndRender();
+      setTenderMessage(methodLabel(line.method) + " payment removed.", "success");
+    }
+
+    function renderTenderLines() {
+      if (!tenderLinesEl) return;
+      tenderLinesEl.replaceChildren();
+      if (!state.tenders.length) {
+        const empty = document.createElement("div");
+        empty.className = "tender-line-empty";
+        empty.textContent = "No payments entered.";
+        tenderLinesEl.appendChild(empty);
+        return;
+      }
+
+      state.tenders.forEach((line, index) => {
+        const row = document.createElement("div");
+        row.className = "tender-line";
+
+        const label = document.createElement("strong");
+        label.textContent = methodLabel(line.method);
+
+        const input = document.createElement("input");
+        input.type = "number";
+        input.min = "0";
+        input.step = "0.01";
+        input.value = Number(line.amount || 0).toFixed(2);
+        input.setAttribute("aria-label", methodLabel(line.method) + " tender amount");
+        input.addEventListener("change", () => updateTenderLine(index, input.value));
+        input.addEventListener("keydown", (e) => {
+          if (e.key === "Enter") {
+            e.preventDefault();
+            input.blur();
+          }
+        });
+
+        const remove = document.createElement("button");
+        remove.className = "btn btn-soft btn-mini";
+        remove.type = "button";
+        remove.textContent = "Remove";
+        remove.addEventListener("click", () => removeTenderLine(index));
+
+        row.append(label, input, remove);
+        tenderLinesEl.appendChild(row);
+      });
+    }
+
     function tenderPayment(method) {
+      syncPaidFromTenders();
       const total = currentTotals.total;
       if (total <= 0) {
         setTenderMessage("No balance due.", "error");
         return;
       }
+      if (!paymentMethodEnabled(method)) {
+        setTenderMessage(methodLabel(method) + " is disabled in Settings.", "error");
+        return;
+      }
+      if (
+        state.registerSettings.allow_split_tender === false &&
+        state.tenders.length &&
+        !state.tenders.some((line) => line.method === method)
+      ) {
+        setTenderMessage("Split tender is disabled in Settings.", "error");
+        return;
+      }
+      if (method === "store_credit" && !state.customerId) {
+        setTenderMessage("Select a customer before using store credit.", "error");
+        return;
+      }
 
       const raw = tenderAmountInput.value;
       let amount = parseFloat(raw || "0");
+      const remainingDue = Math.max(0, total - state.paidAmount);
       if (isNaN(amount) || amount <= 0) {
         // If no amount provided, assume exact pay for non-cash methods
         if (method === "card" || method === "store_credit") {
-          amount = total - state.paidAmount;
+          amount = remainingDue;
         } else {
           setTenderMessage("Enter tender amount.", "error");
           return;
         }
       }
+      if (method !== "cash") {
+        amount = Math.min(amount, remainingDue);
+      }
+      if (amount <= 0) {
+        setTenderMessage("No balance due.", "error");
+        return;
+      }
 
-      state.paidAmount += amount;
+      state.tenders.push({ method, amount: Number(amount.toFixed(2)) });
       state.lastTenderMethod = method;
+      syncPaidFromTenders();
+      if (tenderAmountInput) tenderAmountInput.value = "";
+      cashKeypadBuffer = "";
       recalcAndRender();
 
       const remaining = currentTotals.total - state.paidAmount;
@@ -2317,22 +3287,50 @@
       } else {
         setTenderMessage(methodLabel(method) + " accepted. Remaining: " + formatMoney(remaining), "success");
       }
-      tenderAmountInput.value = "";
-      // sync keypad buffer with cleared field
-      cashKeypadBuffer = "";
-      updateCashKeypadFromBuffer();
+      updateCashKeypadFromBuffer(true);
     }
 
     async function completeSale() {
+      syncPaidFromTenders();
       const total = currentTotals.total;
       if (total <= 0) {
         setTenderMessage("No items or total is zero.", "error");
+        return;
+      }
+      if (state.completingSale) {
+        setTenderMessage("Sale is already being completed.", "error");
         return;
       }
 
       if (state.paidAmount < total) {
         setTenderMessage("Insufficient payment to complete sale.", "error");
         return;
+      }
+      if (
+        state.registerSettings.require_customer_for_sale &&
+        !state.customerId &&
+        !(customerNameEl && customerNameEl.value.trim()) &&
+        !(customerPhoneEl && customerPhoneEl.value.trim())
+      ) {
+        setTenderMessage("Select or enter a customer before completing the sale.", "error");
+        return;
+      }
+
+      state.completingSale = true;
+
+      if (currentTotals.discount > 0) {
+        const approved = await ensureManagerApproval("discount_override", "sale discount");
+        if (!approved) {
+          state.completingSale = false;
+          return;
+        }
+      }
+      if (state.taxExempt) {
+        const approved = await ensureManagerApproval("tax_admin", "tax-exempt sale");
+        if (!approved) {
+          state.completingSale = false;
+          return;
+        }
       }
 
       const change = state.paidAmount - total;
@@ -2342,9 +3340,19 @@
       const discountCents = Math.round(currentTotals.discount * 100);
       const taxCents = Math.round(currentTotals.tax * 100);
       const feeCents = 0;
+      const clientTxnUuid = getCurrentTxnUuid();
+      const tenderLines = (state.tenders || []).map((t) => ({
+        method: t.method,
+        amount: Number(Number(t.amount || 0).toFixed(2)),
+        amount_cents: Math.round(Number(t.amount || 0) * 100)
+      }));
+      const storeCreditAmount = tenderLines
+        .filter((t) => t.method === "store_credit")
+        .reduce((sum, t) => sum + Number(t.amount || 0), 0);
 
       const sale = {
-        id: `SO-${new Date().toISOString().replace(/[-:TZ.]/g,'').slice(0,14)}-${Math.random().toString(36).slice(2,6).toUpperCase()}`,
+        id: clientTxnUuid,
+        client_txn_uuid: clientTxnUuid,
         ts: new Date().toISOString(),
         user: "owner",
         channel: "in_store",
@@ -2354,7 +3362,9 @@
           platform: l.platform,
           condition: l.condition,
           price: l.price,
-          qty: l.qty
+          qty: l.qty,
+          barcode: l.barcode || "",
+          source: l.source || ""
         })),
         customer: {
           type: state.customerType || "regular",
@@ -2366,6 +3376,7 @@
         customer_id: state.customerId || null,
         tax_exempt: !!state.taxExempt,
         discount_cents: discountCents,
+        manager_approvals: { ...state.managerApprovals },
         tax_cents: taxCents,
         fee_cents: feeCents,
         subtotal: Number(currentTotals.subtotal.toFixed(2)),
@@ -2373,7 +3384,10 @@
         tender: {
           type: state.lastTenderMethod || "cash",
           paid: state.paidAmount,
-          change: Math.max(0, change)
+          change: Math.max(0, change),
+          lines: tenderLines,
+          store_credit_amount: Number(storeCreditAmount.toFixed(2)),
+          store_credit_cents: Math.round(storeCreditAmount * 100)
         },
         note: "",
         status: "completed"
@@ -2388,7 +3402,33 @@
         });
         if (!r.ok) {
           const j = await r.json().catch(() => ({}));
-          setTenderMessage(j.error || "Inventory sync failed.", "error");
+          let message = j.error || "Inventory sync failed.";
+          if (j.error === "store_credit_customer_required") {
+            message = "Select a customer before using store credit.";
+          } else if (j.error === "store_credit_customer_not_found") {
+            message = "Selected customer was not found.";
+          } else if (j.error === "store_credit_insufficient") {
+            const available = Number(j.balance_cents || 0) / 100;
+            message = "Store credit balance is too low. Available: " + formatMoney(available);
+          } else if (j.error === "insufficient_tender") {
+            const totalDue = Number(j.total_cents || 0) / 100;
+            const paid = Number(j.paid_cents || 0) / 100;
+            message = "Payment is short. Backend total is " + formatMoney(totalDue) + "; paid " + formatMoney(paid) + ".";
+          } else if (j.error === "bundle_unavailable") {
+            message = "Bundle is unavailable because one or more included items are no longer in stock.";
+          } else if (j.error === "bundle_qty_limit") {
+            message = "Bundles can only be sold one at a time.";
+          } else if (j.error === "customer_required") {
+            message = "Select or enter a customer before completing the sale.";
+          } else if (j.error === "split_tender_disabled") {
+            message = "Split tender is disabled in Settings.";
+          } else if (j.error === "payment_method_disabled") {
+            message = methodLabel(j.method) + " is disabled in Settings.";
+          } else if (j.error === "manager_approval_required" && j.permission === "tax_admin") {
+            message = "Manager approval is required for a tax-exempt sale.";
+          }
+          setTenderMessage(message, "error");
+          state.completingSale = false;
           return;
         }
         const j = await r.json().catch(() => ({}));
@@ -2396,9 +3436,20 @@
           sale.server_id = j.saleId;
           sale.id = j.saleId;
         }
+        if (j && j.totals) {
+          sale.subtotal = Number(j.totals.subtotal || 0);
+          sale.discount_cents = Math.round(Number(j.totals.discount || 0) * 100);
+          sale.tax_cents = Math.round(Number(j.totals.tax || 0) * 100);
+          sale.total = Number(j.totals.total || 0);
+        }
+        markCommunityEventTicketsSold(sale).catch((ticketErr) => {
+          console.warn("Community event ticket paid sync failed:", ticketErr);
+          setTenderMessage("Sale completed. Event ticket paid sync may need a refresh.", "success");
+        });
       } catch (err) {
         console.error("Inventory sync failed:", err);
         setTenderMessage("Inventory sync failed.", "error");
+        state.completingSale = false;
         return;
       }
 
@@ -2407,10 +3458,96 @@
       lastSale = sale;
 
 
-      openReceiptWindow(sale);
+      if (state.registerSettings.receipt_print_after_sale !== false) {
+        openReceiptWindow(sale);
+      }
       await renderRecentSales();
 
       setTimeout(clearSale, 500);
+    }
+
+    async function createLayawayFromCart() {
+      if (!state.cart.length) {
+        setTenderMessage("Add items before creating a layaway.", "error");
+        return;
+      }
+      if (!state.customerId && !(customerNameEl && customerNameEl.value.trim())) {
+        setTenderMessage("Add or select a customer before creating a layaway.", "error");
+        return;
+      }
+      const depositRaw = prompt("Deposit amount:", tenderAmountInput && tenderAmountInput.value ? tenderAmountInput.value : "0.00");
+      if (depositRaw === null) return;
+      const deposit = Math.max(0, Number(String(depositRaw).replace(/[^0-9.-]/g, "")) || 0);
+      const dueAt = prompt("Due date (YYYY-MM-DD), optional:", "") || "";
+      try {
+        const res = await fetch(`${API_BASE}/api/layaways`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json", ...getAuthHeaders() },
+          body: JSON.stringify({
+            customer_id: state.customerId || null,
+            customer_name: customerNameEl ? customerNameEl.value || "" : "",
+            customer_phone: customerPhoneEl ? customerPhoneEl.value || "" : "",
+            label: customerNameEl && customerNameEl.value.trim() ? customerNameEl.value.trim() : "Layaway",
+            deposit,
+            due_at: dueAt,
+            payment_method: deposit > 0 ? "deposit" : "",
+            items: state.cart.map((line) => ({ sku: line.sku, qty: line.qty }))
+          })
+        });
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok) {
+          let message = data.error || "Layaway could not be created.";
+          if (data.error === "insufficient_qty") message = "One of these items no longer has enough stock.";
+          if (data.error === "bundle_unavailable") message = "That bundle is no longer available.";
+          if (data.error === "bundle_qty_limit") message = "Bundles can only be reserved one at a time.";
+          setTenderMessage(message, "error");
+          return;
+        }
+        await hydrateInventory();
+        clearSale();
+        setTenderMessage(`Layaway #${data.layaway?.id || ""} created and inventory reserved.`, "success");
+      } catch (err) {
+        console.error("Layaway create failed:", err);
+        setTenderMessage("Layaway could not be created.", "error");
+      }
+    }
+
+    function communityTicketInfo(line) {
+      const barcode = String(line?.barcode || "").trim();
+      const source = String(line?.source || "").trim();
+      if (!barcode.toUpperCase().startsWith("CE:")) return null;
+      if (!source.toLowerCase().startsWith("community-event-ticket:")) return null;
+      const attendeeId = barcode.slice(3).trim();
+      const eventId = source.slice("community-event-ticket:".length).trim();
+      if (!attendeeId || !eventId) return null;
+      return { attendeeId, eventId };
+    }
+
+    async function markCommunityEventTicketsSold(sale) {
+      const lines = (sale?.items || []).filter((line) => communityTicketInfo(line));
+      if (!lines.length) return;
+      const customerName = sale.customer?.name || "";
+      const customerPhone = sale.customer?.phone || "";
+      const paymentMethod = sale.tender?.type || state.lastTenderMethod || "pos";
+      for (const line of lines) {
+        const info = communityTicketInfo(line);
+        const body = {
+          paid: true,
+          paymentMethod,
+          entryFee: line.price
+        };
+        if (customerName) body.name = customerName;
+        if (customerPhone) body.phone = customerPhone;
+        const res = await fetch(`${API_BASE}/api/community-events/${encodeURIComponent(info.eventId)}/attendees/${encodeURIComponent(info.attendeeId)}`, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json", ...getAuthHeaders() },
+          body: JSON.stringify(body)
+        });
+        if (!res.ok) {
+          const data = await res.json().catch(() => ({}));
+          throw new Error(data.error || "ticket_paid_sync_failed");
+        }
+      }
     }
 
     function printReceipt() {
@@ -2419,6 +3556,14 @@
         return;
       }
       openReceiptWindow(lastSale);
+    }
+
+    function printGiftReceipt() {
+      if (!lastSale) {
+        setTenderMessage("Complete a sale before printing a gift receipt.", "error");
+        return;
+      }
+      openReceiptWindow(lastSale, { gift: true });
     }
 
     // --- Totals Calculation ---------------------------------------------------
@@ -2509,9 +3654,12 @@
           const qtyCol = document.createElement("div");
           const qtyWrap = document.createElement("div");
           qtyWrap.className = "qty-controls";
+          const maxSellableQty = Number.isFinite(Number(item.available_qty)) && Number(item.available_qty) > 0
+            ? Number(item.available_qty)
+            : Infinity;
           const btnMinus = document.createElement("button");
           btnMinus.className = "qty-btn";
-          btnMinus.textContent = "−";
+          btnMinus.textContent = "-";
           btnMinus.addEventListener("click", (e) => {
             e.stopPropagation();
             item.qty = Math.max(0, item.qty - 1);
@@ -2540,6 +3688,7 @@
                 state.selectedIndex = state.cart.length - 1;
               }
             } else {
+              if (newQty > maxSellableQty) newQty = maxSellableQty;
               item.qty = newQty;
             }
             recalcAndRender();
@@ -2549,6 +3698,13 @@
           btnPlus.textContent = "+";
           btnPlus.addEventListener("click", (e) => {
             e.stopPropagation();
+            if (item.qty + 1 > maxSellableQty) {
+              if (scanStatus) {
+                scanStatus.textContent = "Not enough sellable stock.";
+                scanStatus.classList.add("error");
+              }
+              return;
+            }
             item.qty += 1;
             recalcAndRender();
           });
@@ -2558,7 +3714,13 @@
           qtyCol.appendChild(qtyWrap);
 
           const priceCol = document.createElement("div");
-          priceCol.innerHTML = `${formatMoney(item.price)} <button class="btn btn-soft btn-mini" data-act="override" data-idx="${index}">Override</button>`;
+          priceCol.appendChild(document.createTextNode(formatMoney(item.price) + " "));
+          const overrideBtn = document.createElement("button");
+          overrideBtn.className = "btn btn-soft btn-mini";
+          overrideBtn.dataset.act = "override";
+          overrideBtn.dataset.idx = String(index);
+          overrideBtn.textContent = "Override";
+          priceCol.appendChild(overrideBtn);
 
           const lineTotalCol = document.createElement("div");
           lineTotalCol.textContent = formatMoney(item.price * item.qty);
@@ -2576,7 +3738,7 @@
           });
           const removeBtn = document.createElement("button");
           removeBtn.className = "remove-btn";
-          removeBtn.textContent = "×";
+          removeBtn.textContent = "x";
           removeBtn.addEventListener("click", (e) => {
             e.stopPropagation();
             state.cart.splice(index, 1);
@@ -2608,11 +3770,12 @@
 
       const totalItems = state.cart.reduce((sum, item) => sum + item.qty, 0);
       cartSummaryEl.textContent = totalItems + " item" + (totalItems === 1 ? "" : "s") +
-        " • " + formatMoney(currentTotals.subtotal);
+        " - " + formatMoney(currentTotals.subtotal);
       cartCountEl.textContent = cartSummaryEl.textContent;
     }
 
     function renderTotals() {
+      syncPaidFromTenders();
       subtotalValueEl.textContent = formatMoney(currentTotals.subtotal);
       discountValueEl.textContent = "- " + formatMoney(currentTotals.discount);
       taxValueEl.textContent = formatMoney(currentTotals.tax);
@@ -2634,7 +3797,7 @@
         discountLabelEl.textContent = "None";
       }
 
-      taxModeLabelEl.textContent = state.taxExempt ? "Exempt" : "Standard";
+      taxModeLabelEl.textContent = state.taxExempt ? "Exempt" : (state.registerSettings.tax_label || "Standard");
       updateCustomerHints();
 
       const total = currentTotals.total;
@@ -2650,22 +3813,39 @@
         changeDueEl.classList.remove("change-positive");
       }
 
+      renderTenderLines();
+
       if (receiptPreviewEl) {
-        const lines = state.cart.slice(0, 4).map((item) => {
+        receiptPreviewEl.replaceChildren();
+        state.cart.slice(0, 4).forEach((item) => {
           const lineTotal = (item.price || 0) * (item.qty || 1);
-          return `<div class="line"><span>${item.title || item.sku || "Item"}</span><span>${formatMoney(lineTotal)}</span></div>`;
-        }).join("");
-        receiptPreviewEl.innerHTML = lines || '<div class="line"><span>Receipt preview</span><span>-</span></div>';
+          const line = document.createElement("div");
+          line.className = "line";
+          const title = document.createElement("span");
+          title.textContent = item.title || item.sku || "Item";
+          const amount = document.createElement("span");
+          amount.textContent = formatMoney(lineTotal);
+          line.append(title, amount);
+          receiptPreviewEl.appendChild(line);
+        });
+        if (!receiptPreviewEl.children.length) {
+          const line = document.createElement("div");
+          line.className = "line";
+          const title = document.createElement("span");
+          title.textContent = "Receipt preview";
+          const amount = document.createElement("span");
+          amount.textContent = "-";
+          line.append(title, amount);
+          receiptPreviewEl.appendChild(line);
+        }
       }
     }
 
-    function overrideLinePrice(index) {
+    async function overrideLinePrice(index) {
       const item = state.cart[index];
       if (!item) return;
-      if (!requireManagerPin()) {
-        setTenderMessage("Manager PIN required.", "error");
-        return;
-      }
+      const approved = await ensureManagerApproval("cost_change", "price override");
+      if (!approved) return;
       const input = prompt("New price for line item:", String(item.price || 0));
       if (input == null) return;
       const p = Number(input);
@@ -2681,11 +3861,11 @@
       calculateTotals();
       renderCart();
       renderTotals();
-      // keep keypad display in sync with any total change when EXACT is hit later
-      updateCashKeypadFromBuffer();
+      // Keep the keypad display current without clobbering a manually typed tender.
+      updateCashKeypadFromBuffer(false);
     }
 
-    function loadHeldSales() {
+    function loadHeldSalesLocal() {
       try {
         const raw = localStorage.getItem(HOLD_SALES_KEY);
         const list = raw ? JSON.parse(raw) : [];
@@ -2695,10 +3875,42 @@
       }
     }
 
+    function loadHeldSales() {
+      return Array.isArray(heldSalesCache) ? heldSalesCache : [];
+    }
+
     function saveHeldSales(list) {
+      heldSalesCache = Array.isArray(list) ? list : [];
       try {
-        localStorage.setItem(HOLD_SALES_KEY, JSON.stringify(list || []));
+        localStorage.setItem(HOLD_SALES_KEY, JSON.stringify(heldSalesCache));
       } catch {}
+    }
+
+    async function loadHeldSalesFromBackend() {
+      try {
+        const res = await fetch(`${API_BASE}/api/held-sales`, { headers: { ...getAuthHeaders() } });
+        if (!res.ok) throw new Error(`held_sales_load_${res.status}`);
+        const data = await res.json().catch(() => ({}));
+        saveHeldSales(Array.isArray(data.rows) ? data.rows : []);
+      } catch (err) {
+        console.warn("POS: held sales backend unavailable, using local fallback", err);
+        heldSalesCache = loadHeldSalesLocal();
+      }
+    }
+
+    function persistHeldSale(held) {
+      fetch(`${API_BASE}/api/held-sales`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", ...getAuthHeaders() },
+        body: JSON.stringify(held)
+      }).catch((err) => console.warn("POS: held sale sync failed", err));
+    }
+
+    function deleteHeldSale(id) {
+      fetch(`${API_BASE}/api/held-sales/${encodeURIComponent(id)}`, {
+        method: "DELETE",
+        headers: { ...getAuthHeaders() }
+      }).catch((err) => console.warn("POS: held sale delete sync failed", err));
     }
 
     function renderHeldSales() {
@@ -2715,15 +3927,22 @@
       held.forEach((h) => {
         const row = document.createElement("div");
         row.className = "hold-item";
-        row.innerHTML = `
-          <div>
-            <strong>${h.label || "Held Sale"}</strong><br>
-            ${h.items || 0} items • ${formatMoney(h.total || 0)}
-          </div>
-          <div>
-            <button class="btn btn-soft btn-mini" data-hold-id="${h.id}">Recall</button>
-          </div>
-        `;
+        const detail = document.createElement("div");
+        const label = document.createElement("strong");
+        label.textContent = h.label || "Held Sale";
+        const meta = document.createElement("div");
+        meta.textContent = `${h.items || 0} items - ${formatMoney(h.total || 0)}`;
+        detail.appendChild(label);
+        detail.appendChild(document.createElement("br"));
+        detail.appendChild(meta);
+        const action = document.createElement("div");
+        const btn = document.createElement("button");
+        btn.className = "btn btn-soft btn-mini";
+        btn.dataset.holdId = h.id;
+        btn.textContent = "Recall";
+        action.appendChild(btn);
+        row.appendChild(detail);
+        row.appendChild(action);
         holdListEl.appendChild(row);
       });
     }
@@ -2737,7 +3956,7 @@
       const id = "HOLD-" + Date.now().toString(36);
       const defaultLabel = (customerNameEl && customerNameEl.value.trim()) ? customerNameEl.value.trim() : "Walk-in";
       const label = prompt("Hold label (name or note):", defaultLabel) || defaultLabel;
-      held.unshift({
+      const heldSale = {
         id,
         label,
         items: state.cart.reduce((a, i) => a + i.qty, 0),
@@ -2750,21 +3969,61 @@
         customerId: state.customerId,
         customerName: customerNameEl ? customerNameEl.value : "",
         customerPhone: customerPhoneEl ? customerPhoneEl.value : "",
-        customerEin: customerEinEl ? customerEinEl.value : ""
-      });
-      saveHeldSales(held.slice(0, 20));
+        customerEin: customerEinEl ? customerEinEl.value : "",
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString()
+      };
+      held.unshift(heldSale);
+      const heldLimit = Math.max(1, Math.min(100, Number(state.registerSettings.max_held_sales || 20)));
+      saveHeldSales(held.slice(0, heldLimit));
+      persistHeldSale(heldSale);
       renderHeldSales();
       clearSale();
       setTenderMessage("Sale held.", "success");
     }
 
-    function requireManagerPin() {
-      let pin = "";
-      try { pin = localStorage.getItem(MANAGER_PIN_KEY) || ""; } catch {}
-      if (!pin) return true;
+    function settingRequiresPin(permission) {
+      if (permission === "cost_change") return state.registerSettings.require_pin_for_price_override !== false;
+      if (permission === "discount_override") return state.registerSettings.require_pin_for_discounts !== false;
+      if (permission === "tax_admin") return state.registerSettings.require_pin_for_tax_exempt !== false;
+      return false;
+    }
+
+    async function ensureManagerApproval(permission, reason, options = {}) {
+      const forcePin = options.forcePin !== undefined ? !!options.forcePin : settingRequiresPin(permission);
+      if (!forcePin && currentUserHasPermission(permission)) return true;
+      if (state.managerApprovals && state.managerApprovals[permission]) return true;
+
       const input = prompt("Manager PIN:");
       if (input == null) return false;
-      return input.trim() === pin;
+      try {
+        const response = await fetch(`${API_BASE}/api/manager/verify-pin`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json", ...getAuthHeaders() },
+          body: JSON.stringify({ pin: input.trim(), permission, reason })
+        });
+        const data = await response.json().catch(() => ({}));
+        if (!response.ok || !data.approval_token) {
+          setTenderMessage(data.error || "Manager approval failed.", "error");
+          return false;
+        }
+        state.managerApprovals[permission] = data.approval_token;
+        setTenderMessage("Manager approval accepted.", "success");
+        return true;
+      } catch (err) {
+        console.error("Manager approval failed:", err);
+        setTenderMessage("Manager approval failed.", "error");
+        return false;
+      }
+    }
+
+    function getCurrentTxnUuid() {
+      if (state.currentTxnUuid) return state.currentTxnUuid;
+      const stamp = new Date().toISOString().replace(/[-:TZ.]/g,'').slice(0,14);
+      const rand = Math.random().toString(36).slice(2,6).toUpperCase();
+      const prefix = String(state.registerSettings.sale_id_prefix || "SO").replace(/[^A-Z0-9-]/gi, "").toUpperCase() || "SO";
+      state.currentTxnUuid = `${prefix}-${stamp}-${rand}`;
+      return state.currentTxnUuid;
     }
 
     function recallHeldSale(id) {
@@ -2773,6 +4032,7 @@
       if (idx < 0) return;
       const h = held.splice(idx, 1)[0];
       saveHeldSales(held);
+      deleteHeldSale(h.id);
       state.cart = Array.isArray(h.cart) ? h.cart : [];
       state.selectedIndex = state.cart.length ? 0 : -1;
       state.discountAmount = Number(h.discountAmount || 0);
@@ -2799,27 +4059,58 @@
     }
 
     // --- Receipt Helpers ------------------------------------------------------
-    function buildReceiptHtml(sale) {
+    function buildReceiptHtml(sale, options = {}) {
+      const gift = !!options.gift;
+      const cfg = state.registerSettings || {};
+      const store = state.storeSettings || {};
       const barcodeUrl = `${API_BASE}/barcode?text=${encodeURIComponent(sale.id)}&scale=2&height=40`;
+      const storeLines = [
+        store.store_address1,
+        store.store_address2,
+        [store.store_city, store.store_state, store.store_zip].filter(Boolean).join(", "),
+        store.store_phone,
+        store.store_email,
+        store.store_website
+      ].filter(Boolean);
+      const customer = sale.customer || {};
+      const customerName = customer.name || sale.customer_name || "";
 
-      const itemsHtml = (sale.items || []).map(i => `
-        <tr>
-          <td>${i.title || ""}</td>
-          <td style="text-align:right;">${formatMoney(i.price)}</td>
-          <td style="text-align:right;">${i.qty || 1}</td>
-          <td style="text-align:right;">${formatMoney((i.price || 0) * (i.qty || 1))}</td>
-        </tr>
-      `).join("");
+      const itemsHtml = (sale.items || []).map(i => {
+        const qty = Number(i.qty || 1);
+        const unitPrice = Number(i.price ?? i.unit_price ?? 0);
+        const lineTotal = Number(i.line_total ?? (unitPrice * qty));
+        const meta = [];
+        if (cfg.receipt_show_sku !== false && i.sku) meta.push(`SKU ${htmlEscape(i.sku)}`);
+        if (cfg.receipt_show_platform_condition !== false) {
+          const detail = [i.platform, i.condition].filter(Boolean).join(" / ");
+          if (detail) meta.push(htmlEscape(detail));
+        }
+        return `
+          <tr>
+            <td>
+              ${htmlEscape(i.title || i.sku || "Item")}
+              ${meta.length ? `<div class="muted">${meta.join(" | ")}</div>` : ""}
+            </td>
+            ${gift ? "" : `<td style="text-align:right;">${formatMoney(unitPrice)}</td>`}
+            <td style="text-align:right;">${qty}</td>
+            ${gift ? "" : `<td style="text-align:right;">${formatMoney(lineTotal)}</td>`}
+          </tr>
+        `;
+      }).join("");
 
       const discount = (sale.discount_cents || 0) / 100;
       const tax = (sale.tax_cents || 0) / 100;
       const fee = (sale.fee_cents || 0) / 100;
       const tender = sale.tender || {};
-      const tenderLine = `Tender: ${methodLabel(tender.type || "cash")} • Paid: ${formatMoney(tender.paid || sale.total || 0)} • Change: ${formatMoney(tender.change || 0)}`;
+      const tenderLine = `Tender: ${methodLabel(tender.type || "cash")} - Paid: ${formatMoney(tender.paid || sale.total || 0)} - Change: ${formatMoney(tender.change || 0)}`;
+      const taxLabel = htmlEscape(cfg.tax_label || "Tax");
+      const taxRateText = cfg.receipt_show_tax_rate !== false ? ` (${(state.taxRate * 100).toFixed(2)}%)` : "";
+      const footer = store.receipt_footer ? `<div class="muted">${htmlEscape(store.receipt_footer)}</div>` : "";
+      const returnPolicy = cfg.receipt_return_policy ? `<div class="muted">${htmlEscape(cfg.receipt_return_policy)}</div>` : "";
 
       return `
         <html><head><meta charset="utf-8">
-        <title>Receipt ${sale.id}</title>
+        <title>Receipt ${htmlEscape(sale.id)}</title>
         <style>
           @page {
             size: letter;
@@ -2834,33 +4125,40 @@
         </style>
         </head><body>
           <div class="center">
-            <div style="font-weight:700;">VaultCore POS</div>
+            <div style="font-weight:700;">${htmlEscape(store.store_name || "VaultCore POS")}</div>
+            ${gift ? `<div style="font-weight:700;">Gift Receipt</div>` : ""}
+            ${storeLines.map((line) => `<div class="muted">${htmlEscape(line)}</div>`).join("")}
             <div class="muted">${new Date(sale.created_at || sale.ts || Date.now()).toLocaleString()}</div>
-            <div class="muted">${sale.id}</div>
-            <div><img class="barcode" src="${barcodeUrl}" alt="Sale barcode"></div>
+            <div class="muted">${htmlEscape(sale.id)}</div>
+            ${cfg.receipt_show_barcode !== false ? `<div><img class="barcode" src="${barcodeUrl}" alt="Sale barcode"></div>` : ""}
             <hr/>
           </div>
+          ${cfg.receipt_show_customer && customerName ? `<div>Customer: ${htmlEscape(customerName)}</div><hr/>` : ""}
           <table>${itemsHtml}</table>
+          ${gift ? `<hr/><div class="muted">Prices hidden for gift receipt.</div>` : `
+            <hr/>
+            <div>Subtotal: ${formatMoney(sale.subtotal || 0)}</div>
+            <div>Discount: ${formatMoney(discount)}</div>
+            <div>${taxLabel}${taxRateText}: ${formatMoney(tax)}</div>
+            <div>Fees: ${formatMoney(fee)}</div>
+            <div style="font-weight:700;">Total: ${formatMoney(sale.total || 0)}</div>
+            <div>${htmlEscape(tenderLine)}</div>
+          `}
           <hr/>
-          <div>Subtotal: ${formatMoney(sale.subtotal || 0)}</div>
-          <div>Discount: ${formatMoney(discount)}</div>
-          <div>Tax: ${formatMoney(tax)}</div>
-          <div>Fees: ${formatMoney(fee)}</div>
-          <div style="font-weight:700;">Total: ${formatMoney(sale.total || 0)}</div>
-          <div>${tenderLine}</div>
-          <script>window.print();<\/script>
+          ${footer}
+          ${returnPolicy}
         </body></html>
       `;
     }
 
-    function openReceiptWindow(sale) {
+    function openReceiptWindow(sale, options = {}) {
       lastSale = sale;
       const frame = $('receipt-print-frame');
       if (!frame) return;
       const win = frame.contentWindow || frame;
       const doc = win.document;
       doc.open();
-      doc.write(buildReceiptHtml(sale));
+      doc.write(buildReceiptHtml(sale, options));
       doc.close();
       win.focus();
       win.print();
@@ -2917,7 +4215,7 @@
           item.qty = newQty;
         }
       } else if (units > 0) {
-        // Restocking an item that isn't in catalog yet – add it
+        // Restocking an item that isn't in catalog yet - add it
         inv.push({
           sku,
           title: line.title,
@@ -2928,7 +4226,7 @@
           createdAt: new Date().toISOString()
         });
       } else if (units < 0) {
-        // Selling an item we can't find / has no qty tracking – best effort:
+        // Selling an item we can't find / has no qty tracking - best effort:
         // treat catalog as "one row per copy" and remove one matching row.
         const looseIdx = inv.findIndex(i => (i.sku || "") === sku);
         if (looseIdx !== -1) {
@@ -2940,7 +4238,7 @@
     function applySaleToInventory(sale) {
       const inv = [...getCatalog()];
       (sale.items || []).forEach(line => {
-        // direction -1 → units leaving inventory
+        // direction -1 means units leaving inventory
         adjustInventoryQuantity(inv, line, -1);
       });
       saveInventory(inv);
@@ -2954,7 +4252,7 @@
     function restockItemsFromSale(sale) {
       const inv = [...getCatalog()];
       (sale.items || []).forEach(line => {
-        // direction +1 → units coming back into inventory
+        // direction +1 means units coming back into inventory
         adjustInventoryQuantity(inv, line, +1);
       });
       saveInventory(inv);
@@ -3003,12 +4301,20 @@
           if (!q) return true;
 
           const total = s.total || 0;
+          const itemHaystack = (s.items || []).map((item) => [
+            item.sku,
+            item.barcode,
+            item.title,
+            item.platform,
+            item.condition
+          ].filter(Boolean).join(" ")).join(" ");
       const haystack =
         (s.id || "") + " " +
         (s.originalId || "") + " " +
         new Date(s.created_at || s.ts || Date.now()).toISOString().slice(0,10) + " " +
         (total.toFixed ? total.toFixed(2) : String(total)) + " " +
-        (s.payment_method || "");
+        (s.payment_method || "") + " " +
+        itemHaystack;
           return haystack.toLowerCase().includes(q);
         })
         .sort((a,b) => new Date(b.ts || 0) - new Date(a.ts || 0));
@@ -3052,14 +4358,11 @@
         const isSelected = sale.id === selectedSaleId;
         if (isSelected) tr.classList.add('selected');
         const tenderLabel = methodLabel(sale.payment_method || "cash");
-
-        tr.innerHTML = `
-          <td>${ts.toLocaleString()}</td>
-          <td>${sale.id}</td>
-          <td>${formatMoney(sale.total || 0)}</td>
-          <td>${tenderLabel}</td>
-          <td>${status}</td>
-        `;
+        [ts.toLocaleString(), sale.id, formatMoney(sale.total || 0), tenderLabel, status].forEach((value) => {
+          const td = document.createElement('td');
+          td.textContent = String(value ?? '');
+          tr.appendChild(td);
+        });
         tr.addEventListener('click', async () => {
           selectedSaleId = sale.id;
           await updateSelectedSaleUI();
@@ -3069,6 +4372,230 @@
       });
 
       await updateSelectedSaleUI();
+    }
+
+    function setRefundWizardStatus(message, type = "info") {
+      if (!refundWizardStatusEl) return;
+      refundWizardStatusEl.textContent = message || "";
+      refundWizardStatusEl.classList.remove("error", "success");
+      if (type === "error") refundWizardStatusEl.classList.add("error");
+      if (type === "success") refundWizardStatusEl.classList.add("success");
+    }
+
+    function remainingRefundQty(item) {
+      return Math.max(0, Number(item.qty || 0) - Number(item.refunded_qty || 0));
+    }
+
+    function refundLineUnitPrice(item) {
+      return Number(item.unit_price ?? item.price ?? 0) || 0;
+    }
+
+    function updateRefundWizardTotal() {
+      let selectedTotal = 0;
+      let selectedQty = 0;
+      if (refundWizardItemsEl) {
+        refundWizardItemsEl.querySelectorAll("input[data-refund-item-id]").forEach((input) => {
+          const qty = Math.max(0, Math.min(Number(input.max || 0), Number(input.value || 0)));
+          const price = Number(input.dataset.unitPrice || 0);
+          if (Number.isFinite(qty) && qty > 0) {
+            selectedQty += qty;
+            selectedTotal += qty * price;
+          }
+        });
+      }
+      if (refundWizardTotalEl) refundWizardTotalEl.textContent = formatMoney(selectedTotal);
+      if (btnSubmitRefundWizard) {
+        btnSubmitRefundWizard.disabled = selectedQty <= 0 || state.refundWizard.submitting;
+      }
+      return { selectedQty, selectedTotal };
+    }
+
+    function collectRefundWizardItems() {
+      if (!refundWizardItemsEl) return [];
+      return Array.from(refundWizardItemsEl.querySelectorAll("input[data-refund-item-id]"))
+        .map((input) => {
+          const max = Number(input.max || 0);
+          const qty = Math.max(0, Math.min(max, Number(input.value || 0)));
+          return {
+            sale_item_id: Number(input.dataset.refundItemId || 0),
+            qty: Number.isFinite(qty) ? Math.floor(qty) : 0
+          };
+        })
+        .filter((line) => Number.isFinite(line.sale_item_id) && line.sale_item_id > 0 && line.qty > 0);
+    }
+
+    function refundReasonText() {
+      const base = String(refundReasonSelectEl?.value || "Customer return").trim();
+      const note = String(refundReasonInputEl?.value || "").trim();
+      return note ? `${base}: ${note}` : base;
+    }
+
+    function renderRefundWizardSummary(detail) {
+      if (!refundWizardSummaryEl) return;
+      const sale = detail.sale || {};
+      const ts = new Date(sale.created_at || sale.ts || Date.now());
+      const refundedTotal = Array.isArray(detail.refunds)
+        ? detail.refunds.reduce((sum, refund) => sum + Number(refund.refund_total || 0), 0)
+        : Number(sale.refunded_total || 0);
+      const rows = [
+        ["Sale", sale.id || selectedSaleId || ""],
+        ["Time", ts.toLocaleString()],
+        ["Total", formatMoney(Number(sale.total || 0))],
+        ["Refunded", formatMoney(refundedTotal)]
+      ];
+      refundWizardSummaryEl.replaceChildren();
+      rows.forEach(([label, value]) => {
+        const div = document.createElement("div");
+        div.appendChild(document.createTextNode(label));
+        const strong = document.createElement("strong");
+        strong.textContent = String(value ?? "");
+        div.appendChild(strong);
+        refundWizardSummaryEl.appendChild(div);
+      });
+    }
+
+    function renderRefundWizardItems(detail) {
+      if (!refundWizardItemsEl) return;
+      refundWizardItemsEl.replaceChildren();
+      const items = Array.isArray(detail.items) ? detail.items : [];
+      const refundable = items.filter((item) => remainingRefundQty(item) > 0);
+      if (!refundable.length) {
+        const empty = document.createElement("div");
+        empty.className = "refund-item-row";
+        empty.textContent = "No refundable items remain.";
+        refundWizardItemsEl.appendChild(empty);
+        if (refundWizardTotalEl) refundWizardTotalEl.textContent = formatMoney(0);
+        if (btnSubmitRefundWizard) btnSubmitRefundWizard.disabled = true;
+        return;
+      }
+
+      refundable.forEach((item) => {
+        const remaining = remainingRefundQty(item);
+        const unitPrice = refundLineUnitPrice(item);
+        const row = document.createElement("div");
+        row.className = "refund-item-row";
+
+        const title = document.createElement("div");
+        title.className = "refund-item-title";
+        const strong = document.createElement("strong");
+        strong.textContent = item.title || item.sku || "Item";
+        const meta = document.createElement("span");
+        meta.textContent = [item.platform, item.condition, item.sku].filter(Boolean).join(" - ");
+        title.append(strong, meta);
+
+        const remainingEl = document.createElement("div");
+        remainingEl.className = "refund-item-meta";
+        remainingEl.innerHTML = `Remain<br><strong>${remaining}</strong>`;
+
+        const priceEl = document.createElement("div");
+        priceEl.className = "refund-item-meta";
+        priceEl.innerHTML = `Unit<br><strong>${formatMoney(unitPrice)}</strong>`;
+
+        const qtyWrap = document.createElement("div");
+        const qtyLabel = document.createElement("label");
+        qtyLabel.textContent = "Refund Qty";
+        const qty = document.createElement("input");
+        qty.type = "number";
+        qty.min = "0";
+        qty.max = String(remaining);
+        qty.step = "1";
+        qty.value = "0";
+        qty.dataset.refundItemId = String(item.id || "");
+        qty.dataset.unitPrice = String(unitPrice);
+        qty.addEventListener("input", () => {
+          const parsed = Math.max(0, Math.min(remaining, Math.floor(Number(qty.value || 0))));
+          if (String(parsed) !== qty.value && qty.value !== "") qty.value = String(parsed);
+          updateRefundWizardTotal();
+        });
+        qty.addEventListener("focus", () => qty.select());
+        qtyWrap.append(qtyLabel, qty);
+
+        row.append(title, remainingEl, priceEl, qtyWrap);
+        refundWizardItemsEl.appendChild(row);
+      });
+      updateRefundWizardTotal();
+    }
+
+    async function openRefundWizard() {
+      if (!selectedSaleId) {
+        setTenderMessage("Select a sale first.", "error");
+        return;
+      }
+      try {
+        state.refundWizard.submitting = false;
+        const detail = await loadSaleDetail(selectedSaleId);
+        state.refundWizard.sale = detail.sale || null;
+        state.refundWizard.items = Array.isArray(detail.items) ? detail.items : [];
+        if (refundWizardSubtitleEl) {
+          refundWizardSubtitleEl.textContent = `Sale #${detail.sale?.id || selectedSaleId}`;
+        }
+        if (refundReasonSelectEl) refundReasonSelectEl.value = "Customer return";
+        if (refundReasonInputEl) refundReasonInputEl.value = "";
+        renderRefundWizardSummary(detail);
+        renderRefundWizardItems(detail);
+        setRefundWizardStatus("Select item quantities to refund.");
+        if (refundWizardEl) refundWizardEl.hidden = false;
+      } catch (err) {
+        console.error(err);
+        setTenderMessage("Sale details could not be loaded.", "error");
+      }
+    }
+
+    function closeRefundWizard() {
+      if (refundWizardEl) refundWizardEl.hidden = true;
+      state.refundWizard.sale = null;
+      state.refundWizard.items = [];
+      state.refundWizard.submitting = false;
+      setRefundWizardStatus("");
+    }
+
+    async function submitRefundWizard() {
+      if (state.refundWizard.submitting) return;
+      const items = collectRefundWizardItems();
+      if (!items.length) {
+        setRefundWizardStatus("Select at least one item quantity.", "error");
+        return;
+      }
+      const approved = await ensureManagerApproval("void_refund", "refund sale");
+      if (!approved) return;
+
+      state.refundWizard.submitting = true;
+      if (btnSubmitRefundWizard) btnSubmitRefundWizard.disabled = true;
+      setRefundWizardStatus("Submitting refund...");
+      try {
+        const rr = await fetch(`${API_BASE}/api/sales/${encodeURIComponent(selectedSaleId)}/refund`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json", ...getAuthHeaders() },
+          body: JSON.stringify({
+            items,
+            reason: refundReasonText(),
+            manager_approvals: { void_refund: state.managerApprovals.void_refund }
+          })
+        });
+        if (!rr.ok) {
+          const j = await rr.json().catch(() => ({}));
+          const message = j.error === "manager_approval_required"
+            ? "Manager approval is required to refund this sale."
+            : j.error === "refund_qty_exceeds"
+              ? "One or more refund quantities exceed what is available."
+              : (j.error || "Refund failed");
+          setRefundWizardStatus(message, "error");
+          state.refundWizard.submitting = false;
+          updateRefundWizardTotal();
+          return;
+        }
+        const data = await rr.json().catch(() => ({}));
+        const total = formatMoney(Number(data.refundTotal || 0));
+        closeRefundWizard();
+        await renderRecentSales();
+        await updateSelectedSaleUI();
+        setTenderMessage(`Refund completed: ${total}.`, "success");
+      } catch (err) {
+        console.error(err);
+        state.refundWizard.submitting = false;
+        updateRefundWizardTotal();
+        setRefundWizardStatus("Refund failed. Please reload the sale list and try again.", "error");
+      }
     }
 
     async function updateSelectedSaleUI() {
@@ -3092,12 +4619,24 @@
       const ts = new Date(sale.created_at || sale.ts || Date.now());
       const status = sale.status || 'completed';
 
-      salesDetailEl.innerHTML = `
-        <span><strong>ID:</strong> ${sale.id}</span>
-        <span><strong>Time:</strong> ${ts.toLocaleString()}</span>
-        <span><strong>Total:</strong> ${formatMoney(sale.total || 0)}</span>
-        <span><strong>Status:</strong> ${status}</span>
-     `;
+      salesDetailEl.replaceChildren();
+      const details = [
+        ["ID:", sale.id],
+        ["Time:", ts.toLocaleString()],
+        ["Total:", formatMoney(sale.total || 0)],
+        ["Status:", status]
+      ];
+      if (Number(sale.refunded_total || 0) > 0) {
+        details.splice(3, 0, ["Refunded:", formatMoney(Number(sale.refunded_total || 0))]);
+      }
+      details.forEach(([label, value]) => {
+        const span = document.createElement("span");
+        const strong = document.createElement("strong");
+        strong.textContent = label;
+        span.appendChild(strong);
+        span.appendChild(document.createTextNode(` ${value ?? ""}`));
+        salesDetailEl.appendChild(span);
+      });
 
       const canAct = status === 'completed';
       btnVoidSale.disabled = !canAct;
@@ -3108,74 +4647,53 @@
       if (!selectedSaleId) return;
       const ok = confirm("Void this sale? Inventory will be restored.");
       if (!ok) return;
+      const approved = await ensureManagerApproval("void_refund", "void sale");
+      if (!approved) return;
       try {
         const r = await fetch(`${API_BASE}/api/sales/${encodeURIComponent(selectedSaleId)}/void`, {
           method: "POST",
-          headers: { "Content-Type": "application/json", ...getAuthHeaders() }
+          headers: { "Content-Type": "application/json", ...getAuthHeaders() },
+          body: JSON.stringify({ manager_approvals: { void_refund: state.managerApprovals.void_refund } })
         });
         if (!r.ok) {
           const j = await r.json().catch(() => ({}));
-          alert(j.error || "Void failed");
+          const message = j.error === "manager_approval_required"
+            ? "Manager approval is required to void this sale."
+            : (j.error || "Void failed");
+          alert(message);
           return;
         }
         await renderRecentSales();
         await updateSelectedSaleUI();
       } catch (e) {
         console.error(e);
-        alert("Void failed");
+        alert("Void failed. Please reload the sale list and try again.");
       }
     }
 
     async function refundSelectedSale() {
       if (!selectedSaleId) return;
-      try {
-        const r = await fetch(`${API_BASE}/api/sales/${encodeURIComponent(selectedSaleId)}`, {
-          headers: { ...getAuthHeaders() }
-        });
-        if (!r.ok) {
-          const j = await r.json().catch(() => ({}));
-          alert(j.error || "Failed to load sale");
-          return;
-        }
-        const detail = await r.json();
-        const items = Array.isArray(detail.items) ? detail.items : [];
-        if (!items.length) return;
-
-        const refundItems = [];
-        for (const it of items) {
-          const remaining = Math.max(0, Number(it.qty || 0) - Number(it.refunded_qty || 0));
-          if (remaining <= 0) continue;
-          const input = prompt(`Refund qty for ${it.title || it.sku} (max ${remaining}):`, String(remaining));
-          if (input == null) continue;
-          const qty = Math.max(0, Math.floor(Number(input || 0)));
-          if (qty > 0) refundItems.push({ sale_item_id: it.id, qty });
-        }
-
-        if (!refundItems.length) return;
-        const reason = prompt("Refund reason (optional):", "") || "";
-
-        const rr = await fetch(`${API_BASE}/api/sales/${encodeURIComponent(selectedSaleId)}/refund`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json", ...getAuthHeaders() },
-          body: JSON.stringify({ items: refundItems, reason })
-        });
-        if (!rr.ok) {
-          const j = await rr.json().catch(() => ({}));
-          alert(j.error || "Refund failed");
-          return;
-        }
-
-        await renderRecentSales();
-        await updateSelectedSaleUI();
-      } catch (e) {
-        console.error(e);
-        alert("Refund failed");
-      }
+      await openRefundWizard();
     }
 
     // --- Scan / Search / Quick Keys ------------------------------------------
-    function handleScanAdd() {
-      const code = scanInput.value;
+    async function handleScanAdd() {
+      const code = (scanInput.value || "").trim();
+      if (state.mode === "return") {
+        if (!code) {
+          scanStatus.textContent = "Enter a sale ID, receipt ID, item, SKU, or barcode.";
+          scanStatus.classList.remove("error");
+          await openReturnSalesLookup("");
+          return;
+        }
+        clearResults(scanResultsEl);
+        scanInput.value = "";
+        scanStatus.textContent = "Looking up return sale.";
+        scanStatus.classList.remove("error");
+        await openReturnSalesLookup(code);
+        setTenderMessage("Return lookup loaded.", "success");
+        return;
+      }
       if (!code) {
         scanStatus.textContent = "Enter a barcode or SKU.";
         scanStatus.classList.remove("error");
@@ -3242,6 +4760,16 @@
     const debouncedScanLookup = debounce(() => {
       const q = (scanInput.value || "").trim();
       clearResults(scanResultsEl);
+      if (state.mode === "return") {
+        if (!q || q.length < 2) {
+          scanStatus.textContent = "Return lookup ready.";
+          scanStatus.classList.remove("error");
+          return;
+        }
+        scanStatus.textContent = "Press Enter to search recent sales.";
+        scanStatus.classList.remove("error");
+        return;
+      }
       if (!q || q.length < 2) {
         scanStatus.textContent = "Ready to scan or search.";
         scanStatus.classList.remove("error");
@@ -3288,7 +4816,7 @@
         const line1 = document.createElement("strong");
         line1.textContent = item.title || item.sku || "Untitled";
         const line2 = document.createElement("span");
-        line2.textContent = (item.platform || "N/A") + " • " + (item.condition || "N/A") + " • " + formatMoney(+(+item.price || 0));
+        line2.textContent = (item.platform || "N/A") + " - " + (item.condition || "N/A") + " - " + formatMoney(+(+item.price || 0));
         key.appendChild(line1);
         key.appendChild(line2);
 
@@ -3370,7 +4898,12 @@
         });
       }
       if (tabReturn) {
-        tabReturn.addEventListener("click", toggleReturnMode);
+        tabReturn.addEventListener("click", () => {
+          toggleReturnMode().catch((err) => {
+            console.error(err);
+            setTenderMessage("Return mode could not open recent sales.", "error");
+          });
+        });
       }
 
       $("btnClearSale").addEventListener("click", clearSale);
@@ -3393,7 +4926,8 @@
       if (btnTenderExact) {
         btnTenderExact.addEventListener("click", () => {
           if (tenderAmountInput) {
-            tenderAmountInput.value = currentTotals.total.toFixed(2);
+            const balance = Math.max(0, currentTotals.total - state.paidAmount);
+            tenderAmountInput.value = balance.toFixed(2);
             cashKeypadBuffer = tenderAmountInput.value;
             updateCashKeypadFromBuffer();
           }
@@ -3402,7 +4936,8 @@
       const btnTenderRoundUp = $("btnTenderRoundUp");
       if (btnTenderRoundUp) {
         btnTenderRoundUp.addEventListener("click", () => {
-          const rounded = Math.ceil(currentTotals.total);
+          const balance = Math.max(0, currentTotals.total - state.paidAmount);
+          const rounded = Math.ceil(balance);
           if (tenderAmountInput) {
             tenderAmountInput.value = rounded.toFixed(2);
             cashKeypadBuffer = tenderAmountInput.value;
@@ -3411,7 +4946,10 @@
         });
       }
       $("btnCompleteSale").addEventListener("click", completeSale);
+      if (btnCreateLayaway) btnCreateLayaway.addEventListener("click", createLayawayFromCart);
       $("btnPrintReceipt").addEventListener("click", printReceipt);
+      const btnPrintGiftReceipt = $("btnPrintGiftReceipt");
+      if (btnPrintGiftReceipt) btnPrintGiftReceipt.addEventListener("click", printGiftReceipt);
       if (btnLookupCustomer) {
         btnLookupCustomer.addEventListener("click", () => {
           if (!customerSearchEl) return;
@@ -3427,6 +4965,14 @@
           state.customerId = null;
           setSelectedCustomerDisplay(null);
           setCustomerType("regular");
+        });
+      }
+      if (btnReturnModeSales) {
+        btnReturnModeSales.addEventListener("click", () => {
+          openReturnSalesLookup("").catch((err) => {
+            console.error(err);
+            setTenderMessage("Return lookup could not open.", "error");
+          });
         });
       }
       [customerNameEl, customerPhoneEl, customerEinEl].forEach((el) => {
@@ -3484,9 +5030,11 @@
       }
 
       document.querySelectorAll("[data-discount-percent]").forEach((btn) => {
-        btn.addEventListener("click", () => {
+        btn.addEventListener("click", async () => {
           const pct = Number(btn.getAttribute("data-discount-percent") || 0);
           if (pct > 0) {
+            const approved = await ensureManagerApproval("discount_override", "quick percent discount");
+            if (!approved) return;
             state.discountPercent = pct;
             state.discountAmount = 0;
             if (discountAmountInput) discountAmountInput.value = "";
@@ -3496,9 +5044,11 @@
         });
       });
       document.querySelectorAll("[data-discount-amount]").forEach((btn) => {
-        btn.addEventListener("click", () => {
+        btn.addEventListener("click", async () => {
           const amt = Number(btn.getAttribute("data-discount-amount") || 0);
           if (amt > 0) {
+            const approved = await ensureManagerApproval("discount_override", "quick amount discount");
+            if (!approved) return;
             state.discountAmount = amt;
             state.discountPercent = 0;
             if (discountPercentInput) discountPercentInput.value = "";
@@ -3508,11 +5058,19 @@
         });
       });
 
-      $("btnScanAdd").addEventListener("click", handleScanAdd);
+      $("btnScanAdd").addEventListener("click", () => {
+        handleScanAdd().catch((err) => {
+          console.error(err);
+          setTenderMessage("Lookup failed.", "error");
+        });
+      });
       scanInput.addEventListener("keydown", (e) => {
         if (e.key === "Enter") {
           e.preventDefault();
-          handleScanAdd();
+          handleScanAdd().catch((err) => {
+            console.error(err);
+            setTenderMessage("Lookup failed.", "error");
+          });
         }
       });
       scanInput.addEventListener("input", () => {
@@ -3542,6 +5100,22 @@
       }
       if (btnRefundSale) {
         btnRefundSale.addEventListener("click", refundSelectedSale);
+      }
+      [btnCloseRefundWizard, btnCancelRefundWizard].forEach((btn) => {
+        if (btn) btn.addEventListener("click", closeRefundWizard);
+      });
+      if (btnSubmitRefundWizard) {
+        btnSubmitRefundWizard.addEventListener("click", () => {
+          submitRefundWizard().catch((err) => {
+            console.error(err);
+            setRefundWizardStatus("Refund failed. Please reload the sale list and try again.", "error");
+          });
+        });
+      }
+      if (refundWizardEl) {
+        refundWizardEl.addEventListener("click", (event) => {
+          if (event.target === refundWizardEl) closeRefundWizard();
+        });
       }
 
       // settings moved to settings.html
@@ -3573,6 +5147,10 @@
 
       // Auto-format tender input on blur (e.g. 107 -> 107.00)
       if (tenderAmountInput) {
+        tenderAmountInput.addEventListener("input", () => {
+          cashKeypadBuffer = tenderAmountInput.value || "";
+          updateCashKeypadFromBuffer(false);
+        });
         tenderAmountInput.addEventListener("blur", () => {
           const raw = tenderAmountInput.value;
           if (!raw) return;
@@ -3591,6 +5169,11 @@
 
       // Keyboard shortcuts
       document.addEventListener("keydown", (e) => {
+        if (e.key === "Escape" && refundWizardEl && !refundWizardEl.hidden) {
+          e.preventDefault();
+          closeRefundWizard();
+          return;
+        }
         if (e.key === "F1") {
           e.preventDefault();
           switchPanel("register");
@@ -3598,11 +5181,23 @@
           scanInput.select();
         } else if (e.key === "F2") {
           e.preventDefault();
-          switchPanel("register");
-          searchInput.focus();
-          searchInput.select();
+          if (state.mode === "return") {
+            openReturnSalesLookup("").catch((err) => {
+              console.error(err);
+              setTenderMessage("Return lookup could not open.", "error");
+            });
+          } else {
+            switchPanel("register");
+            searchInput.focus();
+            searchInput.select();
+          }
         } else if (e.key === "F12") {
           e.preventDefault();
+          if (state.mode === "return") {
+            switchPanel("sales");
+            setTenderMessage("Return mode is active. Select a sale to refund or void.", "error");
+            return;
+          }
           completeSale();
         } else if (e.key === "Delete") {
           e.preventDefault();
@@ -3638,8 +5233,11 @@
     // --- Init -----------------------------------------------------------------
     document.addEventListener("DOMContentLoaded", () => {
       (async () => {
+        await loadCurrentUser();
         await hydrateInventory();
-        loadTaxRate();
+        renderQuickKeys();
+        await loadTaxRate();
+        await loadHeldSalesFromBackend();
         startClock();
         renderHeldSales();
         updateModeLabels();

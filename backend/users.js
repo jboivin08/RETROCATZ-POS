@@ -1,9 +1,20 @@
 // backend/users.js
 const bcrypt = require("bcryptjs");
 
-module.exports = function makeUserRoutes(app, db, { requireSession, requireRole, requirePerm }) {
+module.exports = function makeUserRoutes(app, db, { requireSession, requireRole, requirePerm, logUserAction = () => {} }) {
   const VALID_ROLES = ["owner", "manager", "clerk", "viewer"];
-  const PERM_KEYS = ["inv_add", "inv_edit", "inv_delete", "cost_change", "category_admin", "user_admin", "checkout", "reports"];
+  const PERM_KEYS = [
+    "inv_add", "inv_edit", "inv_delete", "cost_change",
+    "category_admin", "user_admin", "checkout", "reports",
+    "discount_override", "void_refund", "settings_admin",
+    "closeout_admin", "tax_admin", "sync_admin", "store_credit",
+    "trade_override"
+  ];
+  const PERM_SELECT_SQL = PERM_KEYS.map((k) => `COALESCE(p.${k},0) AS ${k}`).join(",\n             ");
+  const PERM_INSERT_COLUMNS = ["user_id", ...PERM_KEYS].join(",");
+  const PERM_INSERT_VALUES = ["@id", ...PERM_KEYS.map((k) => `@${k}`)].join(",");
+  const PERM_UPDATE_SET = PERM_KEYS.map((k) => `${k}=@${k}`).join(", ");
+  const PERM_OWNER_UPDATE_SET = PERM_KEYS.map((k) => `${k}=1`).join(", ");
 
   function normalizeUsername(v) {
     return String(v || "").trim();
@@ -17,6 +28,9 @@ module.exports = function makeUserRoutes(app, db, { requireSession, requireRole,
     if (typeof v === "number") return v ? 1 : 0;
     const s = String(v).toLowerCase().trim();
     return (s === "1" || s === "true" || s === "yes") ? 1 : 0;
+  }
+  function normalizePin(v) {
+    return String(v || "").trim();
   }
 
   function getUserById(id) {
@@ -55,6 +69,18 @@ module.exports = function makeUserRoutes(app, db, { requireSession, requireRole,
     });
   }
 
+  function audit(req, action, metadata = {}) {
+    try {
+      logUserAction({
+        userId: String(req.user?.id || ""),
+        username: req.user?.username || "",
+        action,
+        screen: "users",
+        metadata
+      });
+    } catch {}
+  }
+
   // Managers can only manage non-privileged roles.
   function managerCanTouchRole(role) {
     return role === "clerk" || role === "viewer";
@@ -64,24 +90,36 @@ module.exports = function makeUserRoutes(app, db, { requireSession, requireRole,
     if (role === "owner") {
       return {
         inv_add: 1, inv_edit: 1, inv_delete: 1, cost_change: 1,
-        category_admin: 1, user_admin: 1, checkout: 1, reports: 1
+        category_admin: 1, user_admin: 1, checkout: 1, reports: 1,
+        discount_override: 1, void_refund: 1, settings_admin: 1,
+        closeout_admin: 1, tax_admin: 1, sync_admin: 1, store_credit: 1,
+        trade_override: 1
       };
     }
     if (role === "manager") {
       return {
         inv_add: 1, inv_edit: 1, inv_delete: 0, cost_change: 1,
-        category_admin: 1, user_admin: 1, checkout: 1, reports: 1
+        category_admin: 1, user_admin: 1, checkout: 1, reports: 1,
+        discount_override: 1, void_refund: 1, settings_admin: 1,
+        closeout_admin: 1, tax_admin: 1, sync_admin: 1, store_credit: 1,
+        trade_override: 1
       };
     }
     if (role === "clerk") {
       return {
         inv_add: 1, inv_edit: 1, inv_delete: 0, cost_change: 0,
-        category_admin: 0, user_admin: 0, checkout: 1, reports: 1
+        category_admin: 0, user_admin: 0, checkout: 1, reports: 1,
+        discount_override: 0, void_refund: 0, settings_admin: 0,
+        closeout_admin: 0, tax_admin: 0, sync_admin: 0, store_credit: 0,
+        trade_override: 0
       };
     }
     return {
       inv_add: 0, inv_edit: 0, inv_delete: 0, cost_change: 0,
-      category_admin: 0, user_admin: 0, checkout: 0, reports: 1
+      category_admin: 0, user_admin: 0, checkout: 0, reports: 1,
+      discount_override: 0, void_refund: 0, settings_admin: 0,
+      closeout_admin: 0, tax_admin: 0, sync_admin: 0, store_credit: 0,
+      trade_override: 0
     };
   }
 
@@ -89,14 +127,8 @@ module.exports = function makeUserRoutes(app, db, { requireSession, requireRole,
   app.get("/api/users", requireUserAdminAccess, (req, res) => {
     const rows = db.prepare(`
       SELECT u.id, u.username, u.display_name, lower(u.role) as role, u.active, u.created_at,
-             COALESCE(p.inv_add,0) AS inv_add,
-             COALESCE(p.inv_edit,0) AS inv_edit,
-             COALESCE(p.inv_delete,0) AS inv_delete,
-             COALESCE(p.cost_change,0) AS cost_change,
-             COALESCE(p.category_admin,0) AS category_admin,
-             COALESCE(p.user_admin,0) AS user_admin,
-             COALESCE(p.checkout,0) AS checkout,
-             COALESCE(p.reports,0) AS reports
+             CASE WHEN COALESCE(u.pin_hash,'') <> '' THEN 1 ELSE 0 END AS has_pin,
+             ${PERM_SELECT_SQL}
       FROM users u
       LEFT JOIN permissions p ON p.user_id = u.id
       ORDER BY u.id ASC
@@ -111,6 +143,7 @@ module.exports = function makeUserRoutes(app, db, { requireSession, requireRole,
     const dname = normalizeDisplayName(display_name);
     const normalizedRole = asCanonicalRole(role);
     const activeFlag = toFlag(active, 1);
+    const pin = normalizePin(req.body && req.body.pin);
 
     if (!uname || !password || !normalizedRole) {
       return res.status(400).json({ error: "Missing fields" });
@@ -124,20 +157,25 @@ module.exports = function makeUserRoutes(app, db, { requireSession, requireRole,
     if (password.length < 8) {
       return res.status(400).json({ error: "Password too short" });
     }
+    if (pin && !/^[0-9]{4,12}$/.test(pin)) {
+      return res.status(400).json({ error: "PIN must be 4 to 12 digits" });
+    }
 
     try {
       const hash = bcrypt.hashSync(password, 10);
+      const pinHash = pin ? bcrypt.hashSync(pin, 10) : null;
       const info = db.prepare(`
-        INSERT INTO users (username, pw_hash, role, active, created_at, display_name)
-        VALUES (?, ?, ?, ?, datetime('now'), ?)
-      `).run(uname, hash, normalizedRole, activeFlag, dname || null);
+        INSERT INTO users (username, pw_hash, role, active, created_at, display_name, pin_hash)
+        VALUES (?, ?, ?, ?, datetime('now'), ?, ?)
+      `).run(uname, hash, normalizedRole, activeFlag, dname || null, pinHash);
 
       const p = defaultPermsForRole(normalizedRole);
       db.prepare(`
-        INSERT INTO permissions (user_id,inv_add,inv_edit,inv_delete,cost_change,category_admin,user_admin,checkout,reports)
-        VALUES (@id,@inv_add,@inv_edit,@inv_delete,@cost_change,@category_admin,@user_admin,@checkout,@reports)
+        INSERT INTO permissions (${PERM_INSERT_COLUMNS})
+        VALUES (${PERM_INSERT_VALUES})
       `).run({ id: info.lastInsertRowid, ...p });
 
+      audit(req, "user_created", { targetUserId: info.lastInsertRowid, username: uname, role: normalizedRole, active: activeFlag, hasPin: !!pinHash });
       res.json({ ok: true, id: info.lastInsertRowid });
     } catch (e) {
       if (String(e).includes("UNIQUE")) {
@@ -208,11 +246,10 @@ module.exports = function makeUserRoutes(app, db, { requireSession, requireRole,
 
       if (normalizedRole === "owner") {
         db.prepare(`
-          INSERT INTO permissions (user_id,inv_add,inv_edit,inv_delete,cost_change,category_admin,user_admin,checkout,reports)
-          VALUES (@id,1,1,1,1,1,1,1,1)
+          INSERT INTO permissions (${PERM_INSERT_COLUMNS})
+          VALUES (@id,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1)
           ON CONFLICT(user_id) DO UPDATE SET
-            inv_add=1, inv_edit=1, inv_delete=1, cost_change=1,
-            category_admin=1, user_admin=1, checkout=1, reports=1
+            ${PERM_OWNER_UPDATE_SET}
         `).run({ id });
       }
     }
@@ -225,6 +262,7 @@ module.exports = function makeUserRoutes(app, db, { requireSession, requireRole,
       db.prepare("UPDATE users SET pw_hash=? WHERE id=?").run(hash, id);
     }
 
+    audit(req, "user_updated", { targetUserId: id, username: uname || target.username, role: normalizedRole || targetRole });
     res.json({ ok: true });
   });
 
@@ -249,6 +287,7 @@ module.exports = function makeUserRoutes(app, db, { requireSession, requireRole,
     }
 
     db.prepare("UPDATE users SET active=? WHERE id=?").run(nextActive, id);
+    audit(req, nextActive ? "user_enabled" : "user_disabled", { targetUserId: id, username: target.username, role: targetRole });
     res.json({ ok: true });
   });
 
@@ -270,6 +309,29 @@ module.exports = function makeUserRoutes(app, db, { requireSession, requireRole,
 
     const hash = bcrypt.hashSync(password, 10);
     db.prepare("UPDATE users SET pw_hash=? WHERE id=?").run(hash, id);
+    audit(req, "user_password_reset", { targetUserId: id, username: target.username, role: targetRole });
+    res.json({ ok: true });
+  });
+
+  // RESET manager/owner approval PIN
+  app.put("/api/users/:id/pin", requireUserAdminAccess, (req, res) => {
+    const id = Number(req.params.id);
+    const target = ensureUserExists(id, res);
+    if (!target) return;
+    const targetRole = asCanonicalRole(target.role);
+    const actorRole = asCanonicalRole(req.user && req.user.role);
+    if (actorRole === "manager" && !managerCanTouchRole(targetRole)) {
+      return res.status(403).json({ error: "Managers can only reset PINs for clerk/viewer users" });
+    }
+
+    const pin = normalizePin(req.body && req.body.pin);
+    if (!/^[0-9]{4,12}$/.test(pin)) {
+      return res.status(400).json({ error: "PIN must be 4 to 12 digits" });
+    }
+
+    const hash = bcrypt.hashSync(pin, 10);
+    db.prepare("UPDATE users SET pin_hash=? WHERE id=?").run(hash, id);
+    audit(req, "user_pin_reset", { targetUserId: id, username: target.username, role: targetRole });
     res.json({ ok: true });
   });
 
@@ -297,18 +359,45 @@ module.exports = function makeUserRoutes(app, db, { requireSession, requireRole,
     if (exists) {
       db.prepare(`
         UPDATE permissions
-        SET inv_add=@inv_add, inv_edit=@inv_edit, inv_delete=@inv_delete, cost_change=@cost_change,
-            category_admin=@category_admin, user_admin=@user_admin, checkout=@checkout, reports=@reports
+        SET ${PERM_UPDATE_SET}
         WHERE user_id=@id
       `).run({ id, ...vals });
     } else {
       db.prepare(`
-        INSERT INTO permissions (user_id,inv_add,inv_edit,inv_delete,cost_change,category_admin,user_admin,checkout,reports)
-        VALUES (@id,@inv_add,@inv_edit,@inv_delete,@cost_change,@category_admin,@user_admin,@checkout,@reports)
+        INSERT INTO permissions (${PERM_INSERT_COLUMNS})
+        VALUES (${PERM_INSERT_VALUES})
       `).run({ id, ...vals });
     }
 
+    audit(req, "user_permissions_updated", { targetUserId: id, username: target.username, role: targetRole, permissions: vals });
     res.json({ ok: true });
+  });
+
+  app.get("/api/user-activity", requireUserAdminAccess, (req, res) => {
+    const limit = Math.min(500, Math.max(1, Number(req.query.limit || 100)));
+    const userId = String(req.query.user_id || "").trim();
+    const action = String(req.query.action || "").trim();
+    const where = [];
+    const params = {};
+    if (userId) {
+      where.push("(userId = @userId OR metadata LIKE @targetUserIdNumber OR metadata LIKE @targetUserIdString)");
+      params.userId = userId;
+      params.targetUserIdNumber = `%"targetUserId":${Number(userId)}%`;
+      params.targetUserIdString = `%"targetUserId":"${userId}"%`;
+    }
+    if (action) {
+      where.push("action = @action");
+      params.action = action;
+    }
+    params.limit = limit;
+    const rows = db.prepare(`
+      SELECT id, userId, username, action, screen, metadata, createdAt
+      FROM user_activity
+      ${where.length ? `WHERE ${where.join(" AND ")}` : ""}
+      ORDER BY datetime(createdAt) DESC, rowid DESC
+      LIMIT @limit
+    `).all(params);
+    res.json({ ok: true, rows });
   });
 
   // DELETE user (owner)
@@ -332,6 +421,7 @@ module.exports = function makeUserRoutes(app, db, { requireSession, requireRole,
     db.prepare("DELETE FROM permissions WHERE user_id=?").run(id);
     db.prepare("DELETE FROM sessions WHERE user_id=?").run(id);
     db.prepare("DELETE FROM users WHERE id=?").run(id);
+    audit(req, "user_deleted", { targetUserId: id, username: target.username, role: targetRole });
     res.json({ ok: true });
   });
 };

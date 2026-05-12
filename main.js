@@ -4,19 +4,39 @@ const { spawn } = require("child_process");
 const path = require("path");
 
 let backendProc = null;
+let backendRestartTimer = null;
+let isQuitting = false;
 
 function startBackend() {
+  if (backendProc) return;
   const backendPath = path.join(__dirname, "backend", "index.js");
+  const dataDir = app.getPath("userData");
 
-  backendProc = spawn("node", [backendPath], {
-    cwd: __dirname,
-    env: { ...process.env, PORT: "5175" },
+  // Use Electron's embedded Node so the packaged app works without a system Node install.
+  backendProc = spawn(process.execPath, [backendPath], {
+    cwd: app.isPackaged ? dataDir : __dirname,
+    env: {
+      ...process.env,
+      PORT: "5175",
+      ELECTRON_RUN_AS_NODE: "1",
+      RETROCATZ_POS_DATA_DIR: dataDir
+    },
     stdio: "inherit",
     shell: false
+  });
+
+  backendProc.on("exit", (code, signal) => {
+    backendProc = null;
+    if (isQuitting) return;
+    console.warn(`[BACKEND] Local service exited (${code ?? signal ?? "unknown"}). Restarting...`);
+    clearTimeout(backendRestartTimer);
+    backendRestartTimer = setTimeout(startBackend, 1200);
   });
 }
 
 function stopBackend() {
+  clearTimeout(backendRestartTimer);
+  backendRestartTimer = null;
   if (backendProc) {
     try { backendProc.kill(); } catch (e) {}
     backendProc = null;
@@ -43,9 +63,19 @@ app.whenReady().then(() => {
   });
 });
 
-app.on("before-quit", () => stopBackend());
-process.on("exit", () => stopBackend());
-process.on("SIGINT", () => { stopBackend(); process.exit(0); });
+app.on("before-quit", () => {
+  isQuitting = true;
+  stopBackend();
+});
+process.on("exit", () => {
+  isQuitting = true;
+  stopBackend();
+});
+process.on("SIGINT", () => {
+  isQuitting = true;
+  stopBackend();
+  process.exit(0);
+});
 
 app.on("window-all-closed", () => {
   if (process.platform !== "darwin") app.quit();

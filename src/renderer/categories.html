@@ -7,7 +7,7 @@
   <link rel="stylesheet" href="index.css" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta http-equiv="Content-Security-Policy"
-        content="default-src 'self' file:; img-src 'self' file: data:; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline';" />
+        content="default-src 'self' file:; img-src 'self' file: data:; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; connect-src 'self' http://127.0.0.1:5175 http://localhost:5175;" />
   <style>
     :root {
       --bg: #0b0b0d;
@@ -69,7 +69,12 @@
     #cat-list { margin:0; padding-left:20px; }
     #cat-list li { padding:6px 0; border-bottom:1px solid #1f2937; }
     #cat-list li:last-child { border-bottom:none; }
+    .cat-row { display:flex; align-items:center; justify-content:space-between; gap:12px; }
+    .danger { color:#fca5a5; border-color:#7f1d1d; }
+    #cat-status { min-height:18px; margin-top:10px; }
   </style>
+  <script src="theme.js"></script>
+  <link rel="stylesheet" href="themes.css" />
 </head>
 <body>
   <header class="toolbar">
@@ -86,33 +91,78 @@
       <button id="cat-add" class="btn" type="button">Add Category</button>
     </div>
     <ul id="cat-list"></ul>
+    <div id="cat-status" class="muted"></div>
   </main>
 
   <script>
     const $ = (id) => document.getElementById(id);
-    const hasRequire = typeof require === 'function';
-    const ipc = hasRequire ? require('electron').ipcRenderer : null;
+    const API_BASE = 'http://127.0.0.1:5175';
+    const sessionId = localStorage.getItem('rc_session_id') || '';
+    const authHeaders = sessionId ? { rc_session_id: sessionId } : {};
 
     $('back').onclick = () => { window.location.href = 'index.html'; };
 
+    function setStatus(message) {
+      $('cat-status').textContent = message || '';
+    }
+
+    async function api(path, options = {}) {
+      const res = await fetch(`${API_BASE}${path}`, {
+        ...options,
+        headers: {
+          'Content-Type': 'application/json',
+          ...authHeaders,
+          ...(options.headers || {})
+        }
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok || data.ok === false) {
+        throw new Error(data.error || `HTTP ${res.status}`);
+      }
+      return data;
+    }
+
     async function refresh() {
       const list = $('cat-list');
-      list.innerHTML = '';
+      list.replaceChildren();
       try {
-        let cats = [];
-        if (ipc?.invoke) {
-          const res = await ipc.invoke('cat:list');
-          if (Array.isArray(res)) cats = res;
-        } else {
-          cats = JSON.parse(localStorage.getItem('cats') || '[]');
+        const data = await api('/api/categories');
+        const cats = Array.isArray(data.rows) ? data.rows : [];
+        if (!cats.length) {
+          const li = document.createElement('li');
+          li.textContent = 'No categories yet.';
+          list.appendChild(li);
+          return;
         }
         cats.forEach(c => {
           const li = document.createElement('li');
-          li.textContent = c.name || c;
+          const row = document.createElement('div');
+          row.className = 'cat-row';
+          const name = document.createElement('span');
+          name.textContent = c.name || '';
+          const del = document.createElement('button');
+          del.className = 'btn danger';
+          del.type = 'button';
+          del.textContent = 'Archive';
+          del.addEventListener('click', async () => {
+            if (!confirm(`Archive category "${c.name}"? Existing item history will keep its category text.`)) return;
+            try {
+              await api(`/api/categories/${encodeURIComponent(c.id)}`, { method: 'DELETE' });
+              setStatus('Category archived.');
+              refresh();
+            } catch (err) {
+              setStatus(err.message || 'Archive failed.');
+            }
+          });
+          row.appendChild(name);
+          row.appendChild(del);
+          li.appendChild(row);
           list.appendChild(li);
         });
+        setStatus('');
       } catch (e) {
         console.error(e);
+        setStatus('Could not load categories from the local API.');
       }
     }
 
@@ -120,15 +170,17 @@
       const name = ($('cat-name').value || '').trim();
       if (!name) return;
 
-      if (ipc?.invoke) {
-        await ipc.invoke('cat:add', { name });
-      } else {
-        const cats = JSON.parse(localStorage.getItem('cats') || '[]');
-        cats.push({ name });
-        localStorage.setItem('cats', JSON.stringify(cats));
+      try {
+        await api('/api/categories', {
+          method: 'POST',
+          body: JSON.stringify({ name })
+        });
+        $('cat-name').value = '';
+        setStatus('Category saved.');
+        refresh();
+      } catch (err) {
+        setStatus(err.message || 'Category save failed.');
       }
-      $('cat-name').value = '';
-      refresh();
     };
 
     refresh();

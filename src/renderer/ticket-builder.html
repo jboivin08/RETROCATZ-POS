@@ -1,0 +1,236 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Ticket Builder - VaultCore POS</title>
+  <meta http-equiv="Cache-Control" content="no-store" />
+  <meta http-equiv="Content-Security-Policy"
+        content="default-src 'self';
+                 script-src 'self';
+                 connect-src 'self' http://127.0.0.1:5175 http://localhost:5175;
+                 img-src 'self' data:;
+                 style-src 'self' 'unsafe-inline'">
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    :root {
+      --bg: #0b0d10;
+      --panel: #141820;
+      --panel-strong: #1b202a;
+      --line: #2a3341;
+      --line-soft: rgba(148, 163, 184, 0.18);
+      --text: #f4f7fb;
+      --muted: #9aa7b8;
+      --blue: #2f6fed;
+      --green: #208956;
+      --amber: #c07a18;
+      --red: #ad3943;
+    }
+
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: var(--bg);
+      color: var(--text);
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+    button, input, select { font: inherit; }
+    button { cursor: pointer; }
+    button:disabled { cursor: not-allowed; opacity: 0.55; }
+    h1, h2, h3, p { margin: 0; letter-spacing: 0; }
+    h1 { font-size: 22px; }
+    h2 { font-size: 15px; }
+    .page {
+      min-height: 100vh;
+      display: grid;
+      grid-template-rows: auto 1fr;
+      gap: 12px;
+      padding: 12px;
+    }
+    .topbar, .panel {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--panel);
+    }
+    .topbar {
+      min-height: 58px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      padding: 10px 12px;
+      background: #111720;
+    }
+    .layout {
+      display: grid;
+      grid-template-columns: minmax(320px, 420px) minmax(360px, 1fr);
+      gap: 12px;
+      min-height: 0;
+    }
+    .panel-head {
+      min-height: 50px;
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      padding: 12px;
+      border-bottom: 1px solid var(--line-soft);
+    }
+    .panel-body {
+      padding: 12px;
+    }
+    .stack { display: flex; flex-direction: column; gap: 10px; }
+    .actions { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+    .small { color: var(--muted); font-size: 12px; line-height: 1.35; }
+    .btn {
+      min-height: 36px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #11151c;
+      color: var(--text);
+      padding: 8px 11px;
+      font-size: 13px;
+      white-space: nowrap;
+    }
+    .btn.primary { background: var(--blue); border-color: var(--blue); color: white; font-weight: 750; }
+    .btn.good { background: var(--green); border-color: var(--green); color: white; font-weight: 750; }
+    .btn.warn { background: var(--amber); border-color: var(--amber); color: #15110a; font-weight: 750; }
+    .btn.ghost { background: transparent; }
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 24px;
+      padding: 3px 9px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: #101621;
+      color: #d8e2ef;
+      font-size: 12px;
+      line-height: 1.15;
+      white-space: nowrap;
+    }
+    .pill.good { border-color: rgba(34, 197, 94, 0.62); color: #bdf5ce; }
+    .pill.warn { border-color: rgba(245, 158, 11, 0.68); color: #fde5a4; }
+    .pill.bad { border-color: rgba(248, 113, 113, 0.72); color: #ffd1d1; }
+    label {
+      display: block;
+      margin-bottom: 4px;
+      color: var(--muted);
+      font-size: 12px;
+    }
+    input, select {
+      width: 100%;
+      min-height: 38px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #080b10;
+      color: var(--text);
+      padding: 8px 10px;
+      outline: none;
+    }
+    input:focus, select:focus {
+      border-color: #5c8cf6;
+      box-shadow: 0 0 0 2px rgba(47, 111, 237, 0.18);
+    }
+    .field-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+    }
+    .metric-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 8px;
+    }
+    .metric {
+      min-height: 72px;
+      border: 1px solid var(--line-soft);
+      border-radius: 8px;
+      background: #0e141c;
+      padding: 10px;
+    }
+    .metric .label { color: var(--muted); font-size: 11px; }
+    .metric .value { margin-top: 5px; font-size: 20px; font-weight: 850; }
+    .ticket-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      max-height: 520px;
+      overflow: auto;
+    }
+    .ticket-row {
+      border: 1px solid var(--line-soft);
+      border-radius: 8px;
+      background: #10151d;
+      padding: 9px;
+    }
+    .ticket-row strong { display: block; overflow-wrap: anywhere; }
+    @media (max-width: 820px) {
+      .layout, .field-grid, .metric-grid { grid-template-columns: 1fr; }
+      .topbar { align-items: flex-start; flex-direction: column; }
+    }
+  </style>
+  <script src="theme.js"></script>
+  <link rel="stylesheet" href="themes.css" />
+</head>
+<body>
+  <main class="page">
+    <header class="topbar">
+      <div>
+        <h1>Ticket Builder</h1>
+        <div id="eventMeta" class="small">Loading event...</div>
+      </div>
+      <span id="pageStatus" class="pill warn">Loading</span>
+    </header>
+
+    <section class="layout">
+      <section class="panel">
+        <div class="panel-head">
+          <div>
+            <h2>Create Ticket Batch</h2>
+            <div id="batchStatus" class="small">Ready</div>
+          </div>
+        </div>
+        <div class="panel-body stack">
+          <div class="metric-grid">
+            <div class="metric"><div class="label">Capacity</div><div class="value" id="metricCapacity">0</div></div>
+            <div class="metric"><div class="label">Active</div><div class="value" id="metricActive">0</div></div>
+            <div class="metric"><div class="label">Open</div><div class="value" id="metricOpen">0</div></div>
+          </div>
+
+          <div class="field-grid">
+            <div>
+              <label for="ticketQty">Quantity</label>
+              <input id="ticketQty" type="number" min="1" step="1" placeholder="Open spots" />
+            </div>
+            <div>
+              <label for="ticketLabel">Ticket Label</label>
+              <input id="ticketLabel" placeholder="Ticket, Raffle, Entry" value="Ticket" />
+            </div>
+          </div>
+
+          <div class="actions">
+            <button class="btn primary" type="button" id="btnCreatePos">Create POS Tickets</button>
+            <button class="btn good" type="button" id="btnCreateGeneric">Create Print-Only Tickets</button>
+            <button class="btn ghost" type="button" id="btnPrintLast">Print Last Batch</button>
+          </div>
+        </div>
+      </section>
+
+      <section class="panel">
+        <div class="panel-head">
+          <div>
+            <h2>Last Batch</h2>
+            <div id="lastBatchStatus" class="small">No tickets created yet</div>
+          </div>
+        </div>
+        <div class="panel-body">
+          <div id="ticketList" class="ticket-list"></div>
+        </div>
+      </section>
+    </section>
+  </main>
+
+  <script src="ticket-builder.js?v=event-ticket-builder-v2"></script>
+</body>
+</html>

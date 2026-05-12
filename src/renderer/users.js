@@ -7,11 +7,12 @@ window.__vaultcoreUsersJsLoaded = true;
 
 const API_BASE = "http://127.0.0.1:5175";
 
-(function bootstrapSession() {
+(function stripSessionFromUrl() {
   const q = new URLSearchParams(location.search);
-  const incoming = q.get("sid");
-  if (incoming) {
-    localStorage.setItem("rc_session_id", incoming);
+  if (q.has("sid")) {
+    q.delete("sid");
+    const next = `${location.pathname}${q.toString() ? `?${q.toString()}` : ""}${location.hash || ""}`;
+    history.replaceState(null, "", next);
   }
 })();
 
@@ -19,17 +20,26 @@ const PERMISSIONS = [
   { key: "inv_add", label: "Add Inventory" },
   { key: "inv_edit", label: "Edit Inventory" },
   { key: "inv_delete", label: "Delete Inventory" },
-  { key: "cost_change", label: "Cost Changes" },
+  { key: "cost_change", label: "Price / Cost Changes" },
   { key: "category_admin", label: "Category Admin" },
   { key: "user_admin", label: "User Admin" },
   { key: "checkout", label: "Checkout" },
-  { key: "reports", label: "Reports" }
+  { key: "reports", label: "Reports" },
+  { key: "discount_override", label: "Discounts" },
+  { key: "void_refund", label: "Void / Refund" },
+  { key: "settings_admin", label: "Settings" },
+  { key: "closeout_admin", label: "Closeout" },
+  { key: "tax_admin", label: "Tax Settings" },
+  { key: "sync_admin", label: "Sync Access" },
+  { key: "store_credit", label: "Store Credit" },
+  { key: "trade_override", label: "Trade Override" }
 ];
 
 const state = {
   me: null,
   users: [],
-  selectedId: null
+  selectedId: null,
+  activity: []
 };
 
 function sid() {
@@ -68,7 +78,7 @@ function setNotice(message, level = "info") {
 function setFatalError(message) {
   const table = document.getElementById("users-table");
   if (table) {
-    table.innerHTML = `<tr><td colspan="8" class="muted">${escapeHtml(message || "Users page failed to initialize.")}</td></tr>`;
+    table.innerHTML = `<tr><td colspan="9" class="muted">${escapeHtml(message || "Users page failed to initialize.")}</td></tr>`;
   }
   setNotice(message || "Users page failed to initialize.", "error");
 }
@@ -159,7 +169,7 @@ function renderTable() {
   const rows = filteredUsers();
 
   if (!rows.length) {
-    tbody.innerHTML = `<tr><td colspan="8" class="muted">No users match the current filter.</td></tr>`;
+    tbody.innerHTML = `<tr><td colspan="9" class="muted">No users match the current filter.</td></tr>`;
     return;
   }
 
@@ -176,6 +186,7 @@ function renderTable() {
         <td>${escapeHtml(u.display_name || "-")}</td>
         <td>${escapeHtml(u.role)}</td>
         <td><span class="status-pill ${statusClass}">${statusText}</span></td>
+        <td><span class="status-pill ${u.has_pin ? "status-on" : "status-off"}">${u.has_pin ? "Set" : "Missing"}</span></td>
         <td>${escapeHtml(formatDate(u.created_at))}</td>
         <td>${permissionCount(u)}/${PERMISSIONS.length}</td>
         <td>
@@ -207,6 +218,52 @@ function renderPermissionEditor(user) {
   }).join("");
 }
 
+function formatMetadata(raw) {
+  if (!raw) return "-";
+  try {
+    const obj = typeof raw === "string" ? JSON.parse(raw) : raw;
+    if (!obj || typeof obj !== "object") return String(raw);
+    return Object.entries(obj)
+      .slice(0, 8)
+      .map(([k, v]) => `${k}: ${typeof v === "object" ? JSON.stringify(v) : String(v)}`)
+      .join(" | ") || "-";
+  } catch {
+    return String(raw);
+  }
+}
+
+function renderActivity() {
+  const panel = document.getElementById("activity-panel");
+  const tbody = document.getElementById("activity-table");
+  const label = document.getElementById("activity-label");
+  const user = getSelectedUser();
+  if (!panel || !tbody || !label) return;
+
+  if (!user) {
+    panel.style.display = "none";
+    state.activity = [];
+    return;
+  }
+
+  panel.style.display = "block";
+  label.textContent = `${user.display_name || user.username} (#${user.id})`;
+  const rows = Array.isArray(state.activity) ? state.activity : [];
+  if (!rows.length) {
+    tbody.innerHTML = `<tr><td colspan="5" class="muted">No activity logged for this user yet.</td></tr>`;
+    return;
+  }
+
+  tbody.innerHTML = rows.map((row) => `
+    <tr>
+      <td>${escapeHtml(formatDate(row.createdAt))}</td>
+      <td>${escapeHtml(row.username || row.userId || "-")}</td>
+      <td>${escapeHtml(row.action || "-")}</td>
+      <td>${escapeHtml(row.screen || "-")}</td>
+      <td class="activity-meta">${escapeHtml(formatMetadata(row.metadata))}</td>
+    </tr>
+  `).join("");
+}
+
 function renderEditor() {
   const panel = document.getElementById("editor-panel");
   const label = document.getElementById("active-editor-label");
@@ -216,6 +273,7 @@ function renderEditor() {
   if (!user) {
     panel.style.display = "none";
     label.textContent = "No user selected";
+    renderActivity();
     return;
   }
 
@@ -245,6 +303,7 @@ function renderEditor() {
   if (user.role === "owner") {
     setNotice("Owner accounts always retain full permissions.");
   }
+  renderActivity();
 }
 
 async function loadMe() {
@@ -263,6 +322,23 @@ async function loadUsers() {
   renderMetrics();
   renderTable();
   renderEditor();
+  if (state.selectedId) {
+    await loadActivity(state.selectedId);
+  }
+}
+
+async function loadActivity(userId = state.selectedId) {
+  if (!userId) {
+    state.activity = [];
+    renderActivity();
+    return;
+  }
+  const data = await requestApi(`/api/user-activity?user_id=${encodeURIComponent(userId)}&limit=120`, {
+    method: "GET",
+    headers: { "Content-Type": "application/json" }
+  });
+  state.activity = Array.isArray(data?.rows) ? data.rows : [];
+  renderActivity();
 }
 
 function attachTableHandlers() {
@@ -280,6 +356,7 @@ function attachTableHandlers() {
         state.selectedId = id;
         renderTable();
         renderEditor();
+        await loadActivity(id);
         setNotice("User selected.");
         return;
       }
@@ -353,6 +430,8 @@ function attachCreateForm() {
     const role = form.elements.role.value;
     const password = form.elements.password.value || "";
     const password2 = form.elements.password2.value || "";
+    const pin = (form.elements.pin.value || "").trim();
+    const pin2 = (form.elements.pin2.value || "").trim();
     const active = form.elements.active.checked ? 1 : 0;
 
     if (!username) {
@@ -367,11 +446,19 @@ function attachCreateForm() {
       setNotice("Password confirmation does not match.", "error");
       return;
     }
+    if ((pin || pin2) && !/^[0-9]{4,12}$/.test(pin)) {
+      setNotice("PIN must be 4 to 12 digits.", "error");
+      return;
+    }
+    if (pin !== pin2) {
+      setNotice("PIN confirmation does not match.", "error");
+      return;
+    }
 
     try {
       await requestApi("/api/users", {
         method: "POST",
-        body: JSON.stringify({ username, display_name, role, password, active })
+        body: JSON.stringify({ username, display_name, role, password, active, pin: pin || undefined })
       });
       form.reset();
       form.elements.active.checked = true;
@@ -404,9 +491,12 @@ function collectPermissionPayload() {
 function attachEditForms() {
   const editForm = document.getElementById("edit-form");
   const pwForm = document.getElementById("password-form");
-  if (!editForm || !pwForm) return;
+  const pinForm = document.getElementById("pin-form");
+  if (!editForm || !pwForm || !pinForm) return;
   const resetPwBtn = document.getElementById("reset-password-btn");
+  const resetPinBtn = document.getElementById("reset-pin-btn");
   const cancelPwBtn = document.getElementById("cancel-password");
+  const cancelPinBtn = document.getElementById("cancel-pin");
   const cancelEditBtn = document.getElementById("cancel-edit");
   const clearSelectionBtn = document.getElementById("new-selection");
   const deleteBtn = document.getElementById("delete-user-btn");
@@ -453,9 +543,21 @@ function attachEditForms() {
     }
   });
 
+  if (resetPinBtn) resetPinBtn.addEventListener("click", () => {
+    pinForm.style.display = pinForm.style.display === "none" ? "block" : "none";
+    if (pinForm.style.display === "none") {
+      pinForm.reset();
+    }
+  });
+
   if (cancelPwBtn) cancelPwBtn.addEventListener("click", () => {
     pwForm.reset();
     pwForm.style.display = "none";
+  });
+
+  if (cancelPinBtn) cancelPinBtn.addEventListener("click", () => {
+    pinForm.reset();
+    pinForm.style.display = "none";
   });
 
   pwForm.addEventListener("submit", async (e) => {
@@ -488,6 +590,40 @@ function attachEditForms() {
       setNotice("Password updated.", "success");
     } catch (err) {
       setNotice(err.message || "Password update failed.", "error");
+    }
+  });
+
+  pinForm.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const user = getSelectedUser();
+    if (!user) {
+      setNotice("Select a user first.", "error");
+      return;
+    }
+
+    const pin1 = pinForm.pin1.value.trim();
+    const pin2 = pinForm.pin2.value.trim();
+
+    if (!/^[0-9]{4,12}$/.test(pin1)) {
+      setNotice("PIN must be 4 to 12 digits.", "error");
+      return;
+    }
+    if (pin1 !== pin2) {
+      setNotice("PIN confirmation does not match.", "error");
+      return;
+    }
+
+    try {
+      await requestApi(`/api/users/${user.id}/pin`, {
+        method: "PUT",
+        body: JSON.stringify({ pin: pin1 })
+      });
+      pinForm.reset();
+      pinForm.style.display = "none";
+      setNotice("PIN updated.", "success");
+      await loadUsers();
+    } catch (err) {
+      setNotice(err.message || "PIN update failed.", "error");
     }
   });
 
@@ -533,7 +669,7 @@ function attachEditForms() {
 function attachHeaderHandlers() {
   const backBtn = document.getElementById("back-btn");
   if (backBtn) backBtn.addEventListener("click", () => {
-    window.location.href = `index.html?sid=${encodeURIComponent(sid() || "")}`;
+    window.location.href = "index.html";
   });
   const refreshBtn = document.getElementById("refresh-btn");
   if (refreshBtn) refreshBtn.addEventListener("click", async () => {
@@ -576,7 +712,7 @@ async function init() {
     await loadUsers();
   } catch (err) {
     if (err && err.status === 403) {
-      document.getElementById("users-table").innerHTML = "<tr><td colspan=\"8\" class=\"muted\">Owner or manager with User Admin permission is required to manage users.</td></tr>";
+      document.getElementById("users-table").innerHTML = "<tr><td colspan=\"9\" class=\"muted\">Owner or manager with User Admin permission is required to manage users.</td></tr>";
       setNotice("User admin permission required.", "error");
       return;
     }

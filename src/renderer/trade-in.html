@@ -1278,6 +1278,281 @@
       color: var(--accent);
     }
 
+    .workflow-steps {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 8px;
+    }
+
+    .step-chip {
+      border: 1px solid var(--border);
+      background: #0c0c0f;
+      border-radius: 8px;
+      padding: 8px 10px;
+      min-height: 52px;
+    }
+
+    .step-chip strong {
+      display: block;
+      font-size: 12px;
+      color: var(--text);
+    }
+
+    .step-chip span {
+      display: block;
+      margin-top: 3px;
+      font-size: 11px;
+      color: var(--muted);
+    }
+
+    .step-chip.done {
+      border-color: rgba(34,197,94,0.7);
+      background: rgba(22,101,52,0.18);
+    }
+
+    .step-chip.active {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 1px var(--accent-soft);
+    }
+
+    .checklist-grid,
+    .review-grid,
+    .report-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: 8px;
+    }
+
+    .check-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      border: 1px solid var(--border);
+      background: #0f172a;
+      border-radius: 8px;
+      padding: 7px 8px;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .check-row input {
+      width: 16px;
+      height: 16px;
+      min-height: 16px;
+    }
+
+    .market-stats {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(105px, 1fr));
+      gap: 8px;
+    }
+
+    .market-stat {
+      border: 1px solid var(--border);
+      background: #0b0b0d;
+      border-radius: 8px;
+      padding: 8px;
+    }
+
+    .market-k {
+      color: var(--muted);
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    .market-v {
+      margin-top: 4px;
+      color: var(--text);
+      font-size: 14px;
+      font-weight: 700;
+    }
+
+    .market-row {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 8px;
+      align-items: center;
+      width: 100%;
+    }
+
+    .price-chip-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 7px;
+    }
+
+    .price-chip {
+      display: inline-grid;
+      grid-template-columns: auto auto;
+      align-items: center;
+      gap: 6px;
+      border: 1px solid rgba(42, 203, 232, 0.45);
+      background: rgba(42, 203, 232, 0.08);
+      color: var(--text);
+      border-radius: 7px;
+      padding: 5px 7px;
+      font-size: 11px;
+      cursor: pointer;
+      min-height: 30px;
+    }
+
+    .price-chip:hover,
+    .price-chip:focus-visible {
+      border-color: var(--accent);
+      background: rgba(42, 203, 232, 0.16);
+      outline: none;
+    }
+
+    .price-chip .price-label {
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      font-size: 9px;
+    }
+
+    .price-chip .price-value {
+      color: var(--text);
+      font-weight: 800;
+      font-size: 12px;
+    }
+
+    .meta {
+      color: var(--muted);
+      font-size: 11px;
+      margin-top: 2px;
+    }
+
+    .variant-pill {
+      margin-left: 6px;
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      color: var(--muted);
+      font-size: 10px;
+      padding: 1px 6px;
+    }
+
+    .offer-explain {
+      border: 1px solid var(--border);
+      background: #0b0b0d;
+      border-radius: 8px;
+      padding: 8px;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.35;
+    }
+
+    .offer-override-box {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 8px;
+      border: 1px solid var(--border);
+      background: #0b0b0d;
+      border-radius: 8px;
+      padding: 9px;
+      margin-top: 8px;
+    }
+
+    .override-heading {
+      grid-column: 1 / -1;
+      color: var(--text);
+      font-size: 12px;
+      font-weight: 800;
+      text-transform: uppercase;
+    }
+
+    .override-stat {
+      border: 1px solid rgba(148,163,184,0.2);
+      background: rgba(15,23,42,0.35);
+      border-radius: 7px;
+      padding: 8px;
+      min-height: 48px;
+    }
+
+    .override-stat span {
+      display: block;
+      color: var(--muted);
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+    }
+
+    .override-stat strong {
+      display: block;
+      margin-top: 4px;
+      color: var(--text);
+      font-size: 14px;
+    }
+
+    .review-details {
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 8px;
+      background: #0b0b0d;
+    }
+
+    .review-details summary {
+      cursor: pointer;
+      color: var(--text);
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .review-details[open] summary {
+      margin-bottom: 8px;
+    }
+
+    .more-actions {
+      position: relative;
+      display: inline-block;
+    }
+
+    .more-actions > summary {
+      list-style: none;
+      cursor: pointer;
+    }
+
+    .more-actions > summary::-webkit-details-marker {
+      display: none;
+    }
+
+    .more-menu {
+      position: absolute;
+      right: 0;
+      top: calc(100% + 6px);
+      z-index: 10;
+      display: grid;
+      gap: 6px;
+      min-width: 140px;
+      padding: 8px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background: #08080b;
+      box-shadow: 0 10px 24px rgba(0,0,0,0.35);
+    }
+
+    .review-item {
+      border: 1px solid var(--border);
+      background: #0c0c0f;
+      border-radius: 8px;
+      padding: 8px;
+      display: grid;
+      gap: 6px;
+      font-size: 12px;
+    }
+
+    .review-item .row-title {
+      font-weight: 700;
+      color: var(--text);
+      overflow-wrap: anywhere;
+    }
+
+    tr.selected {
+      outline: 1px solid var(--accent);
+      outline-offset: -1px;
+    }
+
     .drawer {
       display: none;
     }
@@ -1349,6 +1624,8 @@
       }
     }
   </style>
+  <script src="theme.js"></script>
+  <link rel="stylesheet" href="themes.css" />
 </head>
 <body>
   <div class="app-shell">
@@ -1373,6 +1650,25 @@
     </header>
 
     <main>
+      <section class="workflow-steps" aria-label="Trade workflow">
+        <div class="step-chip active" id="step-intake">
+          <strong>1. Intake</strong>
+          <span id="step-intake-text">Customer and item details</span>
+        </div>
+        <div class="step-chip" id="step-price">
+          <strong>2. Price Check</strong>
+          <span id="step-price-text">Comps and offer rules</span>
+        </div>
+        <div class="step-chip" id="step-review">
+          <strong>3. Review Offer</strong>
+          <span id="step-review-text">Payout and agreement</span>
+        </div>
+        <div class="step-chip" id="step-post">
+          <strong>4. Intake Queue</strong>
+          <span id="step-post-text">Inventory review bucket</span>
+        </div>
+      </section>
+
       <section class="panel" id="customer-panel">
           <div class="panel-header">
             <h2><span class="accent-dot"></span>Customer</h2>
@@ -1407,6 +1703,50 @@
               </div>
             </div>
             <div class="field-row">
+              <div class="field sm">
+                <label for="seller-id-type">ID Type</label>
+                <select id="seller-id-type">
+                  <option value="">Not checked</option>
+                  <option value="Driver License">Driver License</option>
+                  <option value="State ID">State ID</option>
+                  <option value="Passport">Passport</option>
+                  <option value="Other">Other</option>
+                </select>
+              </div>
+              <div class="field sm">
+                <label for="seller-id-last4">ID Last 4</label>
+                <input id="seller-id-last4" type="text" maxlength="4" placeholder="1234" />
+              </div>
+              <div class="field sm">
+                <label for="seller-dob">DOB</label>
+                <input id="seller-dob" type="text" placeholder="MM/DD/YYYY" />
+              </div>
+            </div>
+            <div class="field-row">
+              <div class="field lg">
+                <label for="seller-address1">Seller Address</label>
+                <input id="seller-address1" type="text" placeholder="Street address" />
+              </div>
+              <div class="field sm">
+                <label for="seller-city">City</label>
+                <input id="seller-city" type="text" />
+              </div>
+              <div class="field xs">
+                <label for="seller-state">State</label>
+                <input id="seller-state" type="text" maxlength="2" />
+              </div>
+              <div class="field xs">
+                <label for="seller-zip">ZIP</label>
+                <input id="seller-zip" type="text" maxlength="10" />
+              </div>
+            </div>
+            <div class="checklist-grid" id="intake-checklist">
+              <label class="check-row"><input type="checkbox" id="check-id-verified"> ID verified</label>
+              <label class="check-row"><input type="checkbox" id="check-items-present"> Items present</label>
+              <label class="check-row"><input type="checkbox" id="check-condition-reviewed"> Condition reviewed</label>
+              <label class="check-row"><input type="checkbox" id="check-photos"> Photos attached when needed</label>
+            </div>
+            <div class="field-row">
               <div class="field">
                 <label for="session-notes">Trade Notes</label>
                 <input id="session-notes" type="text" placeholder="Totes of PS2, OEM controllers" />
@@ -1437,6 +1777,19 @@
               <input id="item-platform" type="text" placeholder="PS2, SNES" list="platform-suggestions" />
             </div>
             <div class="field sm">
+              <label for="item-category">Category</label>
+              <select id="item-category">
+                <option>Games</option>
+                <option>Consoles</option>
+                <option>Controllers</option>
+                <option>Accessories</option>
+                <option>Movies</option>
+                <option>Music</option>
+                <option>Collectibles</option>
+                <option>Other</option>
+              </select>
+            </div>
+            <div class="field sm">
               <label for="item-condition">Condition</label>
               <select id="item-condition">
                 <option>Good</option>
@@ -1444,6 +1797,18 @@
                 <option>Like New</option>
                 <option>Fair</option>
                 <option>Poor</option>
+              </select>
+            </div>
+            <div class="field sm">
+              <label for="item-completeness">Completeness</label>
+              <select id="item-completeness">
+                <option value="loose">Loose / Disc</option>
+                <option value="cib">CIB</option>
+                <option value="new_sealed">New / Sealed</option>
+                <option value="cart_only">Cart Only</option>
+                <option value="manual_only">Manual Only</option>
+                <option value="console_only">Console Only</option>
+                <option value="console_cib">Console CIB</option>
               </select>
             </div>
             <div class="field xs">
@@ -1512,6 +1877,20 @@
                 <label for="policy-cash-from-credit">Cash % Credit</label>
                 <input id="policy-cash-from-credit" type="number" min="0" max="100" step="1" value="80" />
               </div>
+              <div class="field sm">
+                <label for="policy-margin-floor">Warn Below Margin %</label>
+                <input id="policy-margin-floor" type="number" min="0" max="95" step="1" value="45" />
+              </div>
+              <div class="field sm">
+                <label for="policy-offer-basis">Price Basis</label>
+                <select id="policy-offer-basis">
+                  <option value="sold_median">Sold median</option>
+                  <option value="sold_average">Sold average</option>
+                  <option value="pricecharting">PriceCharting</option>
+                  <option value="store_history">Store history</option>
+                  <option value="manual">Manual comp</option>
+                </select>
+              </div>
             </div>
             <div class="field-row">
               <div class="inline-badge">Cash approval: <strong id="approval-cash-limit">$0.00</strong></div>
@@ -1531,28 +1910,53 @@
                 <input id="settings-credit-limit" type="number" min="0" step="0.01" placeholder="300.00" />
               </div>
               <div class="field sm">
+                <label for="settings-hold-days">Default Hold Days</label>
+                <input id="settings-hold-days" type="number" min="0" max="365" step="1" value="0" />
+              </div>
+              <div class="field sm">
+                <label for="settings-promo-label">Promo Label</label>
+                <input id="settings-promo-label" type="text" placeholder="Credit bonus" />
+              </div>
+              <div class="field sm">
+                <label for="settings-promo-bonus">Credit Bonus %</label>
+                <input id="settings-promo-bonus" type="number" min="0" max="100" step="1" value="0" />
+              </div>
+              <div class="field sm">
                 <label>&nbsp;</label>
                 <button id="btn-save-settings" class="btn btn-soft">Save Settings</button>
               </div>
+            </div>
+            <div class="checklist-grid">
+              <label class="check-row"><input type="checkbox" id="settings-require-customer"> Require saved customer</label>
+              <label class="check-row"><input type="checkbox" id="settings-require-seller-id"> Require seller ID</label>
+              <label class="check-row"><input type="checkbox" id="settings-require-agreement"> Require agreement</label>
+              <label class="check-row"><input type="checkbox" id="settings-testing-queue"> Create testing tasks</label>
+              <label class="check-row"><input type="checkbox" id="settings-auto-label"> Create label tasks</label>
+              <label class="check-row"><input type="checkbox" id="settings-promo-active"> Promo active</label>
             </div>
             <div id="approval-status" class="status-line">Approval status will appear here.</div>
           </div>
         </section>
 <section class="panel comps-panel" id="comps-panel">
           <div class="panel-header">
-            <h2><span class="accent-dot"></span>Comps</h2>
+            <h2><span class="accent-dot"></span>Price Check</h2>
             <div class="subtext">Selected: <strong id="comps-selected">None</strong></div>
           </div>
           <div class="panel-body">
-<div class="market-v" id="market-qty">0</div></div>
+            <div class="market-stats">
+              <div class="market-stat"><div class="market-k">On Hand</div><div class="market-v" id="market-qty">0</div></div>
               <div class="market-stat"><div class="market-k">Avg Cost</div><div class="market-v" id="market-avg-cost">$0.00</div></div>
               <div class="market-stat"><div class="market-k">Avg Price</div><div class="market-v" id="market-avg-price">$0.00</div></div>
               <div class="market-stat"><div class="market-k">Sold Avg</div><div class="market-v" id="market-sold-avg">$0.00</div></div>
               <div class="market-stat"><div class="market-k">Sold Count</div><div class="market-v" id="market-sold-count">0</div></div>
             </div>
             <div class="button-row">
-              <button id="btn-comps-sold" class="btn btn-mini btn-soft">Sold</button>
-              <button id="btn-comps-active" class="btn btn-mini btn-soft">Active</button>
+              <button id="btn-comps-sold" class="btn btn-mini btn-soft">Fetch Sold</button>
+              <button id="btn-comps-active" class="btn btn-mini btn-soft">Fetch Active</button>
+              <button id="btn-fetch-pricecharting" class="btn btn-mini btn-soft">Fetch PriceCharting</button>
+              <button id="btn-open-pricecharting" class="btn btn-mini btn-soft">Open PriceCharting</button>
+              <button id="btn-open-ebay-sold" class="btn btn-mini btn-soft">Open eBay Sold</button>
+              <button id="btn-open-ebay-active" class="btn btn-mini btn-soft">Open eBay Active</button>
             </div>
             <div class="field-row">
               <div class="field sm">
@@ -1574,29 +1978,64 @@
                 <button id="btn-add-manual-comp" class="btn">Add Manual</button>
               </div>
             </div>
+            <div class="field-row">
+              <div class="field">
+                <label for="selected-condition-notes">Condition / Testing Notes</label>
+                <input id="selected-condition-notes" type="text" placeholder="Disc scratches, missing manual, powers on, etc" />
+              </div>
+              <div class="field sm">
+                <label for="selected-completeness">Completeness</label>
+                <select id="selected-completeness">
+                  <option value="loose">Loose / Disc</option>
+                  <option value="cib">CIB</option>
+                  <option value="new_sealed">New / Sealed</option>
+                  <option value="cart_only">Cart Only</option>
+                  <option value="manual_only">Manual Only</option>
+                  <option value="console_only">Console Only</option>
+                  <option value="console_cib">Console CIB</option>
+                </select>
+              </div>
+              <div class="field sm">
+                <label for="selected-post-status">Post Status</label>
+                <select id="selected-post-status">
+                  <option value="testing">Testing</option>
+                  <option value="hold">Hold</option>
+                  <option value="ready">Ready</option>
+                  <option value="repair">Repair Review</option>
+                  <option value="parts">Parts Only</option>
+                  <option value="pass">Pass</option>
+                </select>
+              </div>
+            </div>
+            <div class="field-row">
+              <div class="field sm">
+                <label for="selected-inventory-action">Inventory</label>
+                <select id="selected-inventory-action">
+                  <option value="merge">Merge with SKU</option>
+                  <option value="new">New SKU</option>
+                </select>
+              </div>
+              <div class="field sm">
+                <label for="selected-hold-until">Hold Until</label>
+                <input id="selected-hold-until" type="text" placeholder="YYYY-MM-DD" />
+              </div>
+              <label class="check-row"><input type="checkbox" id="selected-test-needed"> Testing needed</label>
+              <label class="check-row"><input type="checkbox" id="selected-label-needed"> Label needed</label>
+            </div>
+            <div class="offer-explain" id="offer-explain">Select an item to see pricing guidance.</div>
+            <div class="button-row">
+              <button id="btn-use-evidence" class="btn btn-mini btn-soft">Use Best Evidence</button>
+              <button id="btn-apply-rule" class="btn btn-mini btn-soft">Suggest Offer</button>
+              <button id="btn-pass-item" class="btn btn-mini btn-danger">Pass Item</button>
+            </div>
+            <div class="field-row">
+              <div class="field">
+                <label for="pass-reason">Pass / Override Reason</label>
+                <input id="pass-reason" type="text" placeholder="Too scratched, counterfeit concern, already overstocked" />
+              </div>
+            </div>
             <div id="comps-status" class="status-line">Select a line to view comps.</div>
             <div id="comps-list" class="list"></div>
-          </div>
-        </section>
-<section class="panel market-panel" id="market-panel">
-          <div class="panel-header">
-            <h2><span class="accent-dot"></span>Market View</h2>
-            <div class="subtext">Selected: <strong id="market-selected">None</strong></div>
-          </div>
-          <div class="panel-body">
-            <div class="market-stats">
-              On Hand: <strong id="market-qty">0</strong>
-              Avg Cost: <strong id="market-avg-cost">$0.00</strong>
-              Avg Price: <strong id="market-avg-price">$0.00</strong>
-              Sold Avg: <strong id="market-sold-avg">$0.00</strong>
-              Sold Count: <strong id="market-sold-count">0</strong>
-            </div>
-            <div class="button-row">
-              <button id="btn-fetch-pricecharting" class="btn btn-mini btn-soft">Fetch PriceCharting</button>
-              <button id="btn-open-pricecharting" class="btn btn-mini btn-soft">Open PriceCharting</button>
-              <button id="btn-open-ebay-sold" class="btn btn-mini btn-soft">Open eBay Sold</button>
-              <button id="btn-open-ebay-active" class="btn btn-mini btn-soft">Open eBay Active</button>
-            </div>
             <div id="market-status" class="status-line">Select a line to view market data.</div>
             <div id="market-list" class="list"></div>
           </div>
@@ -1626,7 +2065,7 @@
           </div>
           <div class="panel-body">
             <div class="total-big">
-              <div class="label">Total Cash Offer</div>
+              <div class="label">Final Cash Offer</div>
               <div class="value" id="total-cash">$0.00</div>
             </div>
             <div class="totals-card">
@@ -1640,21 +2079,62 @@
                 <div class="totals-row"><label>Quote #</label><span class="value" id="quote-id">--</span></div>
               </div>
             </div>
-            <div class="quote-actions">
-              <button id="btn-accept-quote" class="btn btn-primary">Accept Trade</button>
-              <button id="btn-present-quote" class="btn btn-soft">Present</button>
-              <button id="btn-save-quote" class="btn btn-soft">Save Draft</button>
-              <button id="btn-decline-quote" class="btn btn-danger">Decline</button>
+            <div class="offer-override-box">
+              <div class="override-heading">Trade Override / Negotiated Offer</div>
+              <div class="override-stat"><span>Suggested Retail</span><strong id="suggested-retail">$0.00</strong></div>
+              <div class="override-stat"><span>Suggested Cash</span><strong id="suggested-cash">$0.00</strong></div>
+              <div class="override-stat"><span>Suggested Credit</span><strong id="suggested-credit">$0.00</strong></div>
+              <div class="field sm">
+                <label for="final-cash-offer">Final Cash Offer</label>
+                <input id="final-cash-offer" type="number" min="0" step="0.01" placeholder="0.00" />
+              </div>
+              <div class="field sm">
+                <label for="final-credit-offer">Final Store Credit</label>
+                <input id="final-credit-offer" type="number" min="0" step="0.01" placeholder="0.00" />
+              </div>
+              <div class="field">
+                <label for="offer-override-reason">Override Reason</label>
+                <input id="offer-override-reason" type="text" placeholder="Condition, bundle deal, negotiation, overstock, manager approval" />
+              </div>
             </div>
-            <div class="button-row">
-              <button id="btn-print-offer" class="btn btn-soft">Print Offer</button>
-              <button id="btn-clear" class="btn btn-soft">New Quote</button>
+            <div id="override-status" class="status-line">Suggested offer will fill in as items are priced.</div>
+            <div class="field-row">
+              <div class="field sm">
+                <label for="payout-method">Payout Method</label>
+                <select id="payout-method">
+                  <option value="store_credit">Store Credit</option>
+                  <option value="cash">Cash</option>
+                </select>
+              </div>
+              <label class="check-row"><input type="checkbox" id="agreement-signed"> Agreement signed after offer</label>
+            </div>
+            <details class="review-details">
+              <summary>Review details</summary>
+              <div class="checklist-grid">
+                <label class="check-row"><input type="checkbox" id="check-offer-reviewed"> Offer reviewed</label>
+                <label class="check-row"><input type="checkbox" id="check-payout-confirmed"> Payout confirmed</label>
+                <label class="check-row"><input type="checkbox" id="check-inventory-reviewed"> Inventory intake reviewed</label>
+              </div>
+              <div class="review-grid" id="inventory-review-list"></div>
+            </details>
+            <div class="quote-actions">
+              <button id="btn-present-quote" class="btn btn-primary">Present Offer</button>
+              <button id="btn-accept-quote" class="btn btn-primary">Accept Trade</button>
+              <button id="btn-save-quote" class="btn btn-soft">Save Draft</button>
+              <details class="more-actions">
+                <summary class="btn btn-soft">More</summary>
+                <div class="more-menu">
+                  <button id="btn-print-offer" class="btn btn-soft">Print Offer</button>
+                  <button id="btn-decline-quote" class="btn btn-danger">Decline</button>
+                  <button id="btn-clear" class="btn btn-soft">New Quote</button>
+                </div>
+              </details>
             </div>
             <div id="session-status" class="status-line">Ready.</div>
 
             <div id="print-offer">
               <div id="print-offer-header">
-                <div id="print-offer-logo">RETROCATZ GAMES</div>
+                <div id="print-offer-logo">VAULTCORE</div>
                 <div id="print-offer-id">Offer ID: <span id="offer-id">--</span></div>
               </div>
               <div id="print-offer-main">
@@ -1670,6 +2150,8 @@
                   <div>Items: <strong id="offer-items-count">0</strong></div>
                   <div>Store Credit: <strong id="offer-credit">$0.00</strong></div>
                   <div>Cash Offer: <strong id="offer-cash">$0.00</strong></div>
+                  <div>Payout: <strong id="offer-payout">Store Credit</strong></div>
+                  <div>Agreement: <strong id="offer-agreement">Not signed</strong></div>
                 </div>
               </div>
               <div id="print-offer-footer">
@@ -1677,6 +2159,22 @@
                 <div class="sig-line">Associate Signature</div>
               </div>
             </div>
+          </div>
+        </section>
+<section class="panel" id="trade-report-panel">
+          <div class="panel-header">
+            <h2><span class="accent-dot"></span>Trade Follow-Up</h2>
+            <div class="subtext">Open tasks and 30-day report</div>
+          </div>
+          <div class="panel-body">
+            <div class="report-grid">
+              <div class="market-stat"><div class="market-k">Accepted</div><div class="market-v" id="report-accepted">0</div></div>
+              <div class="market-stat"><div class="market-k">Items</div><div class="market-v" id="report-items">0</div></div>
+              <div class="market-stat"><div class="market-k">Retail</div><div class="market-v" id="report-retail">$0.00</div></div>
+              <div class="market-stat"><div class="market-k">Margin</div><div class="market-v" id="report-margin">0%</div></div>
+            </div>
+            <div id="task-list" class="list"></div>
+            <div id="report-status" class="status-line">Report will load when available.</div>
           </div>
         </section>
 </div></div>
@@ -1740,11 +2238,25 @@
       customerEmail: $("customer-email"),
       customerStatus: $("customer-status"),
       sessionNotes: $("session-notes"),
+      sellerIdType: $("seller-id-type"),
+      sellerIdLast4: $("seller-id-last4"),
+      sellerDob: $("seller-dob"),
+      sellerAddress1: $("seller-address1"),
+      sellerCity: $("seller-city"),
+      sellerState: $("seller-state"),
+      sellerZip: $("seller-zip"),
+      checkIdVerified: $("check-id-verified"),
+      checkItemsPresent: $("check-items-present"),
+      checkConditionReviewed: $("check-condition-reviewed"),
+      checkPhotos: $("check-photos"),
+      agreementSigned: $("agreement-signed"),
       btnCustomerSearch: $("btn-customer-search"),
       btnCustomerSave: $("btn-customer-save"),
       btnCustomerClear: $("btn-customer-clear"),
       policyCreditRetail: $("policy-credit-retail"),
       policyCashFromCredit: $("policy-cash-from-credit"),
+      policyMarginFloor: $("policy-margin-floor"),
+      policyOfferBasis: $("policy-offer-basis"),
       approvalCashLimit: $("approval-cash-limit"),
       approvalCreditLimit: $("approval-credit-limit"),
       approvalStatus: $("approval-status"),
@@ -1752,6 +2264,15 @@
       settingsExpiryDays: $("settings-expiry-days"),
       settingsCashLimit: $("settings-cash-limit"),
       settingsCreditLimit: $("settings-credit-limit"),
+      settingsHoldDays: $("settings-hold-days"),
+      settingsRequireCustomer: $("settings-require-customer"),
+      settingsRequireSellerId: $("settings-require-seller-id"),
+      settingsRequireAgreement: $("settings-require-agreement"),
+      settingsTestingQueue: $("settings-testing-queue"),
+      settingsAutoLabel: $("settings-auto-label"),
+      settingsPromoActive: $("settings-promo-active"),
+      settingsPromoLabel: $("settings-promo-label"),
+      settingsPromoBonus: $("settings-promo-bonus"),
       btnSaveSettings: $("btn-save-settings"),
       itemsBody: $("items-body"),
       itemsCount: $("items-count"),
@@ -1766,8 +2287,10 @@
       photoCount: $("photo-count"),
       itemTitle: $("item-title"),
       itemPlatform: $("item-platform"),
+      itemCategory: $("item-category"),
       itemQty: $("item-qty"),
       itemCondition: $("item-condition"),
+      itemCompleteness: $("item-completeness"),
       itemRetail: $("item-retail"),
       btnAddItem: $("btn-add-item"),
       btnAiAll: $("btn-ai-all"),
@@ -1780,9 +2303,28 @@
       btnAddManualComp: $("btn-add-manual-comp"),
       compsList: $("comps-list"),
       compsStatus: $("comps-status"),
+      selectedConditionNotes: $("selected-condition-notes"),
+      selectedCompleteness: $("selected-completeness"),
+      selectedPostStatus: $("selected-post-status"),
+      selectedInventoryAction: $("selected-inventory-action"),
+      selectedHoldUntil: $("selected-hold-until"),
+      selectedTestNeeded: $("selected-test-needed"),
+      selectedLabelNeeded: $("selected-label-needed"),
+      offerExplain: $("offer-explain"),
+      btnUseEvidence: $("btn-use-evidence"),
+      btnApplyRule: $("btn-apply-rule"),
+      btnPassItem: $("btn-pass-item"),
+      passReason: $("pass-reason"),
       totalRetail: $("total-retail"),
       totalCredit: $("total-credit"),
       totalCash: $("total-cash"),
+      suggestedRetail: $("suggested-retail"),
+      suggestedCash: $("suggested-cash"),
+      suggestedCredit: $("suggested-credit"),
+      finalCashOffer: $("final-cash-offer"),
+      finalCreditOffer: $("final-credit-offer"),
+      offerOverrideReason: $("offer-override-reason"),
+      overrideStatus: $("override-status"),
       quoteId: $("quote-id"),
       quoteStatus: $("quote-status"),
       quoteExpiry: $("quote-expiry"),
@@ -1793,6 +2335,11 @@
       btnDeclineQuote: $("btn-decline-quote"),
       btnPrintOffer: $("btn-print-offer"),
       btnClear: $("btn-clear"),
+      payoutMethod: $("payout-method"),
+      checkOfferReviewed: $("check-offer-reviewed"),
+      checkPayoutConfirmed: $("check-payout-confirmed"),
+      checkInventoryReviewed: $("check-inventory-reviewed"),
+      inventoryReviewList: $("inventory-review-list"),
       quoteSearch: $("quote-search"),
       btnQuoteSearch: $("btn-quote-search"),
       quoteList: $("quote-list"),
@@ -1804,6 +2351,8 @@
       offerCredit: $("offer-credit"),
       offerCash: $("offer-cash"),
       offerItemsCount: $("offer-items-count"),
+      offerPayout: $("offer-payout"),
+      offerAgreement: $("offer-agreement"),
       printAmountBig: $("print-amount-big"),
       printAmountWords: $("print-amount-words"),
       sessionStatus: $("session-status"),
@@ -1829,7 +2378,21 @@
       marketSoldAvg: $("market-sold-avg"),
       marketSoldCount: $("market-sold-count"),
       titleSuggestions: $("item-title-suggestions"),
-      platformSuggestions: $("platform-suggestions")
+      platformSuggestions: $("platform-suggestions"),
+      stepIntake: $("step-intake"),
+      stepPrice: $("step-price"),
+      stepReview: $("step-review"),
+      stepPost: $("step-post"),
+      stepIntakeText: $("step-intake-text"),
+      stepPriceText: $("step-price-text"),
+      stepReviewText: $("step-review-text"),
+      stepPostText: $("step-post-text"),
+      reportAccepted: $("report-accepted"),
+      reportItems: $("report-items"),
+      reportRetail: $("report-retail"),
+      reportMargin: $("report-margin"),
+      reportStatus: $("report-status"),
+      taskList: $("task-list")
     };
 
     let items = [];
@@ -1843,6 +2406,9 @@
     let currentUser = null;
     let inventoryTitles = [];
     let inventoryIndex = new Map();
+    let openTradeTasks = [];
+    let offerOverrideDirty = false;
+    let managerApprovalToken = "";
 
     const ALL_PLATFORMS = [
       'NES','SNES','N64','GameCube','Wii','Wii U','Switch',
@@ -1859,6 +2425,84 @@
       if (els.sessionStatus) els.sessionStatus.textContent = msg || "";
     }
 
+    function setStep(el, done, active) {
+      if (!el) return;
+      el.classList.toggle("done", !!done);
+      el.classList.toggle("active", !!active);
+    }
+
+    function selectedItem() {
+      return selectedItemIndex >= 0 && selectedItemIndex < items.length ? items[selectedItemIndex] : null;
+    }
+
+    function currentUserIsManager() {
+      const role = String(currentUser?.role || "").toLowerCase();
+      return role === "manager" || role === "owner";
+    }
+
+    function intakeChecklist() {
+      return {
+        id_verified: !!els.checkIdVerified?.checked,
+        items_present: !!els.checkItemsPresent?.checked,
+        condition_reviewed: !!els.checkConditionReviewed?.checked,
+        photos_attached: !!els.checkPhotos?.checked,
+        agreement_signed: !!els.agreementSigned?.checked
+      };
+    }
+
+    function completionChecklist() {
+      return {
+        offer_reviewed: !!els.checkOfferReviewed?.checked,
+        payout_confirmed: !!els.checkPayoutConfirmed?.checked,
+        inventory_reviewed: !!els.checkInventoryReviewed?.checked
+      };
+    }
+
+    function applyChecklist(values = {}) {
+      if (els.checkIdVerified) els.checkIdVerified.checked = !!values.id_verified;
+      if (els.checkItemsPresent) els.checkItemsPresent.checked = !!values.items_present;
+      if (els.checkConditionReviewed) els.checkConditionReviewed.checked = !!values.condition_reviewed;
+      if (els.checkPhotos) els.checkPhotos.checked = !!values.photos_attached;
+      if (els.agreementSigned) els.agreementSigned.checked = !!values.agreement_signed;
+    }
+
+    function applyCompletionChecklist(values = {}) {
+      if (els.checkOfferReviewed) els.checkOfferReviewed.checked = !!values.offer_reviewed;
+      if (els.checkPayoutConfirmed) els.checkPayoutConfirmed.checked = !!values.payout_confirmed;
+      if (els.checkInventoryReviewed) els.checkInventoryReviewed.checked = !!values.inventory_reviewed;
+    }
+
+    function safeParseJson(raw, fallback = {}) {
+      if (!raw) return fallback;
+      if (typeof raw === "object") return raw;
+      try { return JSON.parse(raw); } catch { return fallback; }
+    }
+
+    function addDaysIso(days) {
+      const n = Number(days || 0);
+      if (!Number.isFinite(n) || n <= 0) return "";
+      const d = new Date();
+      d.setDate(d.getDate() + n);
+      return d.toISOString().slice(0, 10);
+    }
+
+    function updateWorkflowSteps() {
+      const totals = computeTotals();
+      const hasSeller = !!((els.customerName?.value || "").trim() || selectedCustomer?.id);
+      const intakeReady = hasSeller && items.length > 0;
+      const priceReady = items.some((it) => Number(it.retailPrice || 0) > 0 && Number(it.creditOffer || 0) > 0);
+      const reviewReady = priceReady;
+      const posted = currentQuoteStatus === "accepted";
+      setStep(els.stepIntake, intakeReady, !intakeReady);
+      setStep(els.stepPrice, priceReady, intakeReady && !priceReady);
+      setStep(els.stepReview, reviewReady, priceReady && !reviewReady);
+      setStep(els.stepPost, posted, reviewReady && !posted);
+      if (els.stepIntakeText) els.stepIntakeText.textContent = intakeReady ? `${items.length} line(s) ready` : "Customer and item details";
+      if (els.stepPriceText) els.stepPriceText.textContent = priceReady ? `${fmt$(totals.suggestedCredit)} suggested credit` : "Comps and offer rules";
+      if (els.stepReviewText) els.stepReviewText.textContent = currentQuoteStatus === "presented" ? "Offer presented" : "Negotiate final offer";
+      if (els.stepPostText) els.stepPostText.textContent = posted ? "Sent to intake queue" : "Inventory review bucket";
+    }
+
     function updateSessionLabel() {
       const label = currentQuoteStatus ? currentQuoteStatus.toUpperCase() : "DRAFT";
       if (els.sessionLabel) els.sessionLabel.textContent = label;
@@ -1868,58 +2512,135 @@
     function computeTotals() {
       let totalItems = 0;
       let totalRetail = 0;
-      let totalCredit = 0;
-      let totalCash = 0;
+      let suggestedCredit = 0;
+      let suggestedCash = 0;
       items.forEach((it) => {
         if (it.keep === false) return;
         const qty = Number(it.qty || 0);
         totalItems += qty;
         totalRetail += Number(it.retailPrice || 0) * qty;
-        totalCredit += Number(it.creditOffer || 0) * qty;
-        totalCash += Number(it.cashOffer || 0) * qty;
+        suggestedCredit += Number(it.creditOffer || 0) * qty;
+        suggestedCash += Number(it.cashOffer || 0) * qty;
       });
-      return { totalItems, totalRetail, totalCredit, totalCash };
+      return { totalItems, totalRetail, suggestedCredit, suggestedCash };
+    }
+
+    function completionLabel(value) {
+      const labels = {
+        loose: "Loose / Disc",
+        cib: "CIB",
+        new_sealed: "New / Sealed",
+        cart_only: "Cart Only",
+        manual_only: "Manual Only",
+        console_only: "Console Only",
+        console_cib: "Console CIB"
+      };
+      return labels[value] || labels.loose;
+    }
+
+    function normalizeCompleteness(value) {
+      const raw = String(value || "loose").toLowerCase().replace(/[^a-z0-9]+/g, "_");
+      return ["loose", "cib", "new_sealed", "cart_only", "manual_only", "console_only", "console_cib"].includes(raw) ? raw : "loose";
+    }
+
+    function finalOfferTotals(totals = computeTotals()) {
+      if (!offerOverrideDirty) {
+        if (els.finalCashOffer && document.activeElement !== els.finalCashOffer) els.finalCashOffer.value = totals.suggestedCash ? String(round2(totals.suggestedCash)) : "";
+        if (els.finalCreditOffer && document.activeElement !== els.finalCreditOffer) els.finalCreditOffer.value = totals.suggestedCredit ? String(round2(totals.suggestedCredit)) : "";
+      }
+      const cashRaw = els.finalCashOffer?.value;
+      const creditRaw = els.finalCreditOffer?.value;
+      const finalCash = cashRaw === "" || cashRaw === undefined ? totals.suggestedCash : Math.max(0, Number(cashRaw || 0));
+      const finalCredit = creditRaw === "" || creditRaw === undefined ? totals.suggestedCredit : Math.max(0, Number(creditRaw || 0));
+      return {
+        finalCash: round2(finalCash),
+        finalCredit: round2(finalCredit),
+        cashChanged: Math.abs(round2(finalCash) - round2(totals.suggestedCash)) >= 0.01,
+        creditChanged: Math.abs(round2(finalCredit) - round2(totals.suggestedCredit)) >= 0.01
+      };
+    }
+
+    function allocatedCostPreview(totals = computeTotals()) {
+      const payoutMethod = els.payoutMethod?.value || "store_credit";
+      const offer = finalOfferTotals(totals);
+      const totalPayout = payoutMethod === "cash" ? offer.finalCash : offer.finalCredit;
+      const kept = items.filter((it) => it.keep !== false && Number(it.qty || 0) > 0);
+      const totalWeight = kept.reduce((sum, it) => {
+        const qty = Math.max(1, Number(it.qty || 1));
+        const retail = Number(it.retailPrice || 0);
+        return sum + (retail > 0 ? retail * qty : qty);
+      }, 0) || 1;
+      return new Map(kept.map((it) => {
+        const qty = Math.max(1, Number(it.qty || 1));
+        const retail = Number(it.retailPrice || 0);
+        const weight = retail > 0 ? retail * qty : qty;
+        const lineTotal = round2(totalPayout * (weight / totalWeight));
+        return [it, { lineTotal, unitCost: round2(lineTotal / qty) }];
+      }));
     }
 
     function updateTotalsUI() {
       const totals = computeTotals();
+      const finalOffer = finalOfferTotals(totals);
+      const overrideChanged = finalOffer.cashChanged || finalOffer.creditChanged;
       els.totalRetail.textContent = fmt$(totals.totalRetail);
-      els.totalCredit.textContent = fmt$(totals.totalCredit);
-      els.totalCash.textContent = fmt$(totals.totalCash);
+      els.totalCredit.textContent = fmt$(finalOffer.finalCredit);
+      els.totalCash.textContent = fmt$(finalOffer.finalCash);
+      if (els.suggestedRetail) els.suggestedRetail.textContent = fmt$(totals.totalRetail);
+      if (els.suggestedCash) els.suggestedCash.textContent = fmt$(totals.suggestedCash);
+      if (els.suggestedCredit) els.suggestedCredit.textContent = fmt$(totals.suggestedCredit);
       els.itemsCount.textContent = items.length + (items.length === 1 ? " item" : " items");
       if (els.inlineItems) els.inlineItems.textContent = String(totals.totalItems);
       if (els.inlineRetail) els.inlineRetail.textContent = fmt$(totals.totalRetail);
-      if (els.inlineCredit) els.inlineCredit.textContent = fmt$(totals.totalCredit);
-      if (els.inlineCash) els.inlineCash.textContent = fmt$(totals.totalCash);
+      if (els.inlineCredit) els.inlineCredit.textContent = fmt$(finalOffer.finalCredit);
+      if (els.inlineCash) els.inlineCash.textContent = fmt$(finalOffer.finalCash);
       if (els.inlineQuoteId) els.inlineQuoteId.textContent = els.quoteId?.textContent || "--";
+      if (els.overrideStatus) {
+        const needsApproval = overrideChanged && !currentUserIsManager();
+        const savedReason = (els.offerOverrideReason?.value || "").trim();
+        if (overrideChanged && currentQuoteStatus === "accepted" && savedReason) {
+          els.overrideStatus.textContent = `Override saved: ${savedReason}`;
+        } else {
+          els.overrideStatus.textContent = overrideChanged
+            ? `Negotiated offer ${needsApproval ? "needs trade override PIN and note to accept." : "will be saved as a manager/owner override."}`
+            : "Final offer matches the current suggestion.";
+        }
+      }
       updateApprovalUI(totals);
       updatePrintOffer(totals);
+      renderInventoryReview();
+      updateWorkflowSteps();
     }
 
     function updateApprovalUI(totals) {
       if (!tradeSettings) return;
+      const finalOffer = finalOfferTotals(totals);
       const cashLimit = Number(tradeSettings.resolved?.approval_cash_limit_cents || 0) / 100;
       const creditLimit = Number(tradeSettings.resolved?.approval_credit_limit_cents || 0) / 100;
-      const cashNeeds = totals.totalCash > cashLimit;
-      const creditNeeds = totals.totalCredit > creditLimit;
-      requiresApproval = cashNeeds || creditNeeds;
+      const cashNeeds = finalOffer.finalCash > cashLimit;
+      const creditNeeds = finalOffer.finalCredit > creditLimit;
+      const overrideNeeds = (finalOffer.cashChanged || finalOffer.creditChanged) && !currentUserIsManager();
+      requiresApproval = cashNeeds || creditNeeds || overrideNeeds;
       els.quoteApproval.textContent = requiresApproval ? "Required" : "Not required";
       els.approvalStatus.textContent = requiresApproval
-        ? "Approval required for this quote."
+        ? "Trade override approval required for this accepted trade."
         : "Within approval thresholds.";
     }
 
     function updatePrintOffer(totals) {
+      const finalOffer = finalOfferTotals(totals);
       const name = (els.customerName.value || "Walk-in").trim() || "Walk-in";
       const today = new Date();
       const dateLabel = today.toLocaleDateString();
       els.offerCustomer.textContent = name;
       els.offerDate.textContent = dateLabel;
       els.offerExpiry.textContent = currentQuoteExpiry ? new Date(currentQuoteExpiry).toLocaleDateString() : "--";
-      els.offerCredit.textContent = fmt$(totals.totalCredit);
-      els.offerCash.textContent = fmt$(totals.totalCash);
+      els.offerCredit.textContent = fmt$(finalOffer.finalCredit);
+      els.offerCash.textContent = fmt$(finalOffer.finalCash);
       els.offerItemsCount.textContent = totals.totalItems;
-      els.printAmountBig.textContent = fmt$(totals.totalCash);
+      if (els.offerPayout) els.offerPayout.textContent = (els.payoutMethod?.value || "store_credit").replace("_", " ");
+      if (els.offerAgreement) els.offerAgreement.textContent = els.agreementSigned?.checked ? "Signed" : "Not signed";
+      els.printAmountBig.textContent = fmt$(finalOffer.finalCash);
       els.printAmountWords.textContent = "";
     }
 
@@ -1930,11 +2651,39 @@
       const effCost = item.cashOffer || item.creditOffer;
       if (!effCost) return '<span class="badge">n/a</span>';
       const pct = Math.round((1 - effCost / item.retailPrice) * 100);
+      const floor = Number(els.policyMarginFloor?.value || tradeSettings?.resolved?.margin_floor_percent || 45);
       if (isNaN(pct)) return '<span class="badge">n/a</span>';
-      if (pct >= 50) {
+      if (pct >= floor) {
         return '<span class="badge ok">' + pct + '%</span>';
       }
       return '<span class="badge warn">' + pct + '%</span>';
+    }
+
+    function renderInventoryReview() {
+      if (!els.inventoryReviewList) return;
+      els.inventoryReviewList.innerHTML = "";
+      const kept = items.filter((it) => it.keep !== false);
+      if (!kept.length) {
+        els.inventoryReviewList.innerHTML = '<div class="status-line">No kept items yet.</div>';
+        return;
+      }
+      const costs = allocatedCostPreview();
+      kept.forEach((item, index) => {
+        const div = document.createElement("div");
+        div.className = "review-item";
+        const hold = item.holdUntil ? `Hold until ${escapeHtml(item.holdUntil)}` : "No hold";
+        const post = item.postStatus || "testing";
+        const cost = costs.get(item) || { unitCost: 0, lineTotal: 0 };
+        div.innerHTML = `
+          <div class="row-title">${escapeHtml(item.title || "(untitled)")}</div>
+          <div class="meta">${escapeHtml(item.platform || "No platform")} - ${escapeHtml(item.condition || "Good")} - ${escapeHtml(completionLabel(item.completeness))} - ${escapeHtml(post)}</div>
+          <div class="meta">Allocated cost ${fmt$(cost.unitCost)} ea / ${fmt$(cost.lineTotal)} total</div>
+          <div class="meta">${escapeHtml(item.inventoryAction === "new" ? "New SKU" : "Merge with SKU")} - ${hold}</div>
+          <div class="meta">Inventory review task - ${item.testNeeded === false ? "No test task" : "Testing task"} - ${item.labelNeeded === false ? "No label task" : "Label task"}</div>
+        `;
+        div.addEventListener("click", () => setSelectedItem(items.indexOf(item)));
+        els.inventoryReviewList.appendChild(div);
+      });
     }
 
     function renderItems() {
@@ -1949,7 +2698,7 @@
           <td><input type="checkbox" ${item.keep ? "checked" : ""} data-role="keep" data-index="${index}"></td>
           <td>
             <div style="font-size:12px;font-weight:500;">${escapeHtml(item.title || "(untitled)")}</div>
-            <div style="font-size:11px;color:#9ca3af;">${escapeHtml(item.platform || "")}</div>
+            <div style="font-size:11px;color:#9ca3af;">${escapeHtml([item.platform, item.category, completionLabel(item.completeness)].filter(Boolean).join(" - "))}</div>
           </td>
           <td>${escapeHtml(item.condition || "")}</td>
           <td><input type="number" min="1" value="${item.qty || 1}" data-role="qty" data-index="${index}" /></td>
@@ -1958,7 +2707,7 @@
           <td><input type="number" step="0.01" min="0" value="${item.cashOffer ?? ""}" data-role="cash" data-index="${index}" /></td>
           <td>${marginBadge(item)}</td>
           <td><button class="btn btn-mini btn-soft" data-role="ai" data-index="${index}">AI</button></td>
-          <td><button class="btn btn-mini btn-soft" data-role="comps" data-index="${index}">Comps</button></td>
+          <td><button class="btn btn-mini btn-soft" data-role="comps" data-index="${index}">Price</button></td>
           <td><button class="btn btn-mini btn-danger" data-role="remove" data-index="${index}">X</button></td>
         `;
 
@@ -1972,8 +2721,7 @@
 
     function setSelectedItem(index) {
       selectedItemIndex = index;
-      renderComps();
-      renderMarket();
+      renderItems();
     }
 
     function renderComps() {
@@ -1982,26 +2730,250 @@
         els.compsSelected.textContent = "None";
         els.compsStatus.textContent = "Select a line to view comps.";
         if (els.compsPanel) els.compsPanel.classList.remove("open");
+        if (els.offerExplain) els.offerExplain.textContent = "Select an item to see pricing guidance.";
         return;
       }
       if (els.compsPanel) els.compsPanel.classList.add("open");
       const item = items[selectedItemIndex];
       els.compsSelected.textContent = item.title || "(untitled)";
+      if (els.selectedConditionNotes) els.selectedConditionNotes.value = item.conditionNotes || "";
+      if (els.selectedCompleteness) els.selectedCompleteness.value = normalizeCompleteness(item.completeness);
+      if (els.selectedPostStatus) els.selectedPostStatus.value = item.postStatus || (item.keep === false ? "pass" : "testing");
+      if (els.selectedInventoryAction) els.selectedInventoryAction.value = item.inventoryAction || "merge";
+      if (els.selectedHoldUntil) els.selectedHoldUntil.value = item.holdUntil || "";
+      if (els.selectedTestNeeded) els.selectedTestNeeded.checked = item.testNeeded !== false;
+      if (els.selectedLabelNeeded) els.selectedLabelNeeded.checked = item.labelNeeded !== false;
+      if (els.passReason) els.passReason.value = item.passReason || "";
+      if (els.offerExplain) els.offerExplain.textContent = explainOffer(item);
       const comps = Array.isArray(item.comps) ? item.comps : [];
       if (!comps.length) {
         els.compsStatus.textContent = "No comps yet. Fetch sold or active comps, or add manual.";
         return;
       }
-      els.compsStatus.textContent = `Showing ${comps.length} comps.`;
-      comps.forEach((c) => {
+      const stats = compStats(comps);
+      els.compsStatus.textContent = `Showing ${comps.length} comps. Median ${fmt$(stats.median)}.`;
+      comps.forEach((c, compIndex) => {
         const div = document.createElement("div");
         div.className = "list-item";
         const price = Number(c.price || 0);
         const source = c.source || "manual";
         const url = c.url ? ` - ${escapeHtml(c.url)}` : "";
-        div.innerHTML = `<span>${escapeHtml(c.title || c.notes || source)}${url}</span><strong>${fmt$(price)}</strong>`;
+        div.innerHTML = `
+          <span>${escapeHtml(c.title || c.notes || source)}${url}<span class="inline-badge"> ${escapeHtml(source)}</span></span>
+          <span>
+            <strong>${fmt$(price)}</strong>
+            <button class="btn btn-mini btn-soft" data-role="use-comp" data-comp-index="${compIndex}">Use</button>
+          </span>
+        `;
+        const btn = div.querySelector('[data-role="use-comp"]');
+        if (btn) btn.addEventListener("click", (e) => {
+          e.stopPropagation();
+          applyEvidencePrice(price, `${source} comp`);
+        });
         els.compsList.appendChild(div);
       });
+    }
+
+    function compStats(comps = []) {
+      const prices = (Array.isArray(comps) ? comps : [])
+        .map((c) => Number(c.price || 0))
+        .filter((n) => Number.isFinite(n) && n > 0)
+        .sort((a, b) => a - b);
+      if (!prices.length) return { count: 0, avg: 0, median: 0, low: 0, high: 0 };
+      const sum = prices.reduce((a, b) => a + b, 0);
+      const mid = Math.floor(prices.length / 2);
+      const median = prices.length % 2 ? prices[mid] : (prices[mid - 1] + prices[mid]) / 2;
+      return {
+        count: prices.length,
+        avg: round2(sum / prices.length),
+        median: round2(median),
+        low: round2(prices[0]),
+        high: round2(prices[prices.length - 1])
+      };
+    }
+
+    function round2(value) {
+      return Math.round((Number(value || 0)) * 100) / 100;
+    }
+
+    function parsePriceText(value) {
+      const m = String(value || "").replace(/,/g, "").match(/([0-9]+(?:\.[0-9]{1,2})?)/);
+      return m ? Number(m[1]) : 0;
+    }
+
+    function firstPriceValue(row, keys) {
+      for (const key of keys) {
+        const value = key.split(".").reduce((acc, part) => acc && acc[part], row);
+        if (parsePriceText(value)) return value;
+      }
+      return "";
+    }
+
+    function extractPriceTokens(value) {
+      return Array.from(String(value || "").matchAll(/\$?\s*[0-9]+(?:,[0-9]{3})*(?:\.[0-9]{1,2})?/g))
+        .map((m) => String(m[0] || "").trim())
+        .filter(Boolean);
+    }
+
+    function pricechartingPriceEntries(row) {
+      const entries = [
+        { key: "loose", label: "Loose / Disc", value: firstPriceValue(row, ["loose", "disc", "discOnly", "used", "usedPrice", "used_price", "loosePrice", "loose_price", "prices.loose", "prices.disc"]) },
+        { key: "cib", label: "CIB", value: firstPriceValue(row, ["cib", "complete", "completePrice", "complete_price", "cibPrice", "cib_price", "prices.cib", "prices.complete"]) },
+        { key: "new", label: "New / Sealed", value: firstPriceValue(row, ["new", "sealed", "newPrice", "new_price", "sealedPrice", "sealed_price", "prices.new", "prices.sealed"]) },
+        { key: "graded", label: "Graded", value: firstPriceValue(row, ["graded", "gradedPrice", "graded_price", "prices.graded"]) }
+      ];
+      const mapped = entries
+        .map((entry) => {
+          const price = parsePriceText(entry.value);
+          if (!price) return null;
+          return {
+            ...entry,
+            price,
+            display: entry.value || fmt$(price)
+          };
+        })
+        .filter(Boolean);
+      if (mapped.length) return mapped;
+
+      const fallbackText = [row?.pricesText, row?.priceText, row?.price_text, row?.prices, row?.price, row?.summary]
+        .filter(Boolean)
+        .join(" - ");
+      const fallbackLabels = ["Loose / Disc", "CIB", "New / Sealed", "Graded"];
+      return extractPriceTokens(fallbackText).slice(0, 4).map((token, index) => ({
+        key: ["loose", "cib", "new", "graded"][index] || `price-${index}`,
+        label: fallbackLabels[index] || `Price ${index + 1}`,
+        value: token,
+        price: parsePriceText(token),
+        display: token
+      })).filter((entry) => entry.price);
+    }
+
+    function pricechartingBestEntry(row) {
+      return pricechartingPriceEntries(row)[0] || null;
+    }
+
+    function pricechartingEntryForCompleteness(row, completenessRaw) {
+      const entries = pricechartingPriceEntries(row);
+      const completeness = normalizeCompleteness(completenessRaw);
+      const wanted = {
+        loose: "loose",
+        cart_only: "loose",
+        manual_only: "loose",
+        console_only: "loose",
+        cib: "cib",
+        console_cib: "cib",
+        new_sealed: "new"
+      }[completeness] || "loose";
+      return entries.find((entry) => entry.key === wanted) || entries[0] || null;
+    }
+
+    function renderPricechartingPriceChips(row, rowIndex) {
+      const entries = pricechartingPriceEntries(row);
+      if (!entries.length) {
+        return '<span class="meta">No condition prices returned.</span>';
+      }
+      return entries.map((entry) => `
+        <button class="price-chip" type="button" data-role="use-pricecharting-price" data-pc-index="${rowIndex}" data-price-key="${escapeHtml(entry.key)}">
+          <span class="price-label">${escapeHtml(entry.label)}</span>
+          <span class="price-value">${escapeHtml(entry.display)}</span>
+        </button>
+      `).join("");
+    }
+
+    function pricechartingPrimary(item) {
+      const pc = item?.pricecharting;
+      const first = pc && Array.isArray(pc.results) ? pc.results[0] : null;
+      if (!first) return 0;
+      return pricechartingEntryForCompleteness(first, item?.completeness)?.price || 0;
+    }
+
+    function selectedEvidencePrice(item) {
+      if (!item) return { price: 0, label: "" };
+      const basis = els.policyOfferBasis?.value || tradeSettings?.resolved?.offer_basis || "sold_median";
+      const stats = compStats(item.comps);
+      const pc = pricechartingPrimary(item);
+      const storeSold = parsePriceText(els.marketSoldAvg?.textContent || "");
+      const storeAvg = parsePriceText(els.marketAvgPrice?.textContent || "");
+      if (basis === "sold_average" && stats.avg) return { price: stats.avg, label: "sold average" };
+      if (basis === "pricecharting" && pc) return { price: pc, label: "PriceCharting" };
+      if (basis === "store_history" && storeSold) return { price: storeSold, label: "store sold average" };
+      if (basis === "manual" && stats.median) return { price: stats.median, label: "manual/comp median" };
+      if (stats.median) return { price: stats.median, label: "sold median" };
+      if (pc) return { price: pc, label: "PriceCharting" };
+      if (storeSold) return { price: storeSold, label: "store sold average" };
+      if (storeAvg) return { price: storeAvg, label: "store average price" };
+      return { price: Number(item.retailPrice || 0), label: item.retailPrice ? "current retail" : "" };
+    }
+
+    function offerFromRetail(retail, item) {
+      const creditPct = Number(els.policyCreditRetail?.value || tradeSettings?.resolved?.default_credit_percent || 50);
+      const cashPct = Number(els.policyCashFromCredit?.value || tradeSettings?.resolved?.default_cash_percent || 80);
+      const conditionFactor = localConditionFactor(item?.condition || "");
+      const promoActive = !!(tradeSettings?.resolved?.promo_active) || !!els.settingsPromoActive?.checked;
+      const promoBonus = promoActive ? Number(els.settingsPromoBonus?.value || tradeSettings?.resolved?.promo_credit_bonus_percent || 0) : 0;
+      const credit = round2(Number(retail || 0) * (creditPct / 100) * conditionFactor * (1 + promoBonus / 100));
+      const cash = round2(credit * (cashPct / 100));
+      return { credit, cash, creditPct, cashPct, conditionFactor, promoBonus };
+    }
+
+    function localConditionFactor(conditionRaw) {
+      const condition = String(conditionRaw || "").toLowerCase();
+      if (condition.includes("new") || condition.includes("like new")) return 1;
+      if (condition.includes("very")) return 0.95;
+      if (condition.includes("good")) return 0.9;
+      if (condition.includes("fair")) return 0.78;
+      if (condition.includes("poor")) return 0.62;
+      return 0.88;
+    }
+
+    function completenessForPriceKey(key, current = "loose") {
+      if (key === "cib") return "cib";
+      if (key === "new") return "new_sealed";
+      if (key === "loose") return normalizeCompleteness(current) || "loose";
+      return normalizeCompleteness(current);
+    }
+
+    function applyEvidencePrice(price, label, priceKey = "") {
+      const item = selectedItem();
+      if (!item || !price) return;
+      if (priceKey) item.completeness = completenessForPriceKey(priceKey, item.completeness);
+      item.retailPrice = round2(price);
+      item.pricingBasis = label || "evidence";
+      const offer = offerFromRetail(item.retailPrice, item);
+      item.creditOffer = offer.credit;
+      item.cashOffer = offer.cash;
+      item.offerReason = `${label || "Evidence"} ${fmt$(item.retailPrice)}; credit ${offer.creditPct}%${offer.promoBonus ? ` + ${offer.promoBonus}% promo` : ""}; cash ${offer.cashPct}% of credit.`;
+      item.keep = true;
+      item.postStatus = item.postStatus === "pass" ? "testing" : (item.postStatus || "testing");
+      renderItems();
+      els.itemsStatus.textContent = `Applied ${label || "evidence"} to ${item.title || "item"}.`;
+      if (els.marketStatus) els.marketStatus.textContent = `Applied ${label || "evidence"} ${fmt$(item.retailPrice)}.`;
+    }
+
+    function applyOfferRuleToSelected() {
+      const item = selectedItem();
+      if (!item) {
+        els.compsStatus.textContent = "Select a line first.";
+        return;
+      }
+      const evidence = selectedEvidencePrice(item);
+      if (!evidence.price) {
+        els.compsStatus.textContent = "Add a retail price or fetch evidence first.";
+        return;
+      }
+      applyEvidencePrice(evidence.price, evidence.label || "offer rule");
+    }
+
+    function explainOffer(item) {
+      if (!item) return "Select an item to see pricing guidance.";
+      const evidence = selectedEvidencePrice(item);
+      const offer = offerFromRetail(evidence.price || item.retailPrice || 0, item);
+      const margin = item.retailPrice && (item.cashOffer || item.creditOffer)
+        ? Math.round((1 - Number(item.cashOffer || item.creditOffer) / Number(item.retailPrice)) * 100)
+        : 0;
+      const status = item.keep === false ? `Passed: ${item.passReason || "No reason entered"}` : `Post as ${item.postStatus || "testing"}`;
+      const basis = evidence.label ? `${evidence.label} ${fmt$(evidence.price)}` : "No evidence selected";
+      return `${basis}. Suggested credit ${fmt$(offer.credit)} and cash ${fmt$(offer.cash)}. Current margin ${margin || 0}%. ${status}.`;
     }
 
     function normalizeTitle(t) {
@@ -2082,6 +3054,7 @@
         if (els.marketAvgPrice) els.marketAvgPrice.textContent = fmt$(Number(data.avg_price || 0));
         if (els.marketSoldAvg) els.marketSoldAvg.textContent = fmt$(Number(data.sold_avg || 0));
         if (els.marketSoldCount) els.marketSoldCount.textContent = String(data.sold_count || 0);
+        if (els.offerExplain) els.offerExplain.textContent = explainOffer(item);
       } catch {}
     }
 
@@ -2115,10 +3088,10 @@
     }
 
     function renderMarket() {
-      if (!els.marketList || !els.marketStatus || !els.marketSelected) return;
+      if (!els.marketList || !els.marketStatus) return;
       els.marketList.innerHTML = "";
       if (selectedItemIndex < 0 || selectedItemIndex >= items.length) {
-        els.marketSelected.textContent = "None";
+        if (els.marketSelected) els.marketSelected.textContent = "None";
         els.marketStatus.textContent = "Select a line to view market data.";
         if (els.marketPanel) els.marketPanel.classList.remove("open");
         if (els.marketQty) els.marketQty.textContent = "0";
@@ -2130,7 +3103,7 @@
       }
       if (els.marketPanel) els.marketPanel.classList.add("open");
       const item = items[selectedItemIndex];
-      els.marketSelected.textContent = item.title || "(untitled)";
+      if (els.marketSelected) els.marketSelected.textContent = item.title || "(untitled)";
       fetchInventoryStats(item);
       const pc = item.pricecharting;
       if (!pc || !Array.isArray(pc.results) || !pc.results.length) {
@@ -2138,14 +3111,13 @@
         return;
       }
       const cachedLabel = pc.cached ? " (cached)" : "";
-      els.marketStatus.textContent = `PriceCharting results${cachedLabel}.`;
-      pc.results.forEach((r) => {
+      els.marketStatus.textContent = `PriceCharting results${cachedLabel}. Click a condition price to apply it.`;
+      pc.results.forEach((r, rowIndex) => {
         const div = document.createElement("div");
         div.className = "list-item";
-        const prices = [r.loose, r.cib, r.new, r.graded].filter(Boolean).join(" • ");
         const volume = r.volume ? `Sales: ${r.volume}` : "";
-        const meta = [prices, volume].filter(Boolean).join(" • ");
-        const primary = r.loose || r.cib || r.new || r.graded || "";
+        const entries = pricechartingPriceEntries(r);
+        const meta = [entries.length ? "Click a price to use it." : "", volume].filter(Boolean).join(" - ");
         const variant = detectVariantLabel(r.title || "");
         div.innerHTML = `
           <div class="market-row">
@@ -2155,11 +3127,24 @@
                 ${variant ? `<span class="variant-pill">${escapeHtml(variant)}</span>` : ""}
               </div>
               <div class="meta">${escapeHtml(meta || "")}</div>
+              <div class="price-chip-row">
+                ${renderPricechartingPriceChips(r, rowIndex)}
+              </div>
             </div>
-            <div>${escapeHtml(primary)}</div>
-            <div>${r.url ? '<button class="btn btn-mini btn-soft" data-role="open-market">Open</button>' : ""}</div>
+            <div>
+              ${r.url ? '<button class="btn btn-mini btn-soft" data-role="open-market">Open</button>' : ""}
+            </div>
           </div>
         `;
+        div.querySelectorAll('[data-role="use-pricecharting-price"]').forEach((btn) => {
+          btn.addEventListener("click", (e) => {
+            e.stopPropagation();
+            const key = btn.getAttribute("data-price-key") || "";
+            const entry = pricechartingPriceEntries(r).find((candidate) => candidate.key === key);
+            if (!entry) return;
+            applyEvidencePrice(entry.price, `PriceCharting ${entry.label}`, entry.key);
+          });
+        });
         if (r.url) {
           const btn = div.querySelector('[data-role="open-market"]');
           if (btn) btn.addEventListener("click", (e) => {
@@ -2195,9 +3180,23 @@
       els.approvalCashLimit.textContent = fmt$(cashLimit);
       els.approvalCreditLimit.textContent = fmt$(creditLimit);
       els.policyExpiryDays.textContent = data.resolved?.quote_expiry_days || 30;
+      if (els.policyCreditRetail) els.policyCreditRetail.value = Number(data.resolved?.default_credit_percent ?? 50);
+      if (els.policyCashFromCredit) els.policyCashFromCredit.value = Number(data.resolved?.default_cash_percent ?? 80);
+      if (els.policyMarginFloor) els.policyMarginFloor.value = Number(data.resolved?.margin_floor_percent ?? 45);
+      if (els.policyOfferBasis) els.policyOfferBasis.value = data.resolved?.offer_basis || "sold_median";
       if (els.settingsExpiryDays) els.settingsExpiryDays.value = data.base?.quote_expiry_days || 30;
       if (els.settingsCashLimit) els.settingsCashLimit.value = cashLimit.toFixed(2);
       if (els.settingsCreditLimit) els.settingsCreditLimit.value = creditLimit.toFixed(2);
+      if (els.settingsHoldDays) els.settingsHoldDays.value = Number(data.base?.default_hold_days || 0);
+      if (els.settingsRequireCustomer) els.settingsRequireCustomer.checked = data.base?.require_customer === 1;
+      if (els.settingsRequireSellerId) els.settingsRequireSellerId.checked = data.base?.require_seller_id === 1;
+      if (els.settingsRequireAgreement) els.settingsRequireAgreement.checked = data.base?.require_agreement !== 0;
+      if (els.settingsTestingQueue) els.settingsTestingQueue.checked = data.base?.testing_queue_enabled !== 0;
+      if (els.settingsAutoLabel) els.settingsAutoLabel.checked = data.base?.auto_label_on_complete !== 0;
+      if (els.settingsPromoActive) els.settingsPromoActive.checked = data.base?.promo_active === 1;
+      if (els.settingsPromoLabel) els.settingsPromoLabel.value = data.base?.promo_label || "";
+      if (els.settingsPromoBonus) els.settingsPromoBonus.value = Number(data.base?.promo_credit_bonus_percent || 0);
+      updateTotalsUI();
     }
 
     async function loadMe() {
@@ -2219,7 +3218,23 @@
         body: JSON.stringify({
           quote_expiry_days: expiry,
           approval_cash_limit_cents: cash,
-          approval_credit_limit_cents: credit
+          approval_credit_limit_cents: credit,
+          ebay_sold_enabled: tradeSettings?.base?.ebay_sold_enabled !== 0,
+          ebay_active_enabled: tradeSettings?.base?.ebay_active_enabled !== 0,
+          ebay_country: tradeSettings?.base?.ebay_country || "US",
+          default_credit_percent: Number(els.policyCreditRetail?.value || 50),
+          default_cash_percent: Number(els.policyCashFromCredit?.value || 80),
+          margin_floor_percent: Number(els.policyMarginFloor?.value || 45),
+          offer_basis: els.policyOfferBasis?.value || "sold_median",
+          default_hold_days: Number(els.settingsHoldDays?.value || 0),
+          require_customer: !!els.settingsRequireCustomer?.checked,
+          require_seller_id: !!els.settingsRequireSellerId?.checked,
+          require_agreement: !!els.settingsRequireAgreement?.checked,
+          testing_queue_enabled: !!els.settingsTestingQueue?.checked,
+          auto_label_on_complete: !!els.settingsAutoLabel?.checked,
+          promo_active: !!els.settingsPromoActive?.checked,
+          promo_label: els.settingsPromoLabel?.value || "",
+          promo_credit_bonus_percent: Number(els.settingsPromoBonus?.value || 0)
         })
       });
       if (!res.ok) {
@@ -2304,12 +3319,31 @@
     }
 
     function buildQuotePayload() {
+      const promoActive = !!(tradeSettings?.resolved?.promo_active) || !!els.settingsPromoActive?.checked;
+      const totals = computeTotals();
+      const finalOffer = finalOfferTotals(totals);
       return {
         customer_id: selectedCustomer?.id || null,
         customer_name: (els.customerName.value || "").trim(),
         customer_phone: (els.customerPhone.value || "").trim(),
         customer_email: (els.customerEmail.value || "").trim(),
         customer_notes: "",
+        seller_id_type: els.sellerIdType?.value || "",
+        seller_id_last4: (els.sellerIdLast4?.value || "").replace(/\D/g, "").slice(-4),
+        seller_dob: els.sellerDob?.value || "",
+        seller_address1: els.sellerAddress1?.value || "",
+        seller_city: els.sellerCity?.value || "",
+        seller_state: els.sellerState?.value || "",
+        seller_zip: els.sellerZip?.value || "",
+        agreement_signed: !!els.agreementSigned?.checked,
+        intake_checklist: intakeChecklist(),
+        completion_checklist: completionChecklist(),
+        promo_label: promoActive ? (els.settingsPromoLabel?.value || tradeSettings?.resolved?.promo_label || "") : "",
+        promo_credit_bonus_percent: promoActive ? Number(els.settingsPromoBonus?.value || tradeSettings?.resolved?.promo_credit_bonus_percent || 0) : 0,
+        hold_until: addDaysIso(Number(els.settingsHoldDays?.value || tradeSettings?.resolved?.default_hold_days || 0)),
+        final_cash_offer: finalOffer.finalCash,
+        final_credit_offer: finalOffer.finalCredit,
+        offer_override_reason: els.offerOverrideReason?.value || "",
         policy_credit_percent: Number(els.policyCreditRetail.value || 50),
         policy_cash_percent: Number(els.policyCashFromCredit.value || 80),
         notes: (els.sessionNotes.value || "").trim(),
@@ -2318,18 +3352,84 @@
           platform: it.platform,
           category: it.category || "",
           condition: it.condition,
+          completeness: normalizeCompleteness(it.completeness),
           qty: it.qty,
           retailPrice: it.retailPrice,
           creditOffer: it.creditOffer,
           cashOffer: it.cashOffer,
+          conditionNotes: it.conditionNotes || "",
+          inventoryAction: it.inventoryAction || "merge",
+          postStatus: it.postStatus || (it.keep === false ? "pass" : "testing"),
+          holdUntil: it.holdUntil || "",
+          testNeeded: it.testNeeded !== false,
+          labelNeeded: it.labelNeeded !== false,
+          passReason: it.passReason || "",
+          pricingBasis: it.pricingBasis || "",
+          offerReason: it.offerReason || "",
           keep: it.keep !== false,
           comps: it.comps || []
         }))
       };
     }
 
-    async function saveQuote(statusOverride) {
+    function validateTradeReady(targetStatus = "draft") {
+      const settings = tradeSettings?.resolved || {};
+      if (!items.length) return "Add at least one item to the trade.";
+      const kept = items.filter((it) => it.keep !== false);
+      if ((targetStatus === "presented" || targetStatus === "accepted") && !kept.length) return "Keep at least one item or decline the quote.";
+      if ((targetStatus === "presented" || targetStatus === "accepted") && settings.require_customer && !(selectedCustomer && selectedCustomer.id)) {
+        return "Save/select the customer before presenting this trade.";
+      }
+      if ((targetStatus === "presented" || targetStatus === "accepted") && settings.require_seller_id && !(els.sellerIdLast4?.value || "").trim()) {
+        return "Enter the seller ID last 4 before presenting this trade.";
+      }
+      if (targetStatus === "accepted" && settings.require_agreement && !els.agreementSigned?.checked) {
+        return "Present the offer first, then mark the agreement signed before accepting.";
+      }
+      if (targetStatus === "accepted" && els.payoutMethod?.value === "store_credit" && !(selectedCustomer && selectedCustomer.id)) {
+        return "Store credit payout needs a saved customer.";
+      }
+      if (targetStatus === "accepted") {
+        if (currentQuoteStatus !== "presented") {
+          return "Present the offer first. After the customer agrees and signs, accept the trade.";
+        }
+      }
+      return "";
+    }
+
+    async function requestTradeManagerApproval(reason) {
+      let note = String(reason || "").trim();
+      if (!note) {
+        note = prompt("Trade override note:");
+        note = String(note || "").trim();
+      }
+      if (!note) {
+        setStatus("Trade override note is required.");
+        return null;
+      }
+      const pin = prompt("Trade override PIN:");
+      if (!pin) return null;
+      const res = await fetch(`${API_BASE}/api/manager/verify-pin`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", ...getAuthHeaders() },
+        body: JSON.stringify({ pin: pin.trim(), permission: "trade_override", reason: note })
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok || !data.ok) {
+        setStatus(data.error || "Manager approval failed.");
+        return null;
+      }
+      return { token: data.approval_token || "", note };
+    }
+
+    async function saveQuote(statusOverride, extraPayload = {}) {
+      const validation = validateTradeReady(statusOverride || "draft");
+      if (validation) {
+        setStatus(validation);
+        return null;
+      }
       const payload = buildQuotePayload();
+      Object.assign(payload, extraPayload);
       if (statusOverride) payload.status = statusOverride;
       let res;
       if (currentQuoteId) {
@@ -2347,12 +3447,43 @@
       }
       const data = await res.json();
       if (!res.ok) {
+        if (statusOverride === "accepted" && (data.error === "manager_approval_required" || data.error === "approval_required")) {
+          const approval = await requestTradeManagerApproval(payload.offer_override_reason || "");
+          if (approval?.token) {
+            managerApprovalToken = approval.token;
+            return saveQuote(statusOverride, {
+              manager_approvals: { trade_override: approval.token },
+              offer_override_reason: payload.offer_override_reason || approval.note
+            });
+          }
+        }
         setStatus(data.error || "Quote save failed.");
-        return;
+        return null;
       }
       currentQuoteId = data.quote_id || currentQuoteId;
       await loadQuote(currentQuoteId);
       setStatus("Quote saved.");
+      return data;
+    }
+
+    async function acceptTradeQuote() {
+      const saved = await saveQuote("accepted");
+      if (!saved || !currentQuoteId) return;
+      const payoutMethod = els.payoutMethod?.value || "store_credit";
+      const res = await fetch(`${API_BASE}/api/trade/quotes/${encodeURIComponent(currentQuoteId)}/complete`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", ...getAuthHeaders() },
+        body: JSON.stringify({ payout_method: payoutMethod, completion_checklist: completionChecklist() })
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        setStatus(data.error || "Trade completion failed.");
+        return;
+      }
+      await loadQuote(currentQuoteId);
+      await loadTradeTasks();
+      await loadTradeReport();
+      setStatus(`Trade accepted. ${data.intakeItems?.length || data.items?.length || 0} item(s) sent to inventory intake and ${data.tasks?.length || 0} follow-up task(s) created.`);
     }
 
     async function loadQuoteList() {
@@ -2369,10 +3500,55 @@
       rows.forEach((q) => {
         const div = document.createElement("div");
         div.className = "list-item";
-        div.innerHTML = `<span>${escapeHtml(q.customer_name || "Walk-in")} - ${escapeHtml(q.status || "draft")}</span><strong>${fmt$(q.total_cash || 0)}</strong>`;
+        const overrideMeta = q.offer_override_reason
+          ? `<div class="meta">Override: ${escapeHtml(q.offer_override_reason)}</div>`
+          : "";
+        div.innerHTML = `<span>${escapeHtml(q.customer_name || "Walk-in")} - ${escapeHtml(q.status || "draft")}${overrideMeta}</span><strong>${fmt$(q.total_cash || 0)}</strong>`;
         div.addEventListener("click", () => loadQuote(q.quote_id));
         els.quoteList.appendChild(div);
       });
+    }
+
+    async function loadTradeTasks() {
+      if (!els.taskList) return;
+      const qs = currentQuoteId ? `?quote_id=${encodeURIComponent(currentQuoteId)}&status=all` : "?status=open";
+      try {
+        const res = await fetch(`${API_BASE}/api/trade/tasks${qs}`, { headers: getAuthHeaders() });
+        const data = await res.json();
+        openTradeTasks = Array.isArray(data.rows) ? data.rows : [];
+        els.taskList.innerHTML = "";
+        if (!openTradeTasks.length) {
+          els.taskList.innerHTML = '<div class="status-line">No trade follow-up tasks.</div>';
+          return;
+        }
+        openTradeTasks.slice(0, 8).forEach((task) => {
+          const div = document.createElement("div");
+          div.className = "list-item";
+          const cost = Number(task.allocated_cost || 0) ? ` - cost ${fmt$(task.allocated_cost)} ea` : "";
+          const taskMeta = [task.platform, task.completeness ? completionLabel(task.completeness) : "", task.condition].filter(Boolean).join(" - ");
+          div.innerHTML = `<span>${escapeHtml(task.task_type || "task")} - ${escapeHtml(task.title || "")}<span class="inline-badge"> ${escapeHtml(task.status || "open")}</span><div class="meta">${escapeHtml(taskMeta)}${cost}</div></span><strong>${task.due_at ? escapeHtml(task.due_at) : ""}</strong>`;
+          els.taskList.appendChild(div);
+        });
+      } catch {
+        els.taskList.innerHTML = '<div class="status-line">Tasks unavailable.</div>';
+      }
+    }
+
+    async function loadTradeReport() {
+      if (!els.reportStatus) return;
+      try {
+        const res = await fetch(`${API_BASE}/api/trade/reports/summary?days=30`, { headers: getAuthHeaders() });
+        const data = await res.json();
+        if (!res.ok || !data.ok) throw new Error(data.error || "report_failed");
+        const totals = data.totals || {};
+        if (els.reportAccepted) els.reportAccepted.textContent = String(totals.accepted_quotes || 0);
+        if (els.reportItems) els.reportItems.textContent = String(totals.accepted_items || 0);
+        if (els.reportRetail) els.reportRetail.textContent = fmt$(totals.accepted_retail || 0);
+        if (els.reportMargin) els.reportMargin.textContent = `${Number(totals.estimated_margin_percent || 0)}%`;
+        els.reportStatus.textContent = "Last 30 days.";
+      } catch {
+        els.reportStatus.textContent = "Report unavailable for this user.";
+      }
     }
 
     async function loadQuote(quoteId) {
@@ -2401,9 +3577,27 @@
       els.customerEmail.value = quote.customer_email || "";
       els.sessionNotes.value = quote.notes || "";
       els.selectedCustomer.textContent = quote.customer_name || "Walk-in";
+      if (els.sellerIdType) els.sellerIdType.value = quote.seller_id_type || "";
+      if (els.sellerIdLast4) els.sellerIdLast4.value = quote.seller_id_last4 || "";
+      if (els.sellerDob) els.sellerDob.value = quote.seller_dob || "";
+      if (els.sellerAddress1) els.sellerAddress1.value = quote.seller_address1 || "";
+      if (els.sellerCity) els.sellerCity.value = quote.seller_city || "";
+      if (els.sellerState) els.sellerState.value = quote.seller_state || "";
+      if (els.sellerZip) els.sellerZip.value = quote.seller_zip || "";
+      applyChecklist({
+        ...safeParseJson(quote.intake_checklist_json, {}),
+        agreement_signed: Number(quote.agreement_signed || 0) === 1
+      });
+      applyCompletionChecklist(safeParseJson(quote.completion_checklist_json, {}));
 
       els.policyCreditRetail.value = quote.policy_credit_percent || 50;
       els.policyCashFromCredit.value = quote.policy_cash_percent || 80;
+      offerOverrideDirty = Math.abs(Number(quote.final_cash_offer ?? quote.total_cash ?? 0) - Number(quote.suggested_cash ?? quote.total_cash ?? 0)) >= 0.01
+        || Math.abs(Number(quote.final_credit_offer ?? quote.total_credit ?? 0) - Number(quote.suggested_credit ?? quote.total_credit ?? 0)) >= 0.01
+        || !!quote.offer_override_reason;
+      if (els.finalCashOffer) els.finalCashOffer.value = quote.final_cash_offer || quote.total_cash || "";
+      if (els.finalCreditOffer) els.finalCreditOffer.value = quote.final_credit_offer || quote.total_credit || "";
+      if (els.offerOverrideReason) els.offerOverrideReason.value = quote.offer_override_reason || "";
 
       items = (data.items || []).map((it) => {
         let comps = [];
@@ -2415,15 +3609,29 @@
           platform: it.platform || "",
           category: it.category || "",
           condition: it.condition || "Good",
+          completeness: normalizeCompleteness(it.completeness),
           qty: it.qty || 1,
           retailPrice: it.retail_price || 0,
           creditOffer: it.credit_offer || 0,
           cashOffer: it.cash_offer || 0,
+          allocatedCost: it.allocated_cost || 0,
+          allocatedTotalCost: it.allocated_total_cost || 0,
+          conditionNotes: it.condition_notes || "",
+          inventoryAction: it.inventory_action || "merge",
+          postStatus: it.post_status || (it.keep === 0 ? "pass" : "testing"),
+          holdUntil: it.hold_until || "",
+          testNeeded: it.test_needed !== 0,
+          labelNeeded: it.label_needed !== 0,
+          passReason: it.pass_reason || "",
+          pricingBasis: it.pricing_basis || "",
+          offerReason: it.offer_reason || it.reason || "",
           keep: it.keep !== 0,
           comps
         };
       });
       renderItems();
+      await loadTradeTasks();
+      await loadTradeReport();
       loadQuoteList();
       setStatus("Quote loaded.");
     }
@@ -2434,14 +3642,30 @@
       currentQuoteId = "";
       currentQuoteStatus = "draft";
       currentQuoteExpiry = "";
+      offerOverrideDirty = false;
+      managerApprovalToken = "";
       clearCustomer();
       els.sessionNotes.value = "";
+      if (els.sellerIdType) els.sellerIdType.value = "";
+      if (els.sellerIdLast4) els.sellerIdLast4.value = "";
+      if (els.sellerDob) els.sellerDob.value = "";
+      if (els.sellerAddress1) els.sellerAddress1.value = "";
+      if (els.sellerCity) els.sellerCity.value = "";
+      if (els.sellerState) els.sellerState.value = "";
+      if (els.sellerZip) els.sellerZip.value = "";
+      applyChecklist({});
+      applyCompletionChecklist({});
+      if (els.finalCashOffer) els.finalCashOffer.value = "";
+      if (els.finalCreditOffer) els.finalCreditOffer.value = "";
+      if (els.offerOverrideReason) els.offerOverrideReason.value = "";
       els.quoteId.textContent = "--";
       if (els.inlineQuoteId) els.inlineQuoteId.textContent = "--";
       els.offerId.textContent = "--";
       els.quoteExpiry.textContent = "--";
       updateSessionLabel();
       renderItems();
+      loadTradeTasks();
+      loadTradeReport();
       setStatus("New quote ready.");
     }
 
@@ -2467,8 +3691,10 @@
         els.compsStatus.textContent = data.error || "Comps failed.";
         return;
       }
-      item.comps = Array.isArray(data.comps) ? data.comps : [];
+      const manual = (Array.isArray(item.comps) ? item.comps : []).filter((c) => c && c.source === "manual");
+      item.comps = [...(Array.isArray(data.comps) ? data.comps : []), ...manual];
       renderComps();
+      updateWorkflowSteps();
     }
 
     async function fetchPricecharting() {
@@ -2485,7 +3711,8 @@
       if (els.marketStatus) els.marketStatus.textContent = "Fetching PriceCharting snapshot...";
       const qs = new URLSearchParams({
         title,
-        platform: item.platform || ""
+        platform: item.platform || "",
+        refresh: "1"
       }).toString();
       const res = await fetch(`${API_BASE}/api/trade/pricecharting?${qs}`, { headers: getAuthHeaders() });
       const data = await res.json().catch(() => ({}));
@@ -2495,6 +3722,8 @@
       }
       item.pricecharting = data;
       renderMarket();
+      renderComps();
+      updateWorkflowSteps();
     }
 
     function addManualComp() {
@@ -2547,6 +3776,8 @@
         const data = await resp.json();
         item.creditOffer = Number(data.creditOffer || 0);
         item.cashOffer = Number(data.cashOffer || 0);
+        item.offerReason = data.reason || "";
+        item.pricingBasis = item.pricingBasis || "AI rule";
         if (!quiet && data.reason) {
           els.itemsStatus.textContent = "AI: " + data.reason;
         }
@@ -2633,13 +3864,23 @@
           items.push({
             title: d.title || "",
             platform: d.platform || "",
-            category: "",
+            category: d.itemType || "",
             condition: d.conditionGuess || "Good",
+            completeness: "loose",
             qty: d.quantity || 1,
             retailPrice: 0,
             creditOffer: 0,
             cashOffer: 0,
             keep: true,
+            conditionNotes: d.notes || "",
+            inventoryAction: "merge",
+            postStatus: "testing",
+            holdUntil: "",
+            testNeeded: true,
+            labelNeeded: true,
+            passReason: "",
+            pricingBasis: "",
+            offerReason: "",
             comps: []
           });
         });
@@ -2662,6 +3903,21 @@
       renderItems();
     });
 
+    function updateSelectedItemFromPanel() {
+      const item = selectedItem();
+      if (!item) return;
+      item.conditionNotes = els.selectedConditionNotes?.value || "";
+      item.completeness = normalizeCompleteness(els.selectedCompleteness?.value || item.completeness);
+      item.postStatus = els.selectedPostStatus?.value || "testing";
+      item.inventoryAction = els.selectedInventoryAction?.value || "merge";
+      item.holdUntil = els.selectedHoldUntil?.value || "";
+      item.testNeeded = !!els.selectedTestNeeded?.checked;
+      item.labelNeeded = !!els.selectedLabelNeeded?.checked;
+      item.passReason = els.passReason?.value || "";
+      item.keep = item.postStatus === "pass" ? false : item.keep !== false;
+      renderItems();
+    }
+
     els.itemsBody.addEventListener("click", async (ev) => {
       const role = ev.target?.dataset?.role;
       const rowIndex = ev.target?.closest("tr")?.dataset?.index;
@@ -2671,6 +3927,7 @@
         items.splice(index, 1);
         els.itemsStatus.textContent = "Removed line from trade.";
         if (selectedItemIndex === index) selectedItemIndex = -1;
+        else if (selectedItemIndex > index) selectedItemIndex -= 1;
         renderItems();
       }
       if (role === "ai") {
@@ -2693,15 +3950,33 @@
       items.push({
         title,
         platform: els.itemPlatform.value || "",
-        category: "",
+        category: els.itemCategory?.value || "",
         condition: els.itemCondition.value || "Good",
+        completeness: normalizeCompleteness(els.itemCompleteness?.value || "loose"),
         qty: Number(els.itemQty.value || 1),
         retailPrice: Number(els.itemRetail.value || 0),
         creditOffer: 0,
         cashOffer: 0,
         keep: true,
+        conditionNotes: "",
+        inventoryAction: "merge",
+        postStatus: "testing",
+        holdUntil: addDaysIso(Number(els.settingsHoldDays?.value || tradeSettings?.resolved?.default_hold_days || 0)),
+        testNeeded: true,
+        labelNeeded: true,
+        passReason: "",
+        pricingBasis: "",
+        offerReason: "",
         comps: []
       });
+      selectedItemIndex = items.length - 1;
+      if (Number(items[selectedItemIndex].retailPrice || 0) > 0) {
+        const offer = offerFromRetail(items[selectedItemIndex].retailPrice, items[selectedItemIndex]);
+        items[selectedItemIndex].creditOffer = offer.credit;
+        items[selectedItemIndex].cashOffer = offer.cash;
+        items[selectedItemIndex].pricingBasis = "typed retail";
+        items[selectedItemIndex].offerReason = `Typed retail ${fmt$(items[selectedItemIndex].retailPrice)} using current policy.`;
+      }
       els.itemTitle.value = "";
       els.itemRetail.value = "";
       els.itemsStatus.textContent = "Line added.";
@@ -2713,6 +3988,42 @@
     els.btnCompsSold.addEventListener("click", () => fetchComps("sold"));
     els.btnCompsActive.addEventListener("click", () => fetchComps("active"));
     els.btnAddManualComp.addEventListener("click", addManualComp);
+    [els.selectedConditionNotes, els.selectedCompleteness, els.selectedPostStatus, els.selectedInventoryAction, els.selectedHoldUntil, els.selectedTestNeeded, els.selectedLabelNeeded, els.passReason]
+      .forEach((el) => {
+        if (!el) return;
+        el.addEventListener("change", updateSelectedItemFromPanel);
+        el.addEventListener("input", () => {
+          const item = selectedItem();
+          if (!item) return;
+          if (el === els.selectedConditionNotes) item.conditionNotes = el.value || "";
+          if (el === els.selectedCompleteness) item.completeness = normalizeCompleteness(el.value);
+          if (el === els.passReason) item.passReason = el.value || "";
+          if (els.offerExplain) els.offerExplain.textContent = explainOffer(item);
+        });
+      });
+    if (els.btnUseEvidence) els.btnUseEvidence.addEventListener("click", () => {
+      const item = selectedItem();
+      if (!item) {
+        els.compsStatus.textContent = "Select a line first.";
+        return;
+      }
+      const evidence = selectedEvidencePrice(item);
+      if (!evidence.price) {
+        els.compsStatus.textContent = "Fetch comps, PriceCharting, or enter a retail price first.";
+        return;
+      }
+      applyEvidencePrice(evidence.price, evidence.label || "best evidence");
+    });
+    if (els.btnApplyRule) els.btnApplyRule.addEventListener("click", applyOfferRuleToSelected);
+    if (els.btnPassItem) els.btnPassItem.addEventListener("click", () => {
+      const item = selectedItem();
+      if (!item) return;
+      item.keep = false;
+      item.postStatus = "pass";
+      item.passReason = els.passReason?.value || item.passReason || "Passed by staff";
+      renderItems();
+      els.itemsStatus.textContent = "Item marked as pass.";
+    });
     if (els.btnFetchPricecharting) els.btnFetchPricecharting.addEventListener("click", fetchPricecharting);
     if (els.btnOpenPricecharting) {
       els.btnOpenPricecharting.addEventListener("click", () => {
@@ -2745,11 +4056,29 @@
     els.btnCustomerSearch.addEventListener("click", searchCustomers);
     els.btnCustomerSave.addEventListener("click", saveCustomer);
     els.btnCustomerClear.addEventListener("click", clearCustomer);
+    [els.checkIdVerified, els.checkItemsPresent, els.checkConditionReviewed, els.checkPhotos, els.agreementSigned,
+      els.checkOfferReviewed, els.checkPayoutConfirmed, els.checkInventoryReviewed, els.payoutMethod,
+      els.policyCreditRetail, els.policyCashFromCredit, els.policyMarginFloor, els.policyOfferBasis]
+      .forEach((el) => {
+        if (!el) return;
+        el.addEventListener("change", () => {
+          renderItems();
+          updateWorkflowSteps();
+        });
+      });
     if (els.btnSaveSettings) els.btnSaveSettings.addEventListener("click", saveTradeSettings);
+
+    [els.finalCashOffer, els.finalCreditOffer, els.offerOverrideReason].forEach((el) => {
+      if (!el) return;
+      el.addEventListener("input", () => {
+        offerOverrideDirty = true;
+        updateTotalsUI();
+      });
+    });
 
     els.btnSaveQuote.addEventListener("click", () => saveQuote("draft"));
     els.btnPresentQuote.addEventListener("click", () => saveQuote("presented"));
-    els.btnAcceptQuote.addEventListener("click", () => saveQuote("accepted"));
+    els.btnAcceptQuote.addEventListener("click", acceptTradeQuote);
     els.btnDeclineQuote.addEventListener("click", () => saveQuote("declined"));
     els.btnClear.addEventListener("click", newQuote);
     els.btnQuoteSearch.addEventListener("click", loadQuoteList);
@@ -2820,7 +4149,9 @@
       els.itemTitle.addEventListener("blur", maybeAutofillPlatformForTitle);
     }
 
-    [els.policyCreditRetail, els.policyCashFromCredit, els.customerName, els.customerPhone, els.customerEmail, els.sessionNotes].forEach((el) => {
+    [els.policyCreditRetail, els.policyCashFromCredit, els.customerName, els.customerPhone, els.customerEmail, els.sessionNotes,
+      els.sellerIdLast4, els.sellerDob, els.sellerAddress1, els.sellerCity, els.sellerState, els.sellerZip]
+      .forEach((el) => {
       if (!el) return;
       el.addEventListener("input", () => {
         updateTotalsUI();
@@ -2835,6 +4166,8 @@
       renderItems();
       updateSessionLabel();
       loadQuoteList();
+      loadTradeTasks();
+      loadTradeReport();
     }
 
     init();

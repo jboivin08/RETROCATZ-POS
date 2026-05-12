@@ -1,5 +1,5 @@
 // backend/providers/ebay.js
-// eBay comps provider for RetroCatz POS
+// eBay comps provider for VaultCore POS
 // Uses Finding API:
 // - findCompletedItems for SOLD comps
 // - findItemsByKeywords for ACTIVE comps

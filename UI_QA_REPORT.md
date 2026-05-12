@@ -10,7 +10,7 @@ Generated: 2026-02-26
 ## Verified
 - 14 renderer HTML pages audited (including `accounting.html`).
 - 12 dashboard-back labels present in renderer pages.
-- Page title format standardized to `Page - RetroCatz POS` on app pages.
+- Page title format standardized to `Page - VaultCore POS` on app pages.
 - Header patterns now use one of:
   - `toolbar`
   - `page-toolbar`

@@ -1,0 +1,383 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>Tasks - VaultCore POS</title>
+  <meta http-equiv="Content-Security-Policy"
+        content="default-src 'self' file:;
+                 img-src 'self' file: data:;
+                 style-src 'self' 'unsafe-inline';
+                 script-src 'self' 'unsafe-inline';
+                 connect-src 'self' http://127.0.0.1:5175 http://localhost:5175;" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <script src="theme.js"></script>
+  <link rel="stylesheet" href="themes.css" />
+  <style>
+    :root { --bg:#0b0b0d; --panel:#111827; --soft:#0f172a; --border:#374151; --text:#e5e7eb; --muted:#9ca3af; --blue:#22c7e8; --danger:#ff4778; }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: var(--bg); color: var(--text); font-family: system-ui, Arial, sans-serif; }
+    header.top { display:flex; align-items:center; gap:12px; padding:14px 18px; background:#091226; border-bottom:1px solid #0e1b36; }
+    header.top h1 { margin:0; font-size:20px; }
+    .spacer { flex:1; }
+    button, .btn, select, input, textarea { border:1px solid var(--border); border-radius:8px; background:#050508; color:var(--text); }
+    button, .btn { padding:8px 12px; cursor:pointer; text-decoration:none; }
+    button.primary, .btn.primary { background:var(--blue); border-color:var(--blue); color:#001018; font-weight:800; }
+    button.danger { background:var(--danger); border-color:var(--danger); color:#fff; }
+    main { max-width: 1480px; margin: 0 auto; padding: 16px; display:grid; grid-template-columns: minmax(300px, 420px) minmax(0, 1fr); gap:14px; }
+    @media (max-width: 980px) { main { grid-template-columns: 1fr; } }
+    .panel { background:var(--panel); border:1px solid var(--border); border-radius:10px; padding:14px; }
+    .panel h2 { margin:0 0 10px; font-size:15px; text-transform:uppercase; letter-spacing:.06em; }
+    label { display:block; color:var(--muted); font-size:12px; margin:8px 0 5px; text-transform:uppercase; }
+    input, select, textarea { width:100%; padding:9px; }
+    textarea { min-height:76px; resize:vertical; }
+    .grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+    .row { display:flex; gap:8px; flex-wrap:wrap; align-items:center; }
+    .muted { color:var(--muted); font-size:12px; }
+    .metrics { display:grid; grid-template-columns:repeat(4, minmax(120px, 1fr)); gap:10px; margin-bottom:12px; }
+    .metric { background:#050508; border:1px solid var(--border); border-radius:8px; padding:10px; }
+    .metric span { display:block; color:var(--muted); font-size:11px; text-transform:uppercase; }
+    .metric strong { display:block; margin-top:4px; font-size:20px; color:var(--blue); }
+    .filters { display:grid; grid-template-columns:repeat(4, minmax(120px, 1fr)); gap:10px; margin-bottom:12px; }
+    .task-list, .bucket-list { display:grid; gap:10px; }
+    .task-card, .bucket-card { background:#050508; border:1px solid var(--border); border-radius:8px; padding:11px; display:grid; gap:7px; }
+    .task-card header, .bucket-card header { display:flex; justify-content:space-between; gap:10px; align-items:flex-start; }
+    .task-card h3, .bucket-card h3 { margin:0; font-size:15px; }
+    .chips { display:flex; flex-wrap:wrap; gap:6px; }
+    .chip { border:1px solid rgba(148,163,184,.35); border-radius:999px; padding:2px 7px; font-size:11px; color:#cbd5e1; }
+    .chip.hot { border-color:rgba(255,71,120,.7); color:#ffc5d5; }
+    .task-actions { display:flex; flex-wrap:wrap; gap:8px; }
+    .hidden { display:none !important; }
+    .notice { min-height:18px; color:#a7f3d0; font-size:12px; margin-top:8px; }
+  </style>
+</head>
+<body>
+  <header class="top">
+    <h1>Tasks</h1>
+    <span class="muted">Manager queue, reminders, assignments, and trade intake alerts</span>
+    <span class="spacer"></span>
+    <a class="btn" href="index.html">Dashboard</a>
+    <a class="btn" href="add-item.html">Add Item Bucket</a>
+  </header>
+
+  <main>
+    <aside class="panel" id="create-panel">
+      <h2>Create Task</h2>
+      <label for="task-title">Title</label>
+      <input id="task-title" placeholder="Count PS2 wall, call customer, file report..." />
+
+      <label for="task-description">Notes</label>
+      <textarea id="task-description" placeholder="What needs to be done?"></textarea>
+
+      <div class="grid">
+        <div>
+          <label for="task-category">Category</label>
+          <select id="task-category">
+            <option value="store">Store</option>
+            <option value="opening">Opening</option>
+            <option value="closing">Closing</option>
+            <option value="tax">Tax</option>
+            <option value="trade">Trade</option>
+            <option value="inventory">Inventory</option>
+            <option value="customer">Customer</option>
+            <option value="admin">Admin</option>
+          </select>
+        </div>
+        <div>
+          <label for="task-priority">Priority</label>
+          <select id="task-priority">
+            <option value="normal">Normal</option>
+            <option value="high">High</option>
+            <option value="urgent">Urgent</option>
+            <option value="low">Low</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="grid">
+        <div>
+          <label for="task-scope">Assign To</label>
+          <select id="task-scope">
+            <option value="management">Managers / Owners</option>
+            <option value="all">All Users</option>
+            <option value="user">Specific User</option>
+          </select>
+        </div>
+        <div>
+          <label for="task-user">User</label>
+          <select id="task-user"></select>
+        </div>
+      </div>
+
+      <label for="task-due">Due</label>
+      <input id="task-due" type="datetime-local" />
+
+      <div class="row" style="margin-top:10px">
+        <label class="row" style="margin:0;text-transform:none"><input id="task-hard" type="checkbox" style="width:auto"> Hard date</label>
+        <label class="row" style="margin:0;text-transform:none"><input id="task-alert" type="checkbox" checked style="width:auto"> Show as alert</label>
+      </div>
+
+      <div class="row" style="margin-top:12px">
+        <button id="create-task" class="primary">Create Task</button>
+        <button id="clear-task">Clear</button>
+      </div>
+      <div class="notice" id="task-notice"></div>
+    </aside>
+
+    <section>
+      <div class="metrics">
+        <div class="metric"><span>Open</span><strong id="metric-open">0</strong></div>
+        <div class="metric"><span>Overdue</span><strong id="metric-overdue">0</strong></div>
+        <div class="metric"><span>Hard Dates</span><strong id="metric-hard">0</strong></div>
+        <div class="metric"><span>Trade Intake</span><strong id="metric-trade">0</strong></div>
+      </div>
+
+      <section class="panel">
+        <h2>Task Queue</h2>
+        <div class="filters">
+          <select id="filter-status">
+            <option value="open">Open</option>
+            <option value="in_review">In Review</option>
+            <option value="all">All Statuses</option>
+            <option value="done">Done</option>
+          </select>
+          <select id="filter-category">
+            <option value="all">All Categories</option>
+            <option value="opening">Opening</option>
+            <option value="closing">Closing</option>
+            <option value="store">Store</option>
+            <option value="tax">Tax</option>
+            <option value="trade">Trade</option>
+            <option value="inventory">Inventory</option>
+            <option value="customer">Customer</option>
+            <option value="admin">Admin</option>
+          </select>
+          <button id="refresh-tasks">Refresh</button>
+          <a class="btn" href="add-item.html">Open Trade Bucket</a>
+        </div>
+        <div id="task-list" class="task-list"></div>
+      </section>
+
+      <section class="panel" style="margin-top:14px">
+        <h2>Trade Intake Bucket</h2>
+        <p class="muted">Accepted trade items waiting for inventory review and posting. Add Item can pull these into the form.</p>
+        <div id="bucket-list" class="bucket-list"></div>
+      </section>
+    </section>
+  </main>
+
+  <script>
+    const API_BASE = "http://127.0.0.1:5175";
+    const SESSION_KEY = "rc_session_id";
+    const $ = (id) => document.getElementById(id);
+    const els = {
+      createPanel: $("create-panel"),
+      title: $("task-title"),
+      description: $("task-description"),
+      category: $("task-category"),
+      priority: $("task-priority"),
+      scope: $("task-scope"),
+      user: $("task-user"),
+      due: $("task-due"),
+      hard: $("task-hard"),
+      alert: $("task-alert"),
+      create: $("create-task"),
+      clear: $("clear-task"),
+      notice: $("task-notice"),
+      status: $("filter-status"),
+      filterCategory: $("filter-category"),
+      refresh: $("refresh-tasks"),
+      list: $("task-list"),
+      bucket: $("bucket-list"),
+      metricOpen: $("metric-open"),
+      metricOverdue: $("metric-overdue"),
+      metricHard: $("metric-hard"),
+      metricTrade: $("metric-trade")
+    };
+
+    function authHeaders() {
+      return { "Content-Type": "application/json", "rc_session_id": localStorage.getItem(SESSION_KEY) || "" };
+    }
+
+    async function api(path, options = {}) {
+      const res = await fetch(API_BASE + path, { ...options, headers: { ...authHeaders(), ...(options.headers || {}) } });
+      const data = await res.json().catch(() => ({}));
+      if (res.status === 401) {
+        window.location.href = "../../public/index.html";
+        throw new Error("Unauthorized");
+      }
+      if (!res.ok) throw new Error(data.error || "Request failed");
+      return data;
+    }
+
+    function esc(value) {
+      return String(value ?? "").replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;").replaceAll('"', "&quot;");
+    }
+
+    function dueLabel(value) {
+      if (!value) return "No due date";
+      const d = new Date(value);
+      if (Number.isNaN(d.getTime())) return value;
+      return d.toLocaleString([], { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" });
+    }
+
+    function setNotice(text, error = false) {
+      els.notice.textContent = text || "";
+      els.notice.style.color = error ? "#ffc5c5" : "#a7f3d0";
+    }
+
+    async function loadAssignees() {
+      try {
+        const data = await api("/api/tasks/assignees");
+        els.user.innerHTML = "";
+        (data.rows || []).forEach((u) => {
+          const opt = document.createElement("option");
+          opt.value = u.id;
+          opt.textContent = `${u.display_name || u.username} (${u.role})`;
+          els.user.appendChild(opt);
+        });
+      } catch {
+        els.createPanel.classList.add("hidden");
+      }
+    }
+
+    async function loadSummary() {
+      const data = await api("/api/tasks/summary");
+      const counts = data.counts || {};
+      els.metricOpen.textContent = counts.open || 0;
+      els.metricOverdue.textContent = counts.overdue || 0;
+      els.metricHard.textContent = counts.hard_due || 0;
+      els.metricTrade.textContent = counts.trade_intake || 0;
+      if (!data.can_manage) els.createPanel.classList.add("hidden");
+    }
+
+    function renderTasks(rows) {
+      els.list.innerHTML = "";
+      if (!rows.length) {
+        els.list.innerHTML = '<div class="muted">No tasks match this view.</div>';
+        return;
+      }
+      rows.forEach((task) => {
+        const card = document.createElement("article");
+        card.className = "task-card";
+        const hot = task.priority === "urgent" || Number(task.hard_due || 0) === 1;
+        card.innerHTML = `
+          <header>
+            <h3>${esc(task.title)}</h3>
+            <span class="chip ${hot ? "hot" : ""}">${esc(task.priority || "normal")}</span>
+          </header>
+          <div class="chips">
+            <span class="chip">${esc(task.category || "store")}</span>
+            <span class="chip">${esc(task.status || "open")}</span>
+            <span class="chip">${esc(task.assigned_label || "Management")}</span>
+            <span class="chip">${esc(dueLabel(task.due_at))}</span>
+            ${Number(task.hard_due || 0) === 1 ? '<span class="chip hot">Hard date</span>' : ""}
+          </div>
+          ${task.description ? `<div class="muted">${esc(task.description)}</div>` : ""}
+          <div class="task-actions">
+            <button data-action="review" data-id="${task.id}">In Review</button>
+            <button class="primary" data-action="done" data-id="${task.id}">Complete</button>
+            <button data-action="open" data-id="${task.id}">Reopen</button>
+          </div>
+        `;
+        els.list.appendChild(card);
+      });
+    }
+
+    async function loadTasks() {
+      const qs = new URLSearchParams({ status: els.status.value, category: els.filterCategory.value });
+      const data = await api(`/api/tasks?${qs.toString()}`);
+      renderTasks(data.rows || []);
+      await loadSummary();
+    }
+
+    function renderBucket(rows) {
+      els.bucket.innerHTML = "";
+      if (!rows.length) {
+        els.bucket.innerHTML = '<div class="muted">No accepted trade items are waiting for Add Item.</div>';
+        return;
+      }
+      rows.forEach((task) => {
+        const card = document.createElement("article");
+        card.className = "bucket-card";
+        card.innerHTML = `
+          <header>
+            <h3>${esc(task.title || "Trade item")}</h3>
+            <a class="btn primary" href="add-item.html?trade_task_id=${encodeURIComponent(task.id)}">Add Item</a>
+          </header>
+          <div class="chips">
+            <span class="chip">${esc(task.platform || "No platform")}</span>
+            <span class="chip">${esc(task.condition || "No condition")}</span>
+            <span class="chip">${esc(task.completeness || "No completeness")}</span>
+            <span class="chip">Cost $${Number(task.allocated_cost || 0).toFixed(2)}</span>
+            <span class="chip">Retail $${Number(task.retail_price || 0).toFixed(2)}</span>
+          </div>
+        `;
+        els.bucket.appendChild(card);
+      });
+    }
+
+    async function loadBucket() {
+      const data = await api("/api/trade/tasks?status=open&task_type=inventory_review");
+      renderBucket(data.rows || []);
+    }
+
+    async function createTask() {
+      const payload = {
+        title: els.title.value.trim(),
+        description: els.description.value.trim(),
+        category: els.category.value,
+        priority: els.priority.value,
+        assigned_scope: els.scope.value,
+        assigned_user_id: els.scope.value === "user" ? Number(els.user.value || 0) : null,
+        due_at: els.due.value,
+        hard_due: els.hard.checked,
+        alert: els.alert.checked
+      };
+      if (!payload.title) {
+        setNotice("Enter a task title.", true);
+        return;
+      }
+      await api("/api/tasks", { method: "POST", body: JSON.stringify(payload) });
+      setNotice("Task created.");
+      els.title.value = "";
+      els.description.value = "";
+      await loadTasks();
+    }
+
+    async function updateTask(id, status) {
+      await api(`/api/tasks/${encodeURIComponent(id)}`, { method: "PUT", body: JSON.stringify({ status }) });
+      await loadTasks();
+    }
+
+    els.scope.addEventListener("change", () => {
+      els.user.disabled = els.scope.value !== "user";
+    });
+    els.create.addEventListener("click", createTask);
+    els.clear.addEventListener("click", () => {
+      els.title.value = "";
+      els.description.value = "";
+      els.due.value = "";
+      setNotice("");
+    });
+    els.refresh.addEventListener("click", loadTasks);
+    [els.status, els.filterCategory].forEach((el) => el.addEventListener("change", loadTasks));
+    els.list.addEventListener("click", (ev) => {
+      const id = ev.target?.dataset?.id;
+      const action = ev.target?.dataset?.action;
+      if (!id || !action) return;
+      const status = action === "done" ? "done" : (action === "review" ? "in_review" : "open");
+      updateTask(id, status);
+    });
+
+    async function init() {
+      els.user.disabled = true;
+      await loadAssignees();
+      await loadTasks();
+      await loadBucket();
+    }
+    init().catch((err) => {
+      setNotice(err.message || "Tasks failed to load.", true);
+    });
+  </script>
+</body>
+</html>

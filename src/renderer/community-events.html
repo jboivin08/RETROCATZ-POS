@@ -1,0 +1,833 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Community Events - VaultCore POS</title>
+  <meta http-equiv="Cache-Control" content="no-store" />
+  <meta http-equiv="Content-Security-Policy"
+        content="default-src 'self';
+                 script-src 'self';
+                 connect-src 'self' http://127.0.0.1:5175 http://localhost:5175;
+                 img-src 'self' data:;
+                 style-src 'self' 'unsafe-inline'">
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    :root {
+      --bg: #0b0d10;
+      --panel: #141820;
+      --panel-strong: #1b202a;
+      --panel-soft: #10141b;
+      --line: #2a3341;
+      --line-soft: rgba(148, 163, 184, 0.18);
+      --text: #f4f7fb;
+      --muted: #9aa7b8;
+      --blue: #2f6fed;
+      --cyan: #0f8ea7;
+      --green: #208956;
+      --amber: #c07a18;
+      --red: #ad3943;
+      --shadow: rgba(0, 0, 0, 0.32);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: var(--bg);
+      color: var(--text);
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    button, input, select, textarea { font: inherit; }
+    button { cursor: pointer; }
+    button:disabled { cursor: not-allowed; opacity: 0.55; }
+
+    .event-app {
+      min-height: 100vh;
+      display: grid;
+      grid-template-rows: auto 1fr;
+      gap: 12px;
+      padding: 12px;
+    }
+
+    .topbar {
+      min-height: 58px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 12px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #111720;
+      box-shadow: 0 12px 26px var(--shadow);
+    }
+
+    .logo {
+      width: auto;
+      height: 26px;
+      flex: 0 0 auto;
+    }
+
+    h1, h2, h3, p { margin: 0; letter-spacing: 0; }
+    h1 { font-size: 20px; line-height: 1.2; }
+    h2 { font-size: 15px; line-height: 1.25; }
+    h3 { font-size: 13px; line-height: 1.25; }
+
+    .topbar-spacer { flex: 1; }
+
+    .app-grid {
+      display: grid;
+      grid-template-columns: minmax(290px, 340px) minmax(560px, 1fr) minmax(340px, 420px);
+      gap: 12px;
+      align-items: stretch;
+      min-height: 0;
+    }
+
+    .panel {
+      min-width: 0;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--panel);
+      box-shadow: 0 12px 26px var(--shadow);
+    }
+
+    .rail, .workspace, .attendee-rail {
+      min-height: 0;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .panel-head {
+      min-height: 54px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      padding: 12px;
+      border-bottom: 1px solid var(--line-soft);
+    }
+
+    .panel-body {
+      min-height: 0;
+      padding: 12px;
+      overflow: auto;
+    }
+
+    .stack { display: flex; flex-direction: column; gap: 10px; }
+    .row { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+    .actions { display: flex; align-items: center; justify-content: flex-end; gap: 8px; flex-wrap: wrap; }
+    .muted { color: var(--muted); }
+    .small { color: var(--muted); font-size: 12px; line-height: 1.35; }
+    .hidden { display: none !important; }
+
+    .btn, .link-btn {
+      min-height: 34px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #11151c;
+      color: var(--text);
+      padding: 7px 10px;
+      font-size: 13px;
+      line-height: 1.2;
+      text-decoration: none;
+      white-space: nowrap;
+    }
+
+    .btn:hover, .link-btn:hover { border-color: #7a8798; }
+    .btn.primary { background: var(--blue); border-color: var(--blue); color: white; font-weight: 750; }
+    .btn.good { background: var(--green); border-color: var(--green); color: white; font-weight: 750; }
+    .btn.warn { background: var(--amber); border-color: var(--amber); color: #15110a; font-weight: 750; }
+    .btn.danger { background: var(--red); border-color: var(--red); color: white; font-weight: 750; }
+    .btn.ghost { background: transparent; }
+    .btn.slim { min-height: 29px; padding: 5px 8px; font-size: 12px; }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 24px;
+      padding: 3px 9px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: #101621;
+      color: #d8e2ef;
+      font-size: 12px;
+      line-height: 1.15;
+      white-space: nowrap;
+    }
+
+    .pill.good { border-color: rgba(34, 197, 94, 0.62); color: #bdf5ce; }
+    .pill.warn { border-color: rgba(245, 158, 11, 0.68); color: #fde5a4; }
+    .pill.bad { border-color: rgba(248, 113, 113, 0.72); color: #ffd1d1; }
+    .pill.info { border-color: rgba(34, 211, 238, 0.62); color: #b9eef6; }
+
+    #pageStatus {
+      max-width: min(560px, 100%);
+      white-space: normal;
+      justify-content: flex-start;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 4px;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.25;
+    }
+
+    input, select, textarea {
+      width: 100%;
+      min-height: 36px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #080b10;
+      color: var(--text);
+      padding: 8px 10px;
+      font-size: 13px;
+      outline: none;
+    }
+
+    input:focus, select:focus, textarea:focus {
+      border-color: #5c8cf6;
+      box-shadow: 0 0 0 2px rgba(47, 111, 237, 0.18);
+    }
+
+    textarea {
+      min-height: 80px;
+      resize: vertical;
+    }
+
+    .field-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .field-grid.tight { gap: 8px; }
+    .span-2 { grid-column: span 2; }
+
+    .filters {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 132px;
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+
+    .event-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .event-row {
+      width: 100%;
+      min-height: 82px;
+      padding: 10px;
+      border: 1px solid var(--line-soft);
+      border-radius: 8px;
+      background: var(--panel-soft);
+      color: var(--text);
+      text-align: left;
+    }
+
+    .event-row:hover { border-color: #657389; }
+    .event-row.active { border-color: #6aa1ff; background: #162236; }
+    .event-row-title {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 8px;
+      margin-bottom: 6px;
+      font-weight: 800;
+    }
+    .event-row-title span:first-child {
+      min-width: 0;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .event-row-meta {
+      display: grid;
+      gap: 4px;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.25;
+    }
+
+    .create-panel {
+      border-top: 1px solid var(--line-soft);
+      background: #111720;
+    }
+
+    .event-header {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 12px;
+      padding: 14px;
+      border-bottom: 1px solid var(--line-soft);
+      background: var(--panel-strong);
+    }
+
+    .event-title-line {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+      min-width: 0;
+    }
+
+    .event-title-line h2 {
+      font-size: 22px;
+      overflow-wrap: anywhere;
+    }
+
+    .status-strip {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: 8px;
+      padding: 12px;
+      border-bottom: 1px solid var(--line-soft);
+      background: #10151d;
+    }
+
+    .status-button {
+      min-height: 42px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #0b1017;
+      color: var(--text);
+      font-size: 12px;
+      font-weight: 750;
+    }
+
+    .status-button.active {
+      border-color: #79a7ff;
+      background: #193053;
+    }
+
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 10px;
+      padding: 12px;
+      border-bottom: 1px solid var(--line-soft);
+    }
+
+    .kpi {
+      min-height: 74px;
+      padding: 10px;
+      border: 1px solid var(--line-soft);
+      border-radius: 8px;
+      background: #0e141c;
+    }
+
+    .kpi .label {
+      color: var(--muted);
+      font-size: 11px;
+      line-height: 1.2;
+    }
+
+    .kpi .value {
+      margin-top: 5px;
+      font-size: 21px;
+      font-weight: 850;
+      overflow-wrap: anywhere;
+    }
+
+    .workspace-grid {
+      display: grid;
+      grid-template-columns: minmax(320px, 0.95fr) minmax(340px, 1.05fr);
+      gap: 12px;
+      padding: 12px;
+      min-height: 0;
+    }
+
+    .work-section {
+      min-width: 0;
+      border: 1px solid var(--line-soft);
+      border-radius: 8px;
+      background: #10151d;
+      overflow: hidden;
+    }
+
+    .work-section-head {
+      min-height: 44px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      padding: 10px;
+      border-bottom: 1px solid var(--line-soft);
+    }
+
+    .work-section-body {
+      padding: 10px;
+    }
+
+    .checkin-name {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 126px;
+      gap: 8px;
+    }
+
+    .health-note {
+      padding: 10px;
+      border: 1px solid var(--line-soft);
+      border-radius: 8px;
+      background: #0b1017;
+      color: #d8e7ff;
+      font-size: 13px;
+      line-height: 1.35;
+    }
+
+    .scanner-box {
+      padding: 9px;
+      border: 1px solid rgba(34, 211, 238, 0.34);
+      border-radius: 8px;
+      background: #0b1419;
+    }
+
+    .scanner-box input {
+      border-color: rgba(34, 211, 238, 0.42);
+      background: #060a0d;
+      font-weight: 750;
+    }
+
+    .ticket-batch {
+      padding: 9px;
+      border: 1px solid rgba(47, 111, 237, 0.34);
+      border-radius: 8px;
+      background: #0c111b;
+    }
+
+    .empty-state {
+      min-height: 100%;
+      display: grid;
+      place-items: center;
+      padding: 30px;
+      text-align: center;
+      color: var(--muted);
+    }
+
+    .empty-state h2 {
+      color: var(--text);
+      font-size: 20px;
+      margin-bottom: 6px;
+    }
+
+    .attendee-tools {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 132px;
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+
+    .attendee-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .attendee-row {
+      border: 1px solid var(--line-soft);
+      border-radius: 8px;
+      background: #10151d;
+      padding: 9px;
+    }
+
+    .attendee-top {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 8px;
+      align-items: start;
+      margin-bottom: 7px;
+    }
+
+    .attendee-name {
+      font-weight: 800;
+      overflow-wrap: anywhere;
+    }
+
+    .attendee-meta {
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.35;
+      overflow-wrap: anywhere;
+    }
+
+    .attendee-actions {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+
+    .danger-zone {
+      border-top: 1px solid var(--line-soft);
+      padding-top: 10px;
+      margin-top: 10px;
+    }
+
+    .attendee-rail .panel-head {
+      align-items: flex-start;
+      flex-wrap: wrap;
+    }
+
+    .attendee-rail .panel-head .actions {
+      flex: 1 1 100%;
+      justify-content: flex-start;
+    }
+
+    @media (max-width: 1320px) {
+      .app-grid {
+        grid-template-columns: minmax(280px, 330px) minmax(520px, 1fr);
+      }
+      .attendee-rail {
+        grid-column: 1 / -1;
+      }
+      .attendee-list {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      }
+    }
+
+    @media (max-width: 980px) {
+      .app-grid, .workspace-grid {
+        grid-template-columns: 1fr;
+      }
+      .event-header {
+        grid-template-columns: 1fr;
+      }
+      .status-strip, .kpi-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+      .rail, .workspace, .attendee-rail {
+        min-height: auto;
+      }
+    }
+
+    @media (max-width: 680px) {
+      .event-app { padding: 8px; }
+      .topbar { align-items: flex-start; }
+      .topbar-spacer { display: none; }
+      .field-grid, .filters, .attendee-tools, .checkin-name {
+        grid-template-columns: 1fr;
+      }
+      .span-2 { grid-column: span 1; }
+      .status-strip, .kpi-grid {
+        grid-template-columns: 1fr;
+      }
+      .event-title-line h2 { font-size: 19px; }
+    }
+  </style>
+  <script src="theme.js"></script>
+  <link rel="stylesheet" href="themes.css" />
+</head>
+<body>
+  <main class="event-app">
+    <header class="topbar">
+      <img class="logo" src="assets/VaultCore_Logo_White.png" alt="VaultCore" />
+      <div>
+        <h1>Community Events</h1>
+        <div class="small">Check-in, tournaments, leagues, prereleases, and player signups</div>
+      </div>
+      <a class="link-btn" href="index.html">Dashboard</a>
+      <span class="topbar-spacer"></span>
+      <span id="pageStatus" class="pill warn">Loading events...</span>
+    </header>
+
+    <section class="app-grid">
+      <aside class="panel rail">
+        <div class="panel-head">
+          <div>
+            <h2>Event Roster</h2>
+            <div id="eventCount" class="small">No events loaded</div>
+          </div>
+          <div class="actions">
+            <button class="btn slim ghost" type="button" id="btnRefreshEvents">Refresh</button>
+            <button class="btn slim primary" type="button" id="btnToggleCreate">New</button>
+          </div>
+        </div>
+
+        <div class="panel-body">
+          <div class="filters">
+            <input id="eventSearch" placeholder="Search events" autocomplete="off" />
+            <select id="eventStatusFilter">
+              <option value="active">Active</option>
+              <option value="">All</option>
+              <option value="scheduled">Scheduled</option>
+              <option value="check_in">Check-In</option>
+              <option value="live">Live</option>
+              <option value="completed">Completed</option>
+              <option value="cancelled">Cancelled</option>
+            </select>
+          </div>
+          <div id="eventList" class="event-list"></div>
+        </div>
+
+        <form id="createPanel" class="create-panel hidden">
+          <div class="panel-head">
+            <div>
+              <h2>Create Event</h2>
+              <div id="createStatus" class="small">Ready</div>
+            </div>
+            <button class="btn slim ghost" type="button" id="btnCancelCreate">Close</button>
+          </div>
+          <div class="panel-body stack">
+            <div>
+              <label for="newTitle">Event Name</label>
+              <input id="newTitle" autocomplete="off" placeholder="Friday Night Magic" />
+            </div>
+            <div class="field-grid tight">
+              <div>
+                <label for="newGame">Game / Community</label>
+                <select id="newGame">
+                  <option>Magic: The Gathering</option>
+                  <option>Pokemon</option>
+                  <option>Yu-Gi-Oh!</option>
+                  <option>Lorcana</option>
+                  <option>Dungeons & Dragons</option>
+                  <option>Video Games</option>
+                  <option>Board Games</option>
+                  <option>Trade Night</option>
+                  <option>Other</option>
+                </select>
+              </div>
+              <div>
+                <label for="newType">Type</label>
+                <select id="newType">
+                  <option>Tournament</option>
+                  <option>Prerelease</option>
+                  <option>League</option>
+                  <option>Casual Play</option>
+                  <option>Trade Night</option>
+                  <option>Launch Event</option>
+                  <option>Learn to Play</option>
+                </select>
+              </div>
+              <div>
+                <label for="newDate">Date</label>
+                <input id="newDate" type="date" />
+              </div>
+              <div>
+                <label for="newTime">Start</label>
+                <input id="newTime" type="time" />
+              </div>
+              <div>
+                <label for="newCapacity">Capacity</label>
+                <input id="newCapacity" type="number" min="0" step="1" placeholder="0" />
+              </div>
+              <div>
+                <label for="newEntryFee">Entry Fee</label>
+                <input id="newEntryFee" type="number" min="0" step="0.01" placeholder="0.00" />
+              </div>
+              <div class="span-2">
+                <label for="newNotes">Event Notes</label>
+                <textarea id="newNotes" placeholder="Format, rounds, prize notes, staff notes"></textarea>
+              </div>
+            </div>
+            <button class="btn primary" type="submit" id="btnCreateEvent">Create Event</button>
+          </div>
+        </form>
+      </aside>
+
+      <section class="panel workspace">
+        <div id="emptyWorkspace" class="empty-state">
+          <div>
+            <h2>Select or create an event</h2>
+            <p>Live event controls will open here.</p>
+          </div>
+        </div>
+
+        <div id="eventWorkspace" class="hidden">
+          <div class="event-header">
+            <div>
+              <div class="event-title-line">
+                <h2 id="detailTitle">Event</h2>
+                <span id="detailStatus" class="pill">scheduled</span>
+              </div>
+              <div id="detailMeta" class="small">Ready</div>
+            </div>
+            <div class="actions">
+              <button class="btn ghost" type="button" id="btnSaveEvent">Save Details</button>
+              <button class="btn danger" type="button" id="btnDeleteEvent">Delete Event</button>
+            </div>
+          </div>
+
+          <div class="status-strip" id="statusStrip">
+            <button class="status-button" type="button" data-status="scheduled">Scheduled</button>
+            <button class="status-button" type="button" data-status="check_in">Check-In</button>
+            <button class="status-button" type="button" data-status="live">Live</button>
+            <button class="status-button" type="button" data-status="completed">Completed</button>
+            <button class="status-button" type="button" data-status="cancelled">Cancelled</button>
+          </div>
+
+          <div class="kpi-grid">
+            <div class="kpi">
+              <div class="label">Signups</div>
+              <div class="value" id="kpiSignups">0</div>
+            </div>
+            <div class="kpi">
+              <div class="label">Checked In</div>
+              <div class="value" id="kpiCheckedIn">0</div>
+            </div>
+            <div class="kpi">
+              <div class="label">Unpaid</div>
+              <div class="value" id="kpiUnpaid">0</div>
+            </div>
+            <div class="kpi">
+              <div class="label">Ticket Sales</div>
+              <div class="value" id="kpiSales">$0.00</div>
+            </div>
+          </div>
+
+        <div class="workspace-grid">
+            <section class="work-section">
+              <div class="work-section-head">
+                <div>
+                  <h2>Fast Check-In</h2>
+                  <div id="checkinStatus" class="small">Ready</div>
+                </div>
+              </div>
+              <form id="checkinForm" class="work-section-body stack">
+                <div class="scanner-box">
+                  <label for="ticketScanInput">Scan Ticket</label>
+                  <input id="ticketScanInput" autocomplete="off" placeholder="Scan printed ticket" />
+                </div>
+                <div class="ticket-batch">
+                  <div class="actions" style="justify-content:flex-start;">
+                    <button class="btn primary" type="button" id="btnOpenTicketBuilder">Create Tickets</button>
+                    <button class="btn ghost" type="button" id="btnPrintTicketsInline">Print Active Tickets</button>
+                  </div>
+                  <div id="ticketBatchStatus" class="small" style="margin-top:7px;">Ready</div>
+                </div>
+                <div class="checkin-name">
+                  <div>
+                    <label for="attendeeName">Player Name</label>
+                    <input id="attendeeName" autocomplete="off" placeholder="Name on signup or walk-in" />
+                  </div>
+                  <div>
+                    <label for="attendeeFee">Entry Fee</label>
+                    <input id="attendeeFee" type="number" min="0" step="0.01" placeholder="0.00" />
+                  </div>
+                </div>
+                <div class="field-grid tight">
+                  <div>
+                    <label for="attendeePhone">Phone</label>
+                    <input id="attendeePhone" autocomplete="off" placeholder="Optional" />
+                  </div>
+                  <div>
+                    <label for="attendeeEmail">Email</label>
+                    <input id="attendeeEmail" autocomplete="off" placeholder="Optional" />
+                  </div>
+                  <div>
+                    <label for="attendeePayment">Payment</label>
+                    <select id="attendeePayment">
+                      <option value="">Unpaid</option>
+                      <option value="cash">Cash</option>
+                      <option value="card">Card</option>
+                      <option value="store_credit">Store Credit</option>
+                      <option value="online">Online</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label for="attendeeNotes">Player Notes</label>
+                    <input id="attendeeNotes" autocomplete="off" placeholder="Player ID, deck, table" />
+                  </div>
+                </div>
+                <div class="actions">
+                  <button class="btn ghost" type="button" id="btnAddSignup">Add Signup</button>
+                  <button class="btn good" type="submit" id="btnAddCheckIn">Add + Check In</button>
+                </div>
+              </form>
+            </section>
+
+            <section class="work-section">
+              <div class="work-section-head">
+                <div>
+                  <h2>Event Details</h2>
+                  <div id="detailSaveStatus" class="small">Ready</div>
+                </div>
+              </div>
+              <div class="work-section-body stack">
+                <div class="health-note" id="healthNote">Event health will appear here.</div>
+                <div class="field-grid tight">
+                  <div class="span-2">
+                    <label for="editTitle">Event Name</label>
+                    <input id="editTitle" />
+                  </div>
+                  <div>
+                    <label for="editGame">Game / Community</label>
+                    <input id="editGame" />
+                  </div>
+                  <div>
+                    <label for="editType">Type</label>
+                    <input id="editType" />
+                  </div>
+                  <div>
+                    <label for="editDate">Date</label>
+                    <input id="editDate" type="date" />
+                  </div>
+                  <div>
+                    <label for="editTime">Start</label>
+                    <input id="editTime" type="time" />
+                  </div>
+                  <div>
+                    <label for="editCapacity">Capacity</label>
+                    <input id="editCapacity" type="number" min="0" step="1" />
+                  </div>
+                  <div>
+                    <label for="editEntryFee">Entry Fee</label>
+                    <input id="editEntryFee" type="number" min="0" step="0.01" />
+                  </div>
+                  <div>
+                    <label for="editPrizePool">Prize Budget</label>
+                    <input id="editPrizePool" type="number" min="0" step="0.01" />
+                  </div>
+                  <div>
+                    <label for="editPrizeNotes">Prize Notes</label>
+                    <input id="editPrizeNotes" />
+                  </div>
+                  <div class="span-2">
+                    <label for="editDescription">Run Notes</label>
+                    <textarea id="editDescription"></textarea>
+                  </div>
+                </div>
+              </div>
+            </section>
+          </div>
+        </div>
+      </section>
+
+      <aside class="panel attendee-rail">
+        <div class="panel-head">
+          <div>
+            <h2>Players</h2>
+            <div id="attendeeCount" class="small">No event selected</div>
+          </div>
+          <div class="actions">
+            <button class="btn slim ghost" type="button" id="btnPrintTickets">Print Tickets</button>
+            <button class="btn slim ghost" type="button" id="btnExportAttendees">Export CSV</button>
+          </div>
+        </div>
+        <div class="panel-body">
+          <div class="attendee-tools">
+            <input id="attendeeSearch" placeholder="Search players" autocomplete="off" />
+            <select id="attendeeFilter">
+              <option value="">All</option>
+              <option value="reserved">Reserved</option>
+              <option value="checked_in">Checked In</option>
+              <option value="unpaid">Unpaid</option>
+              <option value="no_show">No-Show</option>
+              <option value="cancelled">Cancelled</option>
+            </select>
+          </div>
+          <div id="attendeeList" class="attendee-list"></div>
+        </div>
+      </aside>
+    </section>
+  </main>
+
+  <script src="community-events.js?v=event-desk-v2" onerror="document.getElementById('pageStatus').textContent='Community Events script did not load.'"></script>
+</body>
+</html>

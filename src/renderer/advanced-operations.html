@@ -1,0 +1,852 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Operations - VaultCore POS</title>
+  <link rel="stylesheet" href="index.css" />
+  <style>
+    :root { color-scheme: dark; }
+    body {
+      margin: 0;
+      background: #0a0f16;
+      color: #eef4fb;
+      font-family: Inter, system-ui, -apple-system, Segoe UI, sans-serif;
+    }
+    .shell { max-width: 1500px; margin: 0 auto; padding: 22px; }
+    header { display: flex; justify-content: space-between; align-items: center; gap: 14px; margin-bottom: 16px; }
+    h1 { margin: 0; font-size: 26px; letter-spacing: 0; }
+    h2 { margin: 0; font-size: 16px; letter-spacing: 0; }
+    h3 { margin: 0 0 8px; font-size: 13px; letter-spacing: 0; color: #c9d6e6; }
+    .muted { color: #9cadc0; }
+    .status { min-height: 20px; color: #8bd3ff; font-size: 13px; }
+    .top-actions, .actions, .tabs { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+    .tabs { margin-bottom: 14px; border-bottom: 1px solid #233042; padding-bottom: 10px; }
+    .tab {
+      border: 1px solid #2c394d;
+      background: #121b28;
+      color: #e8f0fb;
+      border-radius: 6px;
+      padding: 8px 10px;
+      cursor: pointer;
+      font: inherit;
+      font-size: 13px;
+    }
+    .tab.active { background: #1f6f78; border-color: #53c7d2; color: #ffffff; }
+    .btn {
+      border: 1px solid #334158;
+      background: #172233;
+      color: #eef4fb;
+      border-radius: 6px;
+      padding: 8px 10px;
+      cursor: pointer;
+      font: inherit;
+      font-size: 13px;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 34px;
+      box-sizing: border-box;
+    }
+    .btn.primary { background: #206f78; border-color: #6bd8d3; color: #fff; }
+    .btn.good { background: #115e41; border-color: #34d399; }
+    .btn.warn { background: #6f4d16; border-color: #f2c45a; }
+    .btn.danger { background: #742024; border-color: #fb7185; }
+    .btn.ghost { background: transparent; }
+    .btn.small { padding: 5px 7px; min-height: 28px; font-size: 12px; }
+    input, select, textarea {
+      width: 100%;
+      box-sizing: border-box;
+      border: 1px solid #2b3a50;
+      background: #0b121c;
+      color: #eef4fb;
+      border-radius: 6px;
+      padding: 8px 9px;
+      font: inherit;
+      font-size: 13px;
+      min-height: 36px;
+    }
+    textarea { min-height: 92px; resize: vertical; }
+    .tab-panel { display: none; }
+    .tab-panel.active { display: block; }
+    .grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; align-items: start; }
+    .grid.three { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    .box {
+      border: 1px solid #253247;
+      background: #101824;
+      border-radius: 8px;
+      padding: 14px;
+      display: grid;
+      gap: 10px;
+      min-width: 0;
+    }
+    .box.full { grid-column: 1 / -1; }
+    .box-head { display: flex; justify-content: space-between; gap: 10px; align-items: flex-start; }
+    .form-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+    .form-grid.three { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    .full { grid-column: 1 / -1; }
+    .list { display: grid; gap: 8px; max-height: 420px; overflow: auto; padding-right: 2px; }
+    .row {
+      border: 1px solid #253247;
+      background: #0b121c;
+      border-radius: 7px;
+      padding: 10px;
+      display: grid;
+      gap: 8px;
+    }
+    .row-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; }
+    .row-title { font-weight: 760; overflow-wrap: anywhere; }
+    .meta { display: flex; flex-wrap: wrap; gap: 6px; color: #9cadc0; font-size: 12px; }
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      border-radius: 999px;
+      border: 1px solid #344257;
+      background: #151f2d;
+      padding: 3px 8px;
+      color: #d5e2f2;
+      font-size: 12px;
+      white-space: nowrap;
+    }
+    .pill.good { border-color: #15803d; background: #062719; color: #bbf7d0; }
+    .pill.warn { border-color: #a16207; background: #2a1c06; color: #fde68a; }
+    .pill.bad { border-color: #b91c1c; background: #2a0a0d; color: #fecdd3; }
+    .summary {
+      display: grid;
+      grid-template-columns: repeat(8, minmax(110px, 1fr));
+      gap: 8px;
+      margin-bottom: 14px;
+    }
+    .metric {
+      border: 1px solid #26364d;
+      background: #0f1a27;
+      border-radius: 8px;
+      padding: 10px;
+    }
+    .metric strong { display: block; font-size: 22px; }
+    .metric span { font-size: 11px; color: #9cadc0; }
+    @media (max-width: 1100px) {
+      .grid, .grid.three, .summary { grid-template-columns: 1fr; }
+      header { flex-direction: column; align-items: flex-start; }
+      .box.full { grid-column: auto; }
+    }
+  </style>
+  <script src="theme.js"></script>
+  <link rel="stylesheet" href="themes.css" />
+</head>
+<body>
+  <div class="shell">
+    <header>
+      <div>
+        <h1>Operations</h1>
+        <div class="status" id="status">Ready.</div>
+      </div>
+      <div class="top-actions">
+        <button class="btn ghost" id="btnRefresh" type="button">Refresh</button>
+        <a class="btn" href="store-workflows.html">Open Work</a>
+        <a class="btn" href="customers.html">Customers</a>
+        <a class="btn" href="inventory.html">Inventory</a>
+        <a class="btn" href="index.html">Dashboard</a>
+      </div>
+    </header>
+
+    <datalist id="customerOptions"></datalist>
+    <datalist id="itemOptions"></datalist>
+    <datalist id="vendorOptions"></datalist>
+
+    <section class="summary" id="summaryGrid"></section>
+
+    <nav class="tabs" aria-label="Operations sections">
+      <button class="tab active" data-tab="orders" type="button">Orders</button>
+      <button class="tab" data-tab="promises" type="button">Promises</button>
+      <button class="tab" data-tab="counter" type="button">Counter</button>
+      <button class="tab" data-tab="services" type="button">Services</button>
+      <button class="tab" data-tab="cards" type="button">Cards</button>
+      <button class="tab" data-tab="safety" type="button">Safety</button>
+      <button class="tab" data-tab="kiosk" type="button">Kiosk</button>
+    </nav>
+
+    <section id="tab-orders" class="tab-panel active">
+      <div class="grid">
+        <div class="box">
+          <div class="box-head"><h2>Vendors</h2><button class="btn small" data-action="save-vendor">Save</button></div>
+          <div class="form-grid">
+            <input id="vendorName" placeholder="Vendor name" />
+            <input id="vendorContact" placeholder="Contact" />
+            <input id="vendorPhone" placeholder="Phone" />
+            <input id="vendorEmail" placeholder="Email" />
+          </div>
+          <div class="list" id="vendorList"></div>
+        </div>
+
+        <div class="box">
+          <div class="box-head"><h2>Purchase Orders</h2><button class="btn small primary" data-action="save-po">Create PO</button></div>
+          <div class="form-grid">
+            <input id="poVendor" list="vendorOptions" placeholder="Vendor" class="full" />
+            <input id="poItem" list="itemOptions" placeholder="Item or new title" class="full" />
+            <input id="poQty" type="number" min="1" value="1" placeholder="Qty" />
+            <input id="poCost" type="number" min="0" step="0.01" placeholder="Unit cost" />
+            <input id="poPrice" type="number" min="0" step="0.01" placeholder="Retail price" />
+            <input id="poExpected" type="date" />
+          </div>
+          <div class="list" id="poList"></div>
+        </div>
+
+        <div class="box full">
+          <div class="box-head"><h2>Online Orders</h2><button class="btn small primary" data-action="save-online">Create Order</button></div>
+          <div class="form-grid three">
+            <input id="onlineCustomer" list="customerOptions" placeholder="Customer" />
+            <input id="onlineItem" list="itemOptions" placeholder="Item" />
+            <input id="onlineQty" type="number" min="1" value="1" placeholder="Qty" />
+            <select id="onlineMethod"><option value="pickup">Pickup</option><option value="ship">Ship</option></select>
+            <input id="onlineAddress" placeholder="Shipping address" />
+            <input id="onlineNotes" placeholder="Notes" />
+          </div>
+          <div class="list" id="onlineList"></div>
+        </div>
+      </div>
+    </section>
+
+    <section id="tab-promises" class="tab-panel">
+      <div class="grid three">
+        <div class="box">
+          <div class="box-head"><h2>Special Orders</h2><button class="btn small primary" data-action="save-special">Save</button></div>
+          <div class="form-grid">
+            <input id="specialCustomer" list="customerOptions" placeholder="Customer" class="full" />
+            <input id="specialTitle" placeholder="Title" class="full" />
+            <input id="specialQty" type="number" min="1" value="1" placeholder="Qty" />
+            <input id="specialDeposit" type="number" min="0" step="0.01" placeholder="Deposit" />
+            <input id="specialDue" type="date" />
+          </div>
+          <div class="list" id="specialList"></div>
+        </div>
+
+        <div class="box">
+          <div class="box-head"><h2>Reservations</h2><button class="btn small primary" data-action="save-reservation">Hold Item</button></div>
+          <div class="form-grid">
+            <input id="reserveCustomer" list="customerOptions" placeholder="Customer" class="full" />
+            <input id="reserveItem" list="itemOptions" placeholder="Item" class="full" />
+            <input id="reserveQty" type="number" min="1" value="1" placeholder="Qty" />
+            <input id="reserveDue" type="date" />
+          </div>
+          <div class="list" id="reservationList"></div>
+        </div>
+
+        <div class="box">
+          <div class="box-head">
+            <h2>Follow-Ups</h2>
+            <div class="actions">
+              <button class="btn small" data-action="generate-followups">Generate</button>
+              <button class="btn small primary" data-action="save-followup">Add</button>
+            </div>
+          </div>
+          <div class="form-grid">
+            <input id="followCustomer" list="customerOptions" placeholder="Customer" class="full" />
+            <input id="followSubject" placeholder="Subject" class="full" />
+            <input id="followDue" type="date" />
+            <select id="followType"><option>wishlist</option><option>repair</option><option>special_order</option><option>general</option></select>
+          </div>
+          <div class="list" id="followList"></div>
+        </div>
+      </div>
+    </section>
+
+    <section id="tab-counter" class="tab-panel">
+      <div class="grid">
+        <div class="box">
+          <div class="box-head"><h2>Gift Cards</h2><button class="btn small primary" data-action="save-gift-card">Issue</button></div>
+          <div class="form-grid">
+            <input id="giftCode" placeholder="Code optional" />
+            <input id="giftAmount" type="number" min="0" step="0.01" placeholder="Amount" />
+            <input id="giftCustomer" list="customerOptions" placeholder="Customer" class="full" />
+          </div>
+          <div class="list" id="giftList"></div>
+        </div>
+
+        <div class="box">
+          <div class="box-head"><h2>Promotions</h2><button class="btn small primary" data-action="save-promo">Save</button></div>
+          <div class="form-grid">
+            <input id="promoName" placeholder="Name" />
+            <input id="promoCode" placeholder="Code" />
+            <select id="promoType"><option value="percent">Percent</option><option value="fixed">Fixed</option></select>
+            <input id="promoValue" type="number" min="0" step="0.01" placeholder="Value" />
+          </div>
+          <div class="list" id="promoList"></div>
+        </div>
+
+        <div class="box">
+          <div class="box-head"><h2>House Accounts</h2><button class="btn small primary" data-action="save-house">Open</button></div>
+          <div class="form-grid">
+            <input id="houseCustomer" list="customerOptions" placeholder="Customer" class="full" />
+            <input id="houseLimit" type="number" min="0" step="0.01" placeholder="Limit" />
+          </div>
+          <div class="list" id="houseList"></div>
+        </div>
+
+        <div class="box">
+          <div class="box-head"><h2>Time Clock</h2><div class="actions"><button class="btn small good" data-action="clock-in">Clock In</button><button class="btn small warn" data-action="clock-out">Clock Out</button></div></div>
+          <div class="list" id="clockList"></div>
+        </div>
+      </div>
+    </section>
+
+    <section id="tab-services" class="tab-panel">
+      <div class="grid">
+        <div class="box">
+          <div class="box-head"><h2>Warranties</h2><button class="btn small primary" data-action="save-warranty">Save</button></div>
+          <div class="form-grid">
+            <input id="warrantyItem" list="itemOptions" placeholder="Item" class="full" />
+            <input id="warrantyCustomer" list="customerOptions" placeholder="Customer" />
+            <input id="warrantySerial" placeholder="Serial" />
+            <input id="warrantyDays" type="number" min="1" value="30" placeholder="Days" />
+          </div>
+          <div class="list" id="warrantyList"></div>
+        </div>
+
+        <div class="box">
+          <div class="box-head"><h2>Serials</h2><button class="btn small primary" data-action="save-serial">Save</button></div>
+          <div class="form-grid">
+            <input id="serialItem" list="itemOptions" placeholder="Item" class="full" />
+            <input id="serialNumber" placeholder="Serial number" class="full" />
+          </div>
+          <div class="list" id="serialList"></div>
+        </div>
+
+        <div class="box">
+          <div class="box-head"><h2>Rentals</h2><button class="btn small primary" data-action="save-rental">Rent Out</button></div>
+          <div class="form-grid">
+            <input id="rentalCustomer" list="customerOptions" placeholder="Customer" />
+            <input id="rentalItem" list="itemOptions" placeholder="Item" />
+            <input id="rentalFee" type="number" min="0" step="0.01" placeholder="Fee" />
+            <input id="rentalDue" type="date" />
+          </div>
+          <div class="list" id="rentalList"></div>
+        </div>
+
+        <div class="box">
+          <div class="box-head"><h2>Consignment</h2><button class="btn small primary" data-action="save-consignment">Save</button></div>
+          <div class="form-grid">
+            <input id="consignCustomer" list="customerOptions" placeholder="Customer" />
+            <input id="consignItem" list="itemOptions" placeholder="Item or title" />
+            <input id="consignSplit" type="number" min="0" max="100" value="60" placeholder="Split %" />
+            <input id="consignPayout" type="number" min="0" step="0.01" placeholder="Payout" />
+          </div>
+          <div class="list" id="consignList"></div>
+        </div>
+      </div>
+    </section>
+
+    <section id="tab-cards" class="tab-panel">
+      <div class="grid">
+        <div class="box">
+          <div class="box-head"><h2>Buylist Rules</h2><button class="btn small primary" data-action="save-buylist">Save</button></div>
+          <div class="form-grid">
+            <input id="buyTitle" placeholder="Title" class="full" />
+            <input id="buyPlatform" placeholder="Platform" />
+            <input id="buyCondition" placeholder="Condition" />
+            <input id="buyCash" type="number" min="0" step="0.01" placeholder="Cash" />
+            <input id="buyCredit" type="number" min="0" step="0.01" placeholder="Credit" />
+          </div>
+          <div class="list" id="buylistList"></div>
+        </div>
+
+        <div class="box">
+          <div class="box-head"><h2>Decklist Import</h2><button class="btn small primary" data-action="parse-decklist">Parse</button></div>
+          <div class="form-grid">
+            <input id="deckCustomer" list="customerOptions" placeholder="Customer" />
+            <input id="deckTitle" placeholder="Deck name" />
+            <textarea id="deckText" class="full" placeholder="4 Lightning Bolt&#10;2 Counterspell"></textarea>
+          </div>
+          <div class="list" id="deckList"></div>
+        </div>
+
+        <div class="box full">
+          <div class="box-head"><h2>Collectible Details</h2><button class="btn small primary" data-action="save-collectible">Save Details</button></div>
+          <div class="form-grid three">
+            <input id="collectibleItem" list="itemOptions" placeholder="Item" />
+            <input id="collectibleSet" placeholder="Set" />
+            <input id="collectibleNumber" placeholder="Number" />
+            <input id="collectibleRarity" placeholder="Rarity" />
+            <input id="collectibleFinish" placeholder="Finish" />
+            <input id="collectibleGrade" placeholder="Grade" />
+          </div>
+          <div class="list" id="collectibleList"></div>
+        </div>
+      </div>
+    </section>
+
+    <section id="tab-safety" class="tab-panel">
+      <div class="grid">
+        <div class="box">
+          <div class="box-head"><h2>Stock Counts</h2><button class="btn small primary" data-action="save-stock-count">Start</button></div>
+          <div class="form-grid">
+            <input id="stockLabel" placeholder="Count label" />
+            <input id="stockItem" list="itemOptions" placeholder="Item" />
+            <input id="stockQty" type="number" min="0" placeholder="Counted qty" />
+            <button class="btn" data-action="save-stock-line" type="button">Add Line</button>
+          </div>
+          <div class="list" id="stockList"></div>
+        </div>
+
+        <div class="box">
+          <div class="box-head"><h2>Markdown Manager</h2><button class="btn small" data-action="load-markdowns">Load</button></div>
+          <div class="form-grid">
+            <input id="markdownDays" type="number" min="1" value="90" placeholder="Age days" />
+            <input id="markdownPercent" type="number" min="1" max="95" value="10" placeholder="Percent off" />
+          </div>
+          <div class="list" id="markdownList"></div>
+        </div>
+
+        <div class="box">
+          <div class="box-head"><h2>Pricing Rules</h2><button class="btn small primary" data-action="save-pricing-rule">Save</button></div>
+          <div class="form-grid">
+            <input id="priceRuleName" placeholder="Name" />
+            <input id="priceMarkup" type="number" step="0.01" placeholder="Markup %" />
+            <input id="priceMargin" type="number" step="0.01" placeholder="Min margin %" />
+            <input id="priceItem" list="itemOptions" placeholder="Preview item" />
+          </div>
+          <div class="list" id="pricingList"></div>
+        </div>
+
+        <div class="box">
+          <div class="box-head"><h2>Backups</h2><button class="btn small primary" data-action="create-backup">Create</button></div>
+          <div class="list" id="backupList"></div>
+        </div>
+
+        <div class="box">
+          <div class="box-head"><h2>Offline Queue</h2><button class="btn small primary" data-action="queue-offline">Queue Test</button></div>
+          <div class="list" id="offlineList"></div>
+        </div>
+
+        <div class="box">
+          <div class="box-head"><h2>Audit Log</h2><button class="btn small" data-action="load-audit">Load</button></div>
+          <div class="list" id="auditList"></div>
+        </div>
+      </div>
+    </section>
+
+    <section id="tab-kiosk" class="tab-panel">
+      <div class="box full">
+        <div class="box-head"><h2>Customer Kiosk</h2><button class="btn small primary" data-action="search-kiosk">Search</button></div>
+        <div class="form-grid">
+          <input id="kioskSearch" placeholder="Search inventory" />
+          <input id="kioskCustomer" list="customerOptions" placeholder="Customer for wishlist" />
+        </div>
+        <div class="list" id="kioskList"></div>
+      </div>
+    </section>
+  </div>
+
+<script>
+(() => {
+  const API_BASE = "http://127.0.0.1:5175";
+  const $ = (id) => document.getElementById(id);
+  const money = (value) => "$" + Number(value || 0).toFixed(2);
+  const num = (value) => Number(String(value || "").replace(/[^0-9.-]/g, "")) || 0;
+  const esc = (value) => String(value ?? "").replace(/[&<>"']/g, (ch) => ({ "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;", "'":"&#39;" }[ch]));
+  const sid = () => localStorage.getItem("rc_session_id") || "";
+  const authHeaders = () => sid() ? { rc_session_id: sid() } : {};
+  const state = {
+    activeTab: "orders",
+    customers: [],
+    items: [],
+    vendors: [],
+    stockCounts: [],
+    pricingRules: []
+  };
+
+  function setStatus(message, tone = "") {
+    const el = $("status");
+    if (!el) return;
+    el.textContent = message || "";
+    el.style.color = tone === "error" ? "#fb7185" : (tone === "success" ? "#86efac" : "#8bd3ff");
+  }
+
+  async function api(path, opts = {}) {
+    const res = await fetch(API_BASE + path, {
+      ...opts,
+      headers: { "Content-Type": "application/json", ...authHeaders(), ...(opts.headers || {}) }
+    });
+    if (res.status === 401) {
+      localStorage.removeItem("rc_session_id");
+      window.location.href = "../../public/index.html";
+      throw new Error("session_invalid");
+    }
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok) throw new Error(data.error || "request_failed");
+    return data;
+  }
+
+  function pill(status) {
+    const s = String(status || "").toLowerCase();
+    const cls = ["active", "open", "ordered", "ready", "received", "completed", "fulfilled", "processed", "paid", "packed", "shipped", "returned", "settled"].includes(s)
+      ? "good"
+      : (["cancelled", "expired", "failed", "voided"].includes(s) ? "bad" : "warn");
+    return `<span class="pill ${cls}">${esc(status || "status")}</span>`;
+  }
+
+  function optionLabel(row, fallback) {
+    return `${row.name || row.title || fallback || "Record"} #${row.id}`;
+  }
+
+  function idFromOption(value) {
+    return Number((String(value || "").match(/#(\d+)/) || [])[1] || 0);
+  }
+
+  function selectedCustomer(inputId) {
+    const id = idFromOption($(inputId).value);
+    const c = state.customers.find((row) => Number(row.id) === id);
+    return c ? {
+      customer_id: c.id,
+      customer_name: c.name || "",
+      customer_phone: c.phone || "",
+      customer_email: c.email || ""
+    } : { customer_name: ($(inputId).value || "").trim() };
+  }
+
+  function selectedItem(inputId) {
+    const value = $(inputId).value || "";
+    const id = idFromOption(value);
+    const item = state.items.find((row) => Number(row.id) === id);
+    return item ? { item_id: item.id, sku: item.sku, title: item.title, platform: item.platform, category: item.category, condition: item.condition } : { title: value.trim() };
+  }
+
+  function selectedVendor(inputId) {
+    const id = idFromOption($(inputId).value);
+    const vendor = state.vendors.find((row) => Number(row.id) === id);
+    return vendor ? { vendor_id: vendor.id, vendor_name: vendor.name } : { vendor_name: ($(inputId).value || "").trim() };
+  }
+
+  function fillDatalists() {
+    $("customerOptions").innerHTML = state.customers.map((c) => `<option value="${esc(optionLabel(c, "Customer"))}">${esc(c.phone || c.email || "")}</option>`).join("");
+    $("itemOptions").innerHTML = state.items.map((i) => `<option value="${esc(optionLabel(i, "Item"))}">${esc([i.sku, i.platform, "qty " + (i.qty || 0)].filter(Boolean).join(" - "))}</option>`).join("");
+    $("vendorOptions").innerHTML = state.vendors.map((v) => `<option value="${esc(optionLabel(v, "Vendor"))}">${esc(v.email || v.phone || "")}</option>`).join("");
+  }
+
+  async function loadBase() {
+    const [customers, items, vendors, summary] = await Promise.all([
+      api("/api/customers?active=active&limit=1000"),
+      api("/api/items"),
+      api("/api/vendors"),
+      api("/api/operations/summary")
+    ]);
+    state.customers = customers.rows || [];
+    state.items = Array.isArray(items) ? items : (items.rows || []);
+    state.vendors = vendors.rows || [];
+    fillDatalists();
+    renderSummary(summary.counts || {});
+    renderVendors();
+  }
+
+  function renderSummary(counts) {
+    const labels = [
+      ["purchase_orders", "Purchase"],
+      ["reservations", "Holds"],
+      ["special_orders", "Special"],
+      ["followups", "Follow-Ups"],
+      ["online_orders", "Online"],
+      ["rentals", "Rentals"],
+      ["warranties", "Warranty"],
+      ["offline_queue", "Offline"]
+    ];
+    $("summaryGrid").innerHTML = labels.map(([key, label]) => `<div class="metric"><strong>${esc(counts[key] || 0)}</strong><span>${esc(label)}</span></div>`).join("");
+  }
+
+  function renderRows(id, rows, empty, map) {
+    $(id).innerHTML = rows && rows.length ? rows.map(map).join("") : `<div class="muted">${esc(empty)}</div>`;
+  }
+
+  function renderVendors() {
+    renderRows("vendorList", state.vendors, "No vendors yet.", (v) => `
+      <div class="row"><div class="row-head"><div><div class="row-title">${esc(v.name)}</div><div class="meta"><span>${esc(v.contact_name || "")}</span><span>${esc(v.phone || "")}</span><span>${esc(v.email || "")}</span></div></div>${pill(v.active ? "active" : "inactive")}</div></div>
+    `);
+  }
+
+  async function loadOrders() {
+    const [po, online] = await Promise.all([api("/api/purchase-orders"), api("/api/online-orders")]);
+    renderRows("poList", po.rows || [], "No open purchase orders.", (p) => `
+      <div class="row">
+        <div class="row-head"><div><div class="row-title">PO #${esc(p.id)} ${esc(p.vendor_name || "")}</div><div class="meta"><span>${money(p.subtotal)}</span><span>${esc(p.items.length)} line(s)</span></div></div>${pill(p.status)}</div>
+        <div class="actions"><button class="btn small good" data-action="receive-po" data-id="${p.id}">Receive All</button></div>
+      </div>
+    `);
+    renderRows("onlineList", online.rows || [], "No open online orders.", (o) => `
+      <div class="row">
+        <div class="row-head"><div><div class="row-title">${esc(o.order_no)}</div><div class="meta"><span>${esc(o.customer_name || "Customer")}</span><span>${esc(o.fulfillment_method)}</span><span>${money(o.total)}</span></div></div>${pill(o.status)}</div>
+        <div class="actions">
+          <button class="btn small" data-action="online-status" data-id="${o.id}" data-status="packed">Packed</button>
+          <button class="btn small good" data-action="online-status" data-id="${o.id}" data-status="shipped">Shipped</button>
+          <button class="btn small danger" data-action="online-status" data-id="${o.id}" data-status="cancelled">Cancel</button>
+        </div>
+      </div>
+    `);
+  }
+
+  async function loadPromises() {
+    const [special, holds, follow] = await Promise.all([api("/api/special-orders"), api("/api/reservations"), api("/api/followups")]);
+    renderRows("specialList", special.rows || [], "No open special orders.", (s) => `
+      <div class="row"><div class="row-head"><div><div class="row-title">${esc(s.title)}</div><div class="meta"><span>${esc(s.customer_name || "Customer")}</span><span>qty ${esc(s.qty)}</span><span>${money(s.deposit)}</span></div></div>${pill(s.status)}</div><div class="actions"><button class="btn small" data-action="special-status" data-id="${s.id}" data-status="ordered">Ordered</button><button class="btn small good" data-action="special-status" data-id="${s.id}" data-status="arrived">Arrived</button><button class="btn small danger" data-action="special-status" data-id="${s.id}" data-status="cancelled">Cancel</button></div></div>
+    `);
+    renderRows("reservationList", holds.rows || [], "No active reservations.", (r) => `
+      <div class="row"><div class="row-head"><div><div class="row-title">${esc(r.title || r.sku)}</div><div class="meta"><span>${esc(r.customer_name || "Customer")}</span><span>qty ${esc(r.qty)}</span><span>due ${esc(r.due_at || "")}</span></div></div>${pill(r.status)}</div><div class="actions"><button class="btn small good" data-action="reservation-status" data-id="${r.id}" data-status="fulfilled">Fulfilled</button><button class="btn small danger" data-action="reservation-status" data-id="${r.id}" data-status="cancelled">Cancel</button></div></div>
+    `);
+    renderRows("followList", follow.rows || [], "No open follow-ups.", (f) => `
+      <div class="row"><div class="row-head"><div><div class="row-title">${esc(f.subject)}</div><div class="meta"><span>${esc(f.customer_name || "Customer")}</span><span>${esc(f.type)}</span><span>due ${esc(f.due_at || "")}</span></div></div>${pill(f.status)}</div><div class="actions"><button class="btn small good" data-action="follow-status" data-id="${f.id}" data-status="done">Done</button></div></div>
+    `);
+  }
+
+  async function loadCounter() {
+    const [gift, promos, houses, clock] = await Promise.all([api("/api/gift-cards"), api("/api/promotions"), api("/api/house-accounts"), api("/api/time-clock")]);
+    renderRows("giftList", gift.rows || [], "No gift cards.", (g) => `
+      <div class="row"><div class="row-head"><div><div class="row-title">${esc(g.code)}</div><div class="meta"><span>Balance ${money(g.balance)}</span><span>${esc(g.customer_name || "")}</span></div></div>${pill(g.status)}</div><div class="actions"><button class="btn small" data-action="gift-adjust" data-id="${g.id}">Adjust</button></div></div>
+    `);
+    renderRows("promoList", promos.rows || [], "No promotions.", (p) => `
+      <div class="row"><div class="row-head"><div><div class="row-title">${esc(p.name)}</div><div class="meta"><span>${esc(p.code || "")}</span><span>${p.type === "fixed" ? money(p.value) : esc(p.value_percent + "%")}</span></div></div>${pill(p.status)}</div></div>
+    `);
+    renderRows("houseList", houses.rows || [], "No house accounts.", (h) => `
+      <div class="row"><div class="row-head"><div><div class="row-title">${esc(h.customer_name || "Customer")}</div><div class="meta"><span>Balance ${money(h.balance)}</span><span>Limit ${money(h.credit_limit)}</span></div></div>${pill(h.status)}</div><div class="actions"><button class="btn small" data-action="house-charge" data-id="${h.id}">Charge</button><button class="btn small good" data-action="house-payment" data-id="${h.id}">Payment</button></div></div>
+    `);
+    renderRows("clockList", clock.rows || [], "No time clock entries.", (c) => `
+      <div class="row"><div class="row-head"><div><div class="row-title">${esc(c.display_name || c.username)}</div><div class="meta"><span>In ${esc(c.clock_in_at)}</span><span>Out ${esc(c.clock_out_at || "open")}</span></div></div>${pill(c.clock_out_at ? "closed" : "open")}</div></div>
+    `);
+  }
+
+  async function loadServices() {
+    const [warranties, serials, rentals, consignments] = await Promise.all([api("/api/warranties"), api("/api/serials"), api("/api/rentals"), api("/api/consignments")]);
+    renderRows("warrantyList", warranties.rows || [], "No warranties.", (w) => `<div class="row"><div class="row-head"><div><div class="row-title">${esc(w.title || w.serial_number || "Warranty")}</div><div class="meta"><span>${esc(w.customer_name || "")}</span><span>expires ${esc(w.expires_at || "")}</span></div></div>${pill(w.status)}</div></div>`);
+    renderRows("serialList", serials.rows || [], "No serials.", (s) => `<div class="row"><div class="row-head"><div><div class="row-title">${esc(s.serial_number)}</div><div class="meta"><span>${esc(s.title || s.sku || "")}</span></div></div>${pill(s.status)}</div></div>`);
+    renderRows("rentalList", rentals.rows || [], "No rentals.", (r) => `<div class="row"><div class="row-head"><div><div class="row-title">${esc(r.title || r.sku)}</div><div class="meta"><span>${esc(r.customer_name || "")}</span><span>due ${esc(r.due_at || "")}</span><span>${money(r.fee)}</span></div></div>${pill(r.status)}</div><div class="actions">${r.status === "out" ? `<button class="btn small good" data-action="return-rental" data-id="${r.id}">Return</button>` : ""}</div></div>`);
+    renderRows("consignList", consignments.rows || [], "No consignments.", (c) => `<div class="row"><div class="row-head"><div><div class="row-title">${esc(c.title)}</div><div class="meta"><span>${esc(c.customer_name || "")}</span><span>${esc(c.split_percent)}%</span><span>${money(c.payout)}</span></div></div>${pill(c.status)}</div><div class="actions">${c.status === "active" ? `<button class="btn small good" data-action="settle-consignment" data-id="${c.id}">Settle</button>` : ""}</div></div>`);
+  }
+
+  async function loadCards() {
+    const [buy, decks] = await Promise.all([api("/api/buylist-rules"), api("/api/decklists")]);
+    renderRows("buylistList", buy.rows || [], "No buylist rules.", (b) => `<div class="row"><div class="row-head"><div><div class="row-title">${esc(b.title)}</div><div class="meta"><span>${esc(b.platform || "")}</span><span>cash ${money(b.cash)}</span><span>credit ${money(b.credit)}</span></div></div>${pill(b.status)}</div></div>`);
+    renderRows("deckList", decks.rows || [], "No decklists parsed.", (d) => `<div class="row"><div class="row-head"><div><div class="row-title">${esc(d.title || "Decklist")}</div><div class="meta"><span>${esc(d.customer_name || "")}</span><span>${esc(d.created_at)}</span></div></div>${pill(d.status)}</div></div>`);
+  }
+
+  async function loadSafety() {
+    const [counts, rules, backups, offline] = await Promise.all([api("/api/stock-counts"), api("/api/pricing-rules"), api("/api/backups"), api("/api/offline-queue")]);
+    state.stockCounts = counts.rows || [];
+    state.pricingRules = rules.rows || [];
+    renderRows("stockList", state.stockCounts, "No stock counts.", (s) => `<div class="row"><div class="row-head"><div><div class="row-title">${esc(s.label)}</div><div class="meta"><span>${esc(s.line_count)} line(s)</span><span>variance ${esc(s.total_variance)}</span></div></div>${pill(s.status)}</div><div class="actions">${s.status === "open" ? `<button class="btn small good" data-action="complete-stock-count" data-id="${s.id}">Complete</button>` : ""}</div></div>`);
+    renderRows("pricingList", state.pricingRules, "No pricing rules.", (r) => `<div class="row"><div class="row-head"><div><div class="row-title">${esc(r.name)}</div><div class="meta"><span>markup ${esc(r.percent_markup)}%</span><span>margin ${esc(r.min_margin_percent)}%</span></div></div>${pill(r.status)}</div><div class="actions"><button class="btn small" data-action="preview-pricing" data-id="${r.id}">Preview</button></div></div>`);
+    renderRows("backupList", backups.rows || [], "No backups.", (b) => `<div class="row"><div class="row-head"><div><div class="row-title">${esc(b.created_at)}</div><div class="meta"><span>${esc(b.path)}</span><span>${Math.round(Number(b.size_bytes || 0) / 1024)} KB</span></div></div>${pill(b.status)}</div></div>`);
+    renderRows("offlineList", offline.rows || [], "No queued offline work.", (o) => `<div class="row"><div class="row-head"><div><div class="row-title">${esc(o.client_key)}</div><div class="meta"><span>${esc(o.created_at)}</span></div></div>${pill(o.status)}</div><div class="actions">${o.status === "queued" ? `<button class="btn small good" data-action="process-offline" data-id="${o.id}">Process</button>` : ""}</div></div>`);
+  }
+
+  async function loadAudit() {
+    const audit = await api("/api/audit-log?limit=100");
+    renderRows("auditList", audit.rows || [], "No audit events.", (a) => `<div class="row"><div class="row-head"><div><div class="row-title">${esc(a.title || a.type)}</div><div class="meta"><span>${esc(a.created_at || "")}</span><span>${esc(a.actor || "")}</span><span>${esc(a.detail || "")}</span></div></div><span class="pill">${esc(a.type)}</span></div></div>`);
+  }
+
+  async function refreshActive() {
+    await loadBase();
+    if (state.activeTab === "orders") await loadOrders();
+    if (state.activeTab === "promises") await loadPromises();
+    if (state.activeTab === "counter") await loadCounter();
+    if (state.activeTab === "services") await loadServices();
+    if (state.activeTab === "cards") await loadCards();
+    if (state.activeTab === "safety") await loadSafety();
+    setStatus("Loaded.", "success");
+  }
+
+  async function saveVendor() {
+    await api("/api/vendors", { method: "POST", body: JSON.stringify({ name: $("vendorName").value, contact_name: $("vendorContact").value, phone: $("vendorPhone").value, email: $("vendorEmail").value }) });
+    ["vendorName", "vendorContact", "vendorPhone", "vendorEmail"].forEach((id) => $(id).value = "");
+    await refreshActive();
+  }
+
+  async function savePo() {
+    await api("/api/purchase-orders", {
+      method: "POST",
+      body: JSON.stringify({
+        ...selectedVendor("poVendor"),
+        expected_at: $("poExpected").value,
+        items: [{ ...selectedItem("poItem"), qty: num($("poQty").value) || 1, unit_cost: num($("poCost").value), unit_price: num($("poPrice").value) }]
+      })
+    });
+    await refreshActive();
+  }
+
+  async function saveOnline() {
+    await api("/api/online-orders", {
+      method: "POST",
+      body: JSON.stringify({ ...selectedCustomer("onlineCustomer"), fulfillment_method: $("onlineMethod").value, shipping_address: $("onlineAddress").value, notes: $("onlineNotes").value, items: [{ ...selectedItem("onlineItem"), qty: num($("onlineQty").value) || 1 }] })
+    });
+    await refreshActive();
+  }
+
+  async function saveSpecial() {
+    await api("/api/special-orders", { method: "POST", body: JSON.stringify({ ...selectedCustomer("specialCustomer"), title: $("specialTitle").value, qty: num($("specialQty").value) || 1, deposit: num($("specialDeposit").value), due_at: $("specialDue").value }) });
+    await refreshActive();
+  }
+
+  async function saveReservation() {
+    await api("/api/reservations", { method: "POST", body: JSON.stringify({ ...selectedCustomer("reserveCustomer"), ...selectedItem("reserveItem"), qty: num($("reserveQty").value) || 1, due_at: $("reserveDue").value }) });
+    await refreshActive();
+  }
+
+  async function saveFollowup() {
+    await api("/api/followups", { method: "POST", body: JSON.stringify({ ...selectedCustomer("followCustomer"), subject: $("followSubject").value, type: $("followType").value, due_at: $("followDue").value }) });
+    await refreshActive();
+  }
+
+  async function saveGiftCard() {
+    await api("/api/gift-cards", { method: "POST", body: JSON.stringify({ ...selectedCustomer("giftCustomer"), code: $("giftCode").value, amount: num($("giftAmount").value) }) });
+    await refreshActive();
+  }
+
+  async function savePromo() {
+    const type = $("promoType").value;
+    await api("/api/promotions", { method: "POST", body: JSON.stringify({ name: $("promoName").value, code: $("promoCode").value, type, value: type === "fixed" ? num($("promoValue").value) : 0, value_percent: type === "percent" ? num($("promoValue").value) : 0 }) });
+    await refreshActive();
+  }
+
+  async function saveHouse() {
+    await api("/api/house-accounts", { method: "POST", body: JSON.stringify({ ...selectedCustomer("houseCustomer"), credit_limit: num($("houseLimit").value) }) });
+    await refreshActive();
+  }
+
+  async function saveWarranty() {
+    await api("/api/warranties", { method: "POST", body: JSON.stringify({ ...selectedItem("warrantyItem"), ...selectedCustomer("warrantyCustomer"), serial_number: $("warrantySerial").value, coverage_days: num($("warrantyDays").value) || 30 }) });
+    await refreshActive();
+  }
+
+  async function saveSerial() {
+    await api("/api/serials", { method: "POST", body: JSON.stringify({ ...selectedItem("serialItem"), serial_number: $("serialNumber").value }) });
+    await refreshActive();
+  }
+
+  async function saveRental() {
+    await api("/api/rentals", { method: "POST", body: JSON.stringify({ ...selectedCustomer("rentalCustomer"), ...selectedItem("rentalItem"), fee: num($("rentalFee").value), due_at: $("rentalDue").value }) });
+    await refreshActive();
+  }
+
+  async function saveConsignment() {
+    await api("/api/consignments", { method: "POST", body: JSON.stringify({ ...selectedCustomer("consignCustomer"), ...selectedItem("consignItem"), split_percent: num($("consignSplit").value) || 60, payout: num($("consignPayout").value) }) });
+    await refreshActive();
+  }
+
+  async function saveBuylist() {
+    await api("/api/buylist-rules", { method: "POST", body: JSON.stringify({ title: $("buyTitle").value, platform: $("buyPlatform").value, condition: $("buyCondition").value, cash: num($("buyCash").value), credit: num($("buyCredit").value) }) });
+    await refreshActive();
+  }
+
+  async function parseDecklist() {
+    const data = await api("/api/decklists/parse", { method: "POST", body: JSON.stringify({ ...selectedCustomer("deckCustomer"), title: $("deckTitle").value, raw_text: $("deckText").value }) });
+    renderRows("deckList", data.matches || [], "No matches.", (m) => `<div class="row"><div class="row-head"><div><div class="row-title">${esc(m.title)}</div><div class="meta"><span>need ${esc(m.requested_qty)}</span><span>have ${esc(m.available_qty)}</span><span>${money(m.price)}</span></div></div>${m.item_id ? pill("match") : pill("missing")}</div></div>`);
+  }
+
+  async function saveCollectible() {
+    const item = selectedItem("collectibleItem");
+    if (!item.item_id) throw new Error("pick_existing_item");
+    await api(`/api/items/${encodeURIComponent(item.item_id)}/collectible-details`, { method: "POST", body: JSON.stringify({ card_set: $("collectibleSet").value, card_number: $("collectibleNumber").value, rarity: $("collectibleRarity").value, finish: $("collectibleFinish").value, grade: $("collectibleGrade").value }) });
+    renderRows("collectibleList", [{ title: item.title, status: "saved" }], "Saved.", (r) => `<div class="row"><div class="row-head"><div class="row-title">${esc(r.title)}</div>${pill(r.status)}</div></div>`);
+  }
+
+  async function saveStockCount() {
+    await api("/api/stock-counts", { method: "POST", body: JSON.stringify({ label: $("stockLabel").value || "Stock Count" }) });
+    await refreshActive();
+  }
+
+  async function saveStockLine() {
+    const open = state.stockCounts.find((row) => row.status === "open");
+    if (!open) throw new Error("start_stock_count_first");
+    await api(`/api/stock-counts/${open.id}/lines`, { method: "POST", body: JSON.stringify({ ...selectedItem("stockItem"), counted_qty: num($("stockQty").value) }) });
+    await refreshActive();
+  }
+
+  async function loadMarkdowns() {
+    const data = await api(`/api/markdowns/suggestions?days=${encodeURIComponent(num($("markdownDays").value) || 90)}`);
+    renderRows("markdownList", data.rows || [], "No markdown suggestions.", (m) => `<div class="row"><div class="row-head"><div><div class="row-title">${esc(m.title)}</div><div class="meta"><span>${esc(m.age_days)} days</span><span>${money(m.price)}</span><span>suggest ${money(m.suggested_price)}</span></div></div><button class="btn small warn" data-action="apply-markdown" data-id="${m.id}">Apply</button></div></div>`);
+  }
+
+  async function savePricingRule() {
+    await api("/api/pricing-rules", { method: "POST", body: JSON.stringify({ name: $("priceRuleName").value, percent_markup: num($("priceMarkup").value), min_margin_percent: num($("priceMargin").value) }) });
+    await refreshActive();
+  }
+
+  async function searchKiosk() {
+    const data = await api(`/api/customer-kiosk/search?q=${encodeURIComponent($("kioskSearch").value)}`);
+    renderRows("kioskList", data.rows || [], "No matches.", (i) => `<div class="row"><div class="row-head"><div><div class="row-title">${esc(i.title)}</div><div class="meta"><span>${esc(i.platform || "")}</span><span>qty ${esc(i.qty)}</span><span>${money(i.price)}</span></div></div><button class="btn small" data-action="kiosk-wishlist" data-title="${esc(i.title)}" data-platform="${esc(i.platform || "")}">Wishlist</button></div></div>`);
+  }
+
+  async function handleAction(target) {
+    const action = target.dataset.action;
+    if (!action) return;
+    if (action === "save-vendor") return saveVendor();
+    if (action === "save-po") return savePo();
+    if (action === "receive-po") { await api(`/api/purchase-orders/${target.dataset.id}/receive`, { method: "POST", body: "{}" }); return refreshActive(); }
+    if (action === "save-online") return saveOnline();
+    if (action === "online-status") { await api(`/api/online-orders/${target.dataset.id}/status`, { method: "PUT", body: JSON.stringify({ status: target.dataset.status }) }); return refreshActive(); }
+    if (action === "save-special") return saveSpecial();
+    if (action === "special-status") { await api(`/api/special-orders/${target.dataset.id}`, { method: "PUT", body: JSON.stringify({ status: target.dataset.status }) }); return refreshActive(); }
+    if (action === "save-reservation") return saveReservation();
+    if (action === "reservation-status") { await api(`/api/reservations/${target.dataset.id}`, { method: "PUT", body: JSON.stringify({ status: target.dataset.status }) }); return refreshActive(); }
+    if (action === "save-followup") return saveFollowup();
+    if (action === "follow-status") { await api(`/api/followups/${target.dataset.id}`, { method: "PUT", body: JSON.stringify({ status: target.dataset.status }) }); return refreshActive(); }
+    if (action === "generate-followups") { await api("/api/followups/generate", { method: "POST", body: "{}" }); return refreshActive(); }
+    if (action === "save-gift-card") return saveGiftCard();
+    if (action === "gift-adjust") { const amount = prompt("Adjustment amount. Use negative for redemption."); if (amount) await api(`/api/gift-cards/${target.dataset.id}/adjust`, { method: "POST", body: JSON.stringify({ amount: num(amount), reason: "Manual adjustment" }) }); return refreshActive(); }
+    if (action === "save-promo") return savePromo();
+    if (action === "save-house") return saveHouse();
+    if (action === "house-charge" || action === "house-payment") { const amount = prompt("Amount"); if (amount) await api(`/api/house-accounts/${target.dataset.id}/${action === "house-charge" ? "charge" : "payment"}`, { method: "POST", body: JSON.stringify({ amount: num(amount) }) }); return refreshActive(); }
+    if (action === "clock-in") { await api("/api/time-clock/clock-in", { method: "POST", body: "{}" }); return refreshActive(); }
+    if (action === "clock-out") { await api("/api/time-clock/clock-out", { method: "POST", body: "{}" }); return refreshActive(); }
+    if (action === "save-warranty") return saveWarranty();
+    if (action === "save-serial") return saveSerial();
+    if (action === "save-rental") return saveRental();
+    if (action === "return-rental") { await api(`/api/rentals/${target.dataset.id}/return`, { method: "POST", body: "{}" }); return refreshActive(); }
+    if (action === "save-consignment") return saveConsignment();
+    if (action === "settle-consignment") { const payout = prompt("Payout amount"); if (payout) await api(`/api/consignments/${target.dataset.id}/settle`, { method: "POST", body: JSON.stringify({ payout: num(payout) }) }); return refreshActive(); }
+    if (action === "save-buylist") return saveBuylist();
+    if (action === "parse-decklist") return parseDecklist();
+    if (action === "save-collectible") return saveCollectible();
+    if (action === "save-stock-count") return saveStockCount();
+    if (action === "save-stock-line") return saveStockLine();
+    if (action === "complete-stock-count") { await api(`/api/stock-counts/${target.dataset.id}/complete`, { method: "POST", body: "{}" }); return refreshActive(); }
+    if (action === "load-markdowns") return loadMarkdowns();
+    if (action === "apply-markdown") { await api("/api/markdowns/apply", { method: "POST", body: JSON.stringify({ item_ids: [Number(target.dataset.id)], percent_off: num($("markdownPercent").value) || 10 }) }); return loadMarkdowns(); }
+    if (action === "save-pricing-rule") return savePricingRule();
+    if (action === "preview-pricing") { const item = selectedItem("priceItem"); const data = await api(`/api/pricing-rules/${target.dataset.id}/preview`, { method: "POST", body: JSON.stringify(item) }); alert(`Suggested price: ${money(data.suggested)}`); return; }
+    if (action === "create-backup") { await api("/api/backups/create", { method: "POST", body: "{}" }); return refreshActive(); }
+    if (action === "queue-offline") { await api("/api/offline-queue", { method: "POST", body: JSON.stringify({ payload: { type: "note", created_at: new Date().toISOString() } }) }); return refreshActive(); }
+    if (action === "process-offline") { await api(`/api/offline-queue/${target.dataset.id}/process`, { method: "POST", body: "{}" }); return refreshActive(); }
+    if (action === "load-audit") return loadAudit();
+    if (action === "search-kiosk") return searchKiosk();
+    if (action === "kiosk-wishlist") {
+      const customer = selectedCustomer("kioskCustomer");
+      await api("/api/wishlist", { method: "POST", body: JSON.stringify({ ...customer, title: target.dataset.title, platform: target.dataset.platform }) });
+      setStatus("Wishlist saved.", "success");
+    }
+  }
+
+  document.body.addEventListener("click", async (event) => {
+    const tab = event.target.closest(".tab");
+    if (tab) {
+      state.activeTab = tab.dataset.tab;
+      document.querySelectorAll(".tab").forEach((el) => el.classList.toggle("active", el === tab));
+      document.querySelectorAll(".tab-panel").forEach((el) => el.classList.toggle("active", el.id === `tab-${state.activeTab}`));
+      try { await refreshActive(); } catch (err) { setStatus(err.message || "Load failed", "error"); }
+      return;
+    }
+    const actionTarget = event.target.closest("[data-action]");
+    if (!actionTarget) return;
+    try {
+      setStatus("Working...");
+      await handleAction(actionTarget);
+      setStatus("Done.", "success");
+    } catch (err) {
+      setStatus(err.message || "Action failed", "error");
+      alert(err.message || "Action failed");
+    }
+  });
+
+  $("btnRefresh").addEventListener("click", () => refreshActive().catch((err) => setStatus(err.message || "Refresh failed", "error")));
+  refreshActive().catch((err) => setStatus(err.message || "Load failed", "error"));
+})();
+</script>
+</body>
+</html>

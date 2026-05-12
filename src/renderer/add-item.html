@@ -34,6 +34,14 @@
     .hint{font-size:12px;color:#93c5fd}
     .danger{outline:2px solid #ef4444}
     .muted{opacity:.8}
+    .bucket-card{max-width:1100px;margin:16px auto 0;background:#101827;border:1px solid var(--border);border-radius:10px;padding:12px}
+    .bucket-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px}
+    .bucket-head h2{margin:0;font-size:15px;text-transform:uppercase;letter-spacing:.06em}
+    .bucket-list{display:grid;gap:8px;max-height:260px;overflow:auto}
+    .bucket-item{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px;align-items:center;background:#050508;border:1px solid var(--border);border-radius:8px;padding:10px}
+    .bucket-item strong{display:block;font-size:14px}
+    .bucket-meta{font-size:12px;color:var(--muted);margin-top:3px}
+    .bucket-actions{display:flex;gap:8px;align-items:center}
 
     /* barcode preview + print button row */
     .barcode-row{
@@ -108,21 +116,35 @@
     .dot:nth-child(3){animation-delay:.4s}
     @keyframes blink{ 0%,80%,100%{opacity:.35} 40%{opacity:1} }
   </style>
+  <script src="theme.js"></script>
+  <link rel="stylesheet" href="themes.css" />
 </head>
 <body>
   <div class="toolbar">
     <img class="logo" src="assets/VaultCore_Logo_White.png" alt="VaultCore" />
     <h1>Add New Item</h1>
     <button class="btn" onclick="location.href='index.html'">Back to Dashboard</button>
+    <button class="btn" onclick="location.href='tasks.html'">Tasks</button>
     <span class="toolbar-spacer"></span>
     <span class="small">Catalog intake and pricing</span>
   </div>
+
+  <section class="bucket-card" id="tradeBucket">
+    <div class="bucket-head">
+      <div>
+        <h2>Trade Intake Bucket</h2>
+        <div class="small muted" id="bucketStatus">Accepted trade items waiting to be posted into inventory.</div>
+      </div>
+      <button class="btn" id="bucketRefresh" type="button">Refresh Bucket</button>
+    </div>
+    <div class="bucket-list" id="bucketList"></div>
+  </section>
 
   <div class="card pad-right" id="addCard">
     <!-- RIGHT SIDEBAR -->
     <aside id="marketSide" aria-label="Suggested Retail (AI)">
       <div class="ms-row" style="justify-content:space-between; margin-bottom:6px">
-        <h2>Suggested Retail (AI • GPT-5.1)</h2>
+        <h2>Suggested Retail (AI - GPT-5.1)</h2>
         <span id="ms-status" class="chip">idle</span>
       </div>
 
@@ -171,14 +193,14 @@
       </div>
 
       <div class="ms-row" style="justify-content:flex-end; gap:8px; margin-bottom:8px">
-        <button id="ms-apply-median" class="btn" style="background:#2563eb;border-color:#2563eb;color:#fff">Apply Median → Price</button>
+        <button id="ms-apply-median" class="btn" style="background:#2563eb;border-color:#2563eb;color:#fff">Apply Median to Price</button>
         <button id="ms-apply-low" class="btn">Apply Low</button>
         <button id="ms-apply-high" class="btn">Apply High</button>
       </div>
 
       <div id="ms-loading" class="small" style="display:none">
         <span class="dots" aria-hidden="true"><span class="dot"></span><span class="dot"></span><span class="dot"></span></span>
-        fetching AI pricing…
+        fetching AI pricing...
       </div>
       <div id="ms-error" class="small" style="display:none;color:#fca5a5"></div>
 
@@ -345,6 +367,35 @@
       if (!data || !data.ok || !data.item) return null;
       return data.item;
     }
+    async function apiCategories() {
+      const res = await fetch(`${API_BASE}/api/categories`, { headers: { ...authHeaders } });
+      if (!res.ok) throw new Error('categories_failed');
+      const data = await res.json();
+      return Array.isArray(data.categories)
+        ? data.categories
+        : (Array.isArray(data.rows) ? data.rows.map(r => r.name).filter(Boolean) : []);
+    }
+    async function apiTradeBucket() {
+      const res = await fetch(`${API_BASE}/api/trade/tasks?status=open&task_type=inventory_review`, {
+        headers: { ...authHeaders }
+      });
+      if (!res.ok) throw new Error('trade_bucket_failed');
+      const data = await res.json();
+      return Array.isArray(data.rows) ? data.rows : [];
+    }
+    async function apiCompleteTradeTask(taskId, item) {
+      if (!taskId) return;
+      await fetch(`${API_BASE}/api/trade/tasks/${encodeURIComponent(taskId)}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json', ...authHeaders },
+        body: JSON.stringify({
+          status: 'done',
+          item_id: item && item.id,
+          sku: item && item.sku,
+          notes: item && item.sku ? `Posted to inventory as ${item.sku}` : 'Posted to inventory'
+        })
+      });
+    }
 
     // NEW: AI price endpoint helper
     async function apiAiPrice(payload) {
@@ -431,7 +482,11 @@
     const elExtBarcode = $('extBarcode');
     const elBarcodeHint = $('barcodeHint');
     const elPrint = $('printLabel');
+    const elBucketList = $('bucketList');
+    const elBucketStatus = $('bucketStatus');
+    const elBucketRefresh = $('bucketRefresh');
     const dl = document.getElementById('title-suggestions');
+    let selectedTradeTask = null;
 
     // Market sidebar elements
     const ms = {
@@ -446,9 +501,103 @@
 
     // --- Populate dropdowns ---
     function opt(txt, val){ const o=document.createElement('option'); o.textContent=txt; o.value=val??txt; return o; }
+    function ensureOption(select, value) {
+      const raw = String(value || '').trim();
+      if (!raw) return;
+      const found = Array.from(select.options || []).find(o => String(o.value).toLowerCase() === raw.toLowerCase());
+      if (found) {
+        select.value = found.value;
+        return;
+      }
+      select.appendChild(opt(raw, raw));
+      select.value = raw;
+    }
     ALL_PLATFORMS.forEach(p=> elPlatform.appendChild(opt(p,p)));
-    ['Games','Console','Accessory','Apparel','Music','Movie','Other'].forEach(c=> elCategory.appendChild(opt(c,c)));
+    function setCategoryOptions(names) {
+      const current = elCategory.value;
+      const clean = Array.from(new Set((names || []).map(c => String(c || '').trim()).filter(Boolean)));
+      elCategory.replaceChildren();
+      clean.forEach(c => elCategory.appendChild(opt(c,c)));
+      if (current && clean.includes(current)) elCategory.value = current;
+      else if (clean.includes('Games')) elCategory.value = 'Games';
+      else if (clean.length) elCategory.value = clean[0];
+    }
+    setCategoryOptions(CATEGORIES);
+    apiCategories()
+      .then((names) => {
+        if (names.length) {
+          setCategoryOptions(names);
+          syncMarketControls();
+        }
+      })
+      .catch((err) => console.warn('Category list fallback in use:', err.message));
     // Condition already locked to New/Used in markup
+
+    function tradeConditionToAddCondition(task) {
+      const combined = `${task.condition || ''} ${task.completeness || ''}`.toLowerCase();
+      return combined.includes('new') || combined.includes('sealed') ? 'New' : 'Used';
+    }
+
+    function fillFromTradeTask(task) {
+      selectedTradeTask = task;
+      elTitle.value = task.title || '';
+      ensureOption(elPlatform, task.platform || '');
+      ensureOption(elCategory, task.category || 'Games');
+      elCondition.value = tradeConditionToAddCondition(task);
+      elQty.value = String(Math.max(1, Number(task.qty || 1)));
+      elCost.value = Number(task.allocated_cost || 0).toFixed(2);
+      elCost.dataset.cents = String(dollarsToCents(elCost.value));
+      elPrice.value = Number(task.retail_price || 0).toFixed(2);
+      elPrice.dataset.cents = String(dollarsToCents(elPrice.value));
+      if (elSource) elSource.value = 'Trade-in';
+      if (elBarcodeHint) elBarcodeHint.textContent = `Loaded from trade quote ${task.quote_id || ''}. Review spelling, platform, category, cost, and price before saving.`;
+      updateMargin();
+      preflight();
+      validate();
+      document.getElementById('addCard')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
+    function renderTradeBucket(rows) {
+      if (!elBucketList) return;
+      elBucketList.innerHTML = '';
+      if (!rows.length) {
+        elBucketStatus.textContent = 'No accepted trade items are waiting for Add Item.';
+        elBucketList.innerHTML = '<div class="small muted">The bucket is clear.</div>';
+        return;
+      }
+      elBucketStatus.textContent = `${rows.length} accepted trade item${rows.length === 1 ? '' : 's'} waiting for inventory posting.`;
+      rows.forEach((task) => {
+        const div = document.createElement('div');
+        div.className = 'bucket-item';
+        div.innerHTML = `
+          <div>
+            <strong>${esc(task.title || 'Trade item')}</strong>
+            <div class="bucket-meta">${esc(task.platform || 'No platform')} - ${esc(task.condition || 'No condition')} - ${esc(task.completeness || 'No completeness')} - cost $${Number(task.allocated_cost || 0).toFixed(2)} - retail $${Number(task.retail_price || 0).toFixed(2)}</div>
+          </div>
+          <div class="bucket-actions">
+            <button class="btn" type="button" data-bucket-id="${task.id}">Load</button>
+          </div>
+        `;
+        div.querySelector('button')?.addEventListener('click', () => fillFromTradeTask(task));
+        elBucketList.appendChild(div);
+      });
+    }
+
+    async function loadTradeBucket() {
+      try {
+        const rows = await apiTradeBucket();
+        renderTradeBucket(rows);
+        const requestedId = new URLSearchParams(location.search).get('trade_task_id');
+        if (requestedId) {
+          const task = rows.find(r => String(r.id) === String(requestedId));
+          if (task) fillFromTradeTask(task);
+        }
+      } catch (err) {
+        console.warn('Trade bucket failed:', err);
+        if (elBucketStatus) elBucketStatus.textContent = 'Trade intake bucket unavailable.';
+      }
+    }
+    if (elBucketRefresh) elBucketRefresh.addEventListener('click', loadTradeBucket);
 
     // --- Recent titles (global) ---
     const RECENT_KEY = 'rcg:recent_titles:v1';
@@ -558,8 +707,8 @@
       const str = String(desc || '').trim();
       if (!str) return '';
       if (str.length <= max) return str;
-      if (max <= 1) return '…';
-      return str.slice(0, max - 1) + '…';
+      if (max <= 1) return '...';
+      return str.slice(0, max - 1) + '...';
     }
 
     // --- Group preflight + barcode preview ---
@@ -638,7 +787,7 @@
         renderBarcodePreview(currentGroup);
 
         if (data.exists) {
-          elGenStatus.textContent = `grouped → ${data.sku} • qty ${data.qty}`;
+          elGenStatus.textContent = `grouped -> ${data.sku} - qty ${data.qty}`;
           elGenStatus.style.color = '#10b981';
           elGroupHint.textContent = `Price locked to $${Number(data.price).toFixed(2)} unless you check "Change price for all matching".`;
           if (!elOverride.checked) {
@@ -690,7 +839,7 @@
         elBarcodeHint.textContent = '';
         return;
       }
-      elBarcodeHint.textContent = 'looking up saved template…';
+      elBarcodeHint.textContent = 'looking up saved template...';
       try {
         const item = await apiLookupByBarcode(code);
         if (!item) {
@@ -711,7 +860,7 @@
             elPlatform.value = item.platform;
           }
         }
-        elBarcodeHint.textContent = `template loaded: ${item.title || ''}${item.platform ? ' • '+item.platform : ''}`;
+        elBarcodeHint.textContent = `template loaded: ${item.title || ''}${item.platform ? ' - '+item.platform : ''}`;
         refreshTitleSuggestionsGlobal();
         preflight();
         validate();
@@ -798,6 +947,9 @@
       try {
         const resp = await apiAddItem(row);
         if (!resp.ok) throw new Error(resp.error || 'unknown error');
+        if (selectedTradeTask) {
+          await apiCompleteTradeTask(selectedTradeTask.id, resp.item || null);
+        }
       } catch (e) {
         alert('Save failed: ' + (e.message || e));
         return;
@@ -831,7 +983,7 @@
         {
           sku: code,
           title: desc,
-          // NEW: send price so backend can render "SKU • $xx.xx"
+          // NEW: send price so backend can render "SKU - $xx.xx"
           price
         }
       ];
@@ -843,6 +995,7 @@
 
     // Kick off initial preflight so barcode/price state appears quickly
     preflight();
+    loadTradeBucket();
 
     /* ======= MARKET SIDEBAR WIRING (AI via GPT-5.1) ======= */
 
@@ -907,8 +1060,8 @@
 
       const mainCat = (elCategory.value || '').toLowerCase();
       if (mainCat === 'games') ms.category.value = 'games';
-      else if (mainCat === 'console') ms.category.value = 'consoles';
-      else if (mainCat === 'accessory') ms.category.value = 'accessories';
+      else if (mainCat === 'console' || mainCat === 'consoles') ms.category.value = 'consoles';
+      else if (mainCat === 'accessory' || mainCat === 'accessories') ms.category.value = 'accessories';
 
       updateCompletenessOptions();
     }
@@ -925,7 +1078,7 @@
       ms.err.style.display='none';
       ms.load.style.display='inline-block';
       ms.comps.innerHTML='';
-      setStatus('thinking…', '#93c5fd');
+      setStatus('thinking...', '#93c5fd');
 
       const title = elTitle.value.trim();
       if(!title){

@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
@@ -86,9 +86,9 @@
   tbody tr:nth-child(even) { background:rgba(255,255,255,0.015); }
   tbody tr:hover { background:var(--row-hover); }
   th.sortable { cursor:pointer; }
-  th.sortable:after { content:" ⏵"; opacity:.3; }
-  th.sortable.sorted-asc:after { content:" ▲"; opacity:.8; }
-  th.sortable.sorted-desc:after { content:" ▼"; opacity:.8; }
+  th.sortable:after { content:" >"; opacity:.3; }
+  th.sortable.sorted-asc:after { content:" ^"; opacity:.8; }
+  th.sortable.sorted-desc:after { content:" v"; opacity:.8; }
   .right { text-align:right; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono","Courier New", monospace; }
 
   .stock-filters { display:flex; gap:6px; flex-wrap:wrap; }
@@ -123,6 +123,36 @@
   .stock-low { color:#facc15; border-color:rgba(250,204,21,0.6); background:rgba(113,63,18,0.2); }
   .stock-out { color:#fca5a5; border-color:rgba(239,68,68,0.6); background:rgba(127,29,29,0.25); }
   tr.row-out td { opacity:0.6; }
+  .bucket-pills {
+    display:flex;
+    flex-wrap:wrap;
+    justify-content:flex-end;
+    gap:4px;
+    margin-top:5px;
+  }
+  .bucket-pill {
+    display:inline-flex;
+    align-items:center;
+    gap:4px;
+    padding:2px 6px;
+    border-radius:999px;
+    border:1px solid rgba(148,163,184,0.34);
+    background:rgba(15,23,42,0.68);
+    color:#cbd5e1;
+    font-size:10px;
+    font-family:system-ui, sans-serif;
+    white-space:nowrap;
+  }
+  .bucket-pill.sellable { border-color:rgba(34,197,94,0.55); color:#bbf7d0; }
+  .bucket-pill.event_hold,
+  .bucket-pill.event_active { border-color:rgba(59,130,246,0.62); color:#bfdbfe; }
+  .bucket-pill.display,
+  .bucket-pill.demo { border-color:rgba(168,85,247,0.55); color:#e9d5ff; }
+  .bucket-pill.testing_hold,
+  .bucket-pill.repair_hold { border-color:rgba(250,204,21,0.58); color:#fde68a; }
+  .bucket-pill.damaged,
+  .bucket-pill.missing,
+  .bucket-pill.waste { border-color:rgba(248,113,113,0.58); color:#fecaca; }
 
   .flag-pill {
     display:inline-flex;
@@ -197,8 +227,10 @@
   .modal h3{margin:0 0 10px 0;font-size:18px}
   .modal .grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
   .modal label{font-size:12px;color:var(--muted)}
-  .modal input[type="text"], .modal input[type="number"]{padding:8px;border:1px solid #3a4455;border-radius:8px;background:#0b0e14;color:var(--text)}
+  .modal input[type="text"], .modal input[type="number"], .modal select{padding:8px;border:1px solid #3a4455;border-radius:8px;background:#0b0e14;color:var(--text)}
   .modal .actions{display:flex;gap:8px;justify-content:flex-end;margin-top:12px}
+  .status-bucket-list{display:grid;gap:6px;margin:8px 0 12px;}
+  .status-bucket-row{display:flex;justify-content:space-between;gap:10px;border:1px solid #2a3342;border-radius:8px;padding:7px 8px;background:#0b0e14;font-size:12px;}
   .chips { display:grid; grid-template-columns:repeat(4, auto); gap:8px; margin-top:8px; }
   .chip { display:flex; align-items:center; gap:6px; padding:6px 10px; border-radius:9999px; border:1px solid #3a4455; background:#0b0e14; user-select:none; cursor:pointer; }
   .chip input { width:14px; height:14px; }
@@ -302,6 +334,69 @@
     margin-top:3px;
   }
 
+  .wish-match-btn{
+    display:inline-flex;
+    align-items:center;
+    gap:4px;
+    margin-right:6px;
+    border:1px solid #facc15;
+    background:#2b2106;
+    color:#fde68a;
+    border-radius:999px;
+    padding:2px 7px;
+    font-size:11px;
+    cursor:pointer;
+  }
+
+  .bundle-mini-list {
+    display:grid;
+    gap:6px;
+    margin-top:8px;
+  }
+  .bundle-mini {
+    border:1px solid #1f2937;
+    border-radius:8px;
+    padding:7px;
+    background:#0b1020;
+    font-size:12px;
+  }
+  .bundle-mini-title {
+    display:flex;
+    justify-content:space-between;
+    gap:8px;
+    font-weight:650;
+  }
+  .bundle-line-list {
+    display:grid;
+    gap:6px;
+    margin:8px 0;
+  }
+  .bundle-line {
+    display:grid;
+    grid-template-columns:minmax(0, 1fr) auto auto;
+    gap:8px;
+    align-items:center;
+    border:1px solid #1f2937;
+    border-radius:7px;
+    padding:7px;
+    background:#090d18;
+    font-size:12px;
+  }
+  .bundle-modal-grid {
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:8px;
+  }
+  .bundle-modal-grid .full { grid-column:1 / -1; }
+  .bundle-modal-list {
+    max-height:220px;
+    overflow:auto;
+    border:1px solid #1f2937;
+    border-radius:8px;
+    padding:6px;
+    margin-top:8px;
+  }
+
   .plat-pills {
     display:flex;
     flex-direction:column;
@@ -371,6 +466,8 @@
     }
   }
 </style>
+  <script src="theme.js"></script>
+  <link rel="stylesheet" href="themes.css" />
 </head>
 <body>
 
@@ -380,6 +477,7 @@
 
   <button class="btn" onclick="location.href='index.html'">Back to Dashboard</button>
   <button class="btn" onclick="location.href='add-item.html'">Add Item</button>
+  <button id="btn-open-bundles" class="btn">Bundles</button>
 
   <span class="toolbar-spacer"></span>
 
@@ -393,7 +491,7 @@
     Include zero-stock
   </label>
   <button id="btn-export-all" class="btn ghost">Export CSV</button>
-  <button id="btn-wix-export" class="btn ghost">Wix Export</button>
+  <button id="btn-wix-export" class="btn ghost">Wix Export (In Stock)</button>
 </div>
 
 <div id="top-summary" class="top-summary small">
@@ -487,19 +585,19 @@
       <div class="small" style="margin-bottom:4px;">inventory age (all)</div>
       <div class="age-bars">
         <div>
-          <div class="small" id="age-0-30">0–30 days: 0 items • $0.00</div>
+          <div class="small" id="age-0-30">0-30 days: 0 items - $0.00</div>
           <div class="age-bar"><div id="agebar-0-30" class="age-bar-inner"></div></div>
         </div>
         <div>
-          <div class="small" id="age-31-90">31–90 days: 0 items • $0.00</div>
+          <div class="small" id="age-31-90">31-90 days: 0 items - $0.00</div>
           <div class="age-bar"><div id="agebar-31-90" class="age-bar-inner"></div></div>
         </div>
         <div>
-          <div class="small" id="age-91-180">91–180 days: 0 items • $0.00</div>
+          <div class="small" id="age-91-180">91-180 days: 0 items - $0.00</div>
           <div class="age-bar"><div id="agebar-91-180" class="age-bar-inner"></div></div>
         </div>
         <div>
-          <div class="small" id="age-181-plus">180+ days: 0 items • $0.00</div>
+          <div class="small" id="age-181-plus">180+ days: 0 items - $0.00</div>
           <div class="age-bar"><div id="agebar-181-plus" class="age-bar-inner"></div></div>
         </div>
       </div>
@@ -520,12 +618,44 @@
       <div class="small">highest: <b id="margin-high">0%</b></div>
     </div>
 
+    <!-- Bundles -->
+    <div class="section" id="side-bundles">
+      <div class="small" style="margin-bottom:4px;">bundles</div>
+      <div class="small" id="bundle-summary">No bundles loaded.</div>
+      <button id="btn-open-bundles-side" class="btn ghost" style="margin-top:8px;">Manage Bundles</button>
+      <div id="bundle-mini-list" class="bundle-mini-list"></div>
+    </div>
+
     <!-- Alerts -->
     <div class="section" id="side-alerts">
       <div class="small" style="margin-bottom:4px;">alerts</div>
       <ul id="alerts-list" class="alert-list small"></ul>
     </div>
   </aside>
+</div>
+
+<div id="bundle-modal" class="modal-backdrop hidden">
+  <div class="modal" style="max-width:760px;width:min(760px, calc(100vw - 32px));">
+    <h3>Bundles</h3>
+    <div class="bundle-modal-grid">
+      <input id="bundle-title" type="text" placeholder="Bundle title" class="full" />
+      <input id="bundle-sku" type="text" placeholder="Bundle SKU (optional)" />
+      <input id="bundle-price" type="number" min="0" step="0.01" placeholder="Price" />
+      <input id="bundle-item" type="text" list="bundle-item-options" placeholder="Add inventory item" class="full" />
+      <datalist id="bundle-item-options"></datalist>
+      <input id="bundle-qty" type="number" min="1" step="1" value="1" />
+      <button id="btn-bundle-add-line" class="btn" type="button">Add Component</button>
+      <input id="bundle-notes" type="text" placeholder="Notes" class="full" />
+    </div>
+    <div id="bundle-lines" class="bundle-line-list"></div>
+    <div class="actions">
+      <button id="btn-bundle-refresh" class="btn ghost" type="button">Refresh</button>
+      <button id="btn-bundle-create" class="btn primary" type="button">Create Bundle</button>
+      <button id="btn-bundle-close" class="btn" type="button">Close</button>
+    </div>
+    <div id="bundle-status" class="small" style="margin-top:8px;"></div>
+    <div id="bundle-full-list" class="bundle-modal-list"></div>
+  </div>
 </div>
 
 <!-- BULK TOOLBAR -->
@@ -619,6 +749,25 @@
   const btnPrintInv     = document.getElementById('btn-print-inventory');
   const chkPrintIncludeZero = document.getElementById('print-include-zero');
   const stockFiltersEl = document.getElementById('stock-filters');
+  const btnOpenBundles = document.getElementById('btn-open-bundles');
+  const btnOpenBundlesSide = document.getElementById('btn-open-bundles-side');
+  const bundleModal = document.getElementById('bundle-modal');
+  const bundleSummary = document.getElementById('bundle-summary');
+  const bundleMiniList = document.getElementById('bundle-mini-list');
+  const bundleFullList = document.getElementById('bundle-full-list');
+  const bundleOptions = document.getElementById('bundle-item-options');
+  const bundleLinesEl = document.getElementById('bundle-lines');
+  const bundleStatus = document.getElementById('bundle-status');
+  const bundleTitle = document.getElementById('bundle-title');
+  const bundleSku = document.getElementById('bundle-sku');
+  const bundlePrice = document.getElementById('bundle-price');
+  const bundleItem = document.getElementById('bundle-item');
+  const bundleQty = document.getElementById('bundle-qty');
+  const bundleNotes = document.getElementById('bundle-notes');
+  const btnBundleAddLine = document.getElementById('btn-bundle-add-line');
+  const btnBundleCreate = document.getElementById('btn-bundle-create');
+  const btnBundleRefresh = document.getElementById('btn-bundle-refresh');
+  const btnBundleClose = document.getElementById('btn-bundle-close');
 
   /* sidebar insight elements */
   const age0_30    = document.getElementById('age-0-30');
@@ -646,6 +795,10 @@
   let fCategory = '';
   let fCondition = '';
   let fStock = 'all';
+  let currentUser = null;
+  let wishlistMatchMap = new Map();
+  let bundles = [];
+  let bundleLines = [];
   const LOW_STOCK_THRESHOLD = 1;
   const REORDER_KEY = 'rc_reorder_flags';
   const STOCK_FILTER_KEY = 'rc_inventory_stock_filter';
@@ -663,6 +816,100 @@
     const n = Number(v);
     return Number.isFinite(n) ? n : 0;
   };
+  const onlineQty = (item) => toQty(item?.available_to_sell ?? item?.sellable_qty ?? item?.qty);
+  const INVENTORY_STATUS_OPTIONS = [
+    ['sellable', 'Sellable'],
+    ['display', 'Display'],
+    ['demo', 'Demo'],
+    ['event_hold', 'Event Hold'],
+    ['event_active', 'Event Active'],
+    ['reserved', 'Reserved'],
+    ['testing_hold', 'Testing Hold'],
+    ['repair_hold', 'Repair Hold'],
+    ['damaged', 'Damaged'],
+    ['missing', 'Missing'],
+    ['waste', 'Waste'],
+    ['sold', 'Sold']
+  ];
+  const INVENTORY_STATUS_LABELS = Object.fromEntries(INVENTORY_STATUS_OPTIONS);
+  let inventoryLocations = [{ key: 'store', label: 'Store' }];
+
+  function statusLabel(status) {
+    return INVENTORY_STATUS_LABELS[status] || String(status || '').replace(/_/g, ' ');
+  }
+
+  function locationLabel(location) {
+    return String(location || 'store')
+      .replace(/_/g, ' ')
+      .replace(/\b\w/g, (char) => char.toUpperCase());
+  }
+
+  function normalizeLocationOptions(raw, extras = []) {
+    const list = Array.isArray(raw) ? raw : [];
+    const seen = new Set();
+    const out = [];
+    const add = (entry) => {
+      const key = String(entry?.key || entry?.value || entry || '').trim() || 'store';
+      if (seen.has(key)) return;
+      seen.add(key);
+      out.push({ key, label: String(entry?.label || locationLabel(key)) });
+    };
+    add({ key: 'store', label: 'Store' });
+    list.forEach(add);
+    extras.forEach(add);
+    return out;
+  }
+
+  async function loadInventoryLocations() {
+    try {
+      const data = await apiJson('/api/inventory-locations');
+      inventoryLocations = normalizeLocationOptions(data.locations);
+    } catch (err) {
+      console.warn('Inventory locations load failed:', err);
+      inventoryLocations = normalizeLocationOptions([]);
+    }
+  }
+
+  function locationOptionsHtml(selected, extras = []) {
+    const options = normalizeLocationOptions(inventoryLocations, extras);
+    const current = String(selected || 'store');
+    return options.map((loc) => `
+      <option value="${escapeHtml(loc.key)}" ${loc.key === current ? 'selected' : ''}>${escapeHtml(loc.label)}</option>
+    `).join('');
+  }
+
+  function inventoryBuckets(it) {
+    const rows = Array.isArray(it?.inventory_buckets) ? it.inventory_buckets : [];
+    return rows
+      .map((row) => ({
+        status: String(row.status || 'sellable'),
+        location: String(row.location || 'store'),
+        qty: toQty(row.qty)
+      }))
+      .filter((row) => row.qty > 0);
+  }
+
+  function inventoryBucketQty(it, status) {
+    const byStatus = it?.inventory_by_status || {};
+    if (Object.prototype.hasOwnProperty.call(byStatus, status)) return toQty(byStatus[status]);
+    return inventoryBuckets(it)
+      .filter((row) => row.status === status)
+      .reduce((sum, row) => sum + toQty(row.qty), 0);
+  }
+
+  function bucketSummaryHtml(it) {
+    const rows = inventoryBuckets(it).sort((a, b) => {
+      const ai = INVENTORY_STATUS_OPTIONS.findIndex(([key]) => key === a.status);
+      const bi = INVENTORY_STATUS_OPTIONS.findIndex(([key]) => key === b.status);
+      return (ai < 0 ? 99 : ai) - (bi < 0 ? 99 : bi);
+    });
+    if (!rows.length) return '';
+    const visible = rows.slice(0, 4);
+    const extra = rows.length - visible.length;
+    return `<div class="bucket-pills">${
+      visible.map((row) => `<span class="bucket-pill ${escapeHtml(row.status)}">${escapeHtml(statusLabel(row.status))}: ${escapeHtml(row.qty)}</span>`).join('')
+    }${extra > 0 ? `<span class="bucket-pill">+${extra}</span>` : ''}</div>`;
+  }
 
   function loadReorderSet() {
     try {
@@ -762,10 +1009,19 @@
     return `assets/${file}`;
   }
 
+  function escapeHtml(value) {
+    return String(value ?? '')
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#39;');
+  }
+
   function thumbCellHtml(it) {
     const p = it.platform || '';
     const src = platformLogoSrc(p) || 'assets/VaultCore_Logo_White.png';
-    return `<img class="thumb-img" src="${src}" alt="">`;
+    return `<img class="thumb-img" src="${escapeHtml(src)}" alt="">`;
   }
 
   function platformCellHtml(it) {
@@ -773,17 +1029,18 @@
     if (!p) return '';
     const src = platformLogoSrc(p);
     const activeClass = (fPlatform && fPlatform === p) ? ' active' : '';
+    const safePlatform = escapeHtml(p);
     if (src) {
-      return `<button class="plat-filter${activeClass}" data-platform="${p}">
+      return `<button class="plat-filter${activeClass}" data-platform="${safePlatform}">
                 <div class="plat-cell">
-                  <img class="plat-icon" src="${src}" alt="">
-                  <span>${p}</span>
+                  <img class="plat-icon" src="${escapeHtml(src)}" alt="">
+                  <span>${safePlatform}</span>
                 </div>
               </button>`;
     }
-    return `<button class="plat-filter${activeClass}" data-platform="${p}">
+    return `<button class="plat-filter${activeClass}" data-platform="${safePlatform}">
               <div class="plat-cell">
-                <span>${p}</span>
+                <span>${safePlatform}</span>
               </div>
             </button>`;
   }
@@ -797,8 +1054,8 @@
     const str = String(desc || '').trim();
     if (!str) return '';
     if (str.length <= max) return str;
-    if (max <= 1) return '…';
-    return str.slice(0, max - 1) + '…';
+    if (max <= 1) return '...';
+    return str.slice(0, max - 1) + '...';
   }
 
   function skuDigits(val) {
@@ -824,7 +1081,7 @@
     return selItems.map(it => ({
       sku: skuDigits(it.sku || it.barcode || ''),
       title: it.title || it.sku || '',
-      // NEW: send price so backend can print "SKU • $xx.xx"
+      // NEW: send price so backend can print "SKU - $xx.xx"
       price: Number(it.price) || 0
     }));
   }
@@ -859,7 +1116,7 @@
 
       const win = window.open(url);
       if (!win) {
-        // Popup blocked → just download the PDF
+        // Popup blocked - just download the PDF
         const a = document.createElement('a');
         a.href = url;
         a.download = 'labels.pdf';
@@ -894,7 +1151,7 @@
     await printLabelsForItemsPayload(payload);
   }
 
-  // Print a single row as a one-page PDF (for row “Reprint” or barcode click)
+  // Print a single row as a one-page PDF (for row "Reprint" or barcode click)
   async function printSingleLabelViaPdf(it) {
     if (!it) return;
     const payload = buildLabelItemsFromSelection([it]);
@@ -1027,7 +1284,7 @@
     });
   }
 
-  /** Waste / Write-Off modal – qty + reason + notes */
+  /** Waste / Write-Off modal - qty + reason + notes */
   function openWasteModal(it) {
     return new Promise((resolve) => {
       const maxQty = Number(it.qty) || 1;
@@ -1095,7 +1352,125 @@
     });
   }
 
-  /** NEW: Log Sale modal – qty + channel + price + notes */
+  function openStatusModal(it) {
+    return new Promise((resolve) => {
+      const buckets = inventoryBuckets(it);
+      const safeTitle = escapeHtml(it.title || it.sku || 'this item');
+      const safeSku = escapeHtml(it.sku || '');
+      if (!buckets.length) {
+        alert('This item has no movable inventory yet.');
+        resolve(null);
+        return;
+      }
+
+      const bd = el('div', { className: 'modal-backdrop' });
+      const m = el('div', { className: 'modal' });
+      const locationExtras = buckets.map((row) => row.location);
+      const sourceOptions = buckets.map((row, idx) => {
+        const value = `${row.status}||${row.location}`;
+        return `<option value="${escapeHtml(value)}" data-qty="${escapeHtml(row.qty)}" ${idx === 0 ? 'selected' : ''}>${escapeHtml(statusLabel(row.status))} / ${escapeHtml(locationLabel(row.location))} (${escapeHtml(row.qty)})</option>`;
+      }).join('');
+      const toOptions = INVENTORY_STATUS_OPTIONS.map(([value, label]) => {
+        const selected = value === (buckets[0]?.status === 'sellable' ? 'display' : 'sellable') ? 'selected' : '';
+        return `<option value="${escapeHtml(value)}" ${selected}>${escapeHtml(label)}</option>`;
+      }).join('');
+      const currentRows = buckets.map((row) => `
+        <div class="status-bucket-row">
+          <span>${escapeHtml(statusLabel(row.status))} / ${escapeHtml(locationLabel(row.location))}</span>
+          <b>${escapeHtml(row.qty)}</b>
+        </div>
+      `).join('');
+
+      m.innerHTML = `
+        <h3>Change Inventory Status</h3>
+        <div class="small" style="margin-bottom:8px;">
+          Item: <b>${safeTitle}</b><br/>
+          SKU: <b>${safeSku}</b><br/>
+          On hand: <b>${escapeHtml(toQty(it.qty))}</b> &nbsp; Sellable online: <b>${escapeHtml(inventoryBucketQty(it, 'sellable'))}</b>
+        </div>
+        <div class="status-bucket-list">${currentRows}</div>
+        <div class="grid">
+          <div>
+            <label>Move from</label>
+            <select id="st-source" style="width:100%;margin-top:2px;">${sourceOptions}</select>
+          </div>
+          <div>
+            <label>Quantity</label>
+            <input id="st-qty" type="number" min="1" step="1" value="1">
+          </div>
+          <div>
+            <label>Move to status</label>
+            <select id="st-to-status" style="width:100%;margin-top:2px;">${toOptions}</select>
+          </div>
+          <div>
+            <label>Move to location</label>
+            <select id="st-to-location" style="width:100%;margin-top:2px;">${locationOptionsHtml(buckets[0]?.location || 'store', locationExtras)}</select>
+          </div>
+          <div style="grid-column:1 / -1;">
+            <label>Note (optional)</label>
+            <input id="st-note" type="text" placeholder="ex: going to event table, display shelf, needs testing" style="width:100%;">
+          </div>
+        </div>
+        <div class="actions">
+          <button class="btn ghost" id="st-cancel">Cancel</button>
+          <button class="btn primary" id="st-ok">Move Stock</button>
+        </div>
+      `;
+      bd.appendChild(m);
+      document.body.appendChild(bd);
+
+      const sourceEl = m.querySelector('#st-source');
+      const qtyEl = m.querySelector('#st-qty');
+      const toStatusEl = m.querySelector('#st-to-status');
+      const toLocationEl = m.querySelector('#st-to-location');
+      const noteEl = m.querySelector('#st-note');
+      const close = (result = null) => { bd.remove(); resolve(result); };
+      const selectedSource = () => {
+        const opt = sourceEl.options[sourceEl.selectedIndex];
+        const [status, location] = String(sourceEl.value || '').split('||');
+        return { status, location: location || 'store', qty: toQty(opt?.dataset?.qty || 0) };
+      };
+      const refreshLimits = () => {
+        const src = selectedSource();
+        qtyEl.max = String(src.qty);
+        if (toQty(qtyEl.value) > src.qty) qtyEl.value = String(src.qty);
+        if (!toLocationEl.value) toLocationEl.value = src.location || 'store';
+        if (toStatusEl.value === src.status && (toLocationEl.value || 'store') === src.location) {
+          toStatusEl.value = src.status === 'sellable' ? 'display' : 'sellable';
+        }
+      };
+
+      sourceEl.addEventListener('change', refreshLimits);
+      m.querySelector('#st-cancel').onclick = () => close(null);
+      m.querySelector('#st-ok').onclick = () => {
+        const src = selectedSource();
+        const qty = Math.floor(Number(qtyEl.value || 0));
+        const toStatus = toStatusEl.value || 'sellable';
+        const toLocation = toLocationEl.value || src.location || 'store';
+        if (!qty || qty < 1 || qty > src.qty) {
+          alert(`Enter a quantity between 1 and ${src.qty}.`);
+          return;
+        }
+        if (src.status === toStatus && src.location === toLocation) {
+          alert('Choose a different status or location.');
+          return;
+        }
+        close({
+          qty,
+          from_status: src.status,
+          from_location: src.location,
+          to_status: toStatus,
+          to_location: toLocation,
+          note: (noteEl.value || '').trim()
+        });
+      };
+      refreshLimits();
+      qtyEl.focus();
+      qtyEl.select();
+    });
+  }
+
+  /** NEW: Log Sale modal - qty + channel + price + notes */
   function openLogSaleModal(it) {
     return new Promise((resolve) => {
       const maxQty = Number(it.qty) || 0;
@@ -1196,21 +1571,163 @@
     const res = await fetch(API_BASE + '/api/me', { headers: { ...getAuthHeaders() } });
     if (!res.ok) {
       localStorage.removeItem('rc_session_id');
-      window.location.href = 'login.html';
+      window.location.href = '../../public/index.html';
       throw new Error('session_invalid');
     }
+    const data = await res.json().catch(() => ({}));
+    currentUser = data.user || null;
+    return currentUser;
   }
 
   async function loadFromAPI(){
     const res = await fetch(API_URL, { cache:'no-store', headers: { ...getAuthHeaders() }});
     if (res.status === 401) {
       localStorage.removeItem('rc_session_id');
-      window.location.href = 'login.html';
+      window.location.href = '../../public/index.html';
       throw new Error('session_invalid');
     }
     if (!res.ok) throw new Error('API error: ' + res.status);
     const data = await res.json();
     return Array.isArray(data) ? data : (data.items || []);
+  }
+
+  async function loadWishlistMatches(){
+    try {
+      const res = await fetch(API_BASE + '/api/wishlist/matches', { cache:'no-store', headers: { ...getAuthHeaders() } });
+      if (!res.ok) throw new Error('wishlist_matches_' + res.status);
+      const data = await res.json();
+      const map = new Map();
+      (data.rows || []).forEach((row) => {
+        map.set(Number(row.item_id), Array.isArray(row.matches) ? row.matches : []);
+      });
+      wishlistMatchMap = map;
+    } catch (err) {
+      console.warn('Wishlist match load failed:', err);
+      wishlistMatchMap = new Map();
+    }
+  }
+
+  async function apiJson(path, opts = {}) {
+    const res = await fetch(API_BASE + path, {
+      ...opts,
+      headers: { 'Content-Type': 'application/json', ...getAuthHeaders(), ...(opts.headers || {}) }
+    });
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok) throw new Error(data.error || 'request_failed');
+    return data;
+  }
+
+  function fillBundleOptions() {
+    if (!bundleOptions) return;
+    bundleOptions.innerHTML = items
+      .filter((it) => Number(it.qty || 0) > 0 && !String(it.source || '').startsWith('bundle:'))
+      .slice(0, 2000)
+      .map((it) => `<option value="${escapeHtml(it.title || it.sku || 'Item')} [${escapeHtml(it.sku || '')}]">${escapeHtml(it.platform || '')} / qty ${escapeHtml(it.qty)}</option>`)
+      .join('');
+  }
+
+  function parseBundleItem(value) {
+    const sku = (String(value || '').match(/\[([^\]]+)\]/) || [])[1] || '';
+    if (sku) return items.find((it) => String(it.sku) === sku) || null;
+    const query = lc(value).trim();
+    return items.find((it) => lc(it.title).includes(query) || lc(it.sku) === query) || null;
+  }
+
+  function renderBundleLines() {
+    if (!bundleLinesEl) return;
+    bundleLinesEl.innerHTML = bundleLines.length ? bundleLines.map((line, idx) => `
+      <div class="bundle-line">
+        <span>${escapeHtml(line.title)} <span class="muted">${escapeHtml(line.sku || '')}</span></span>
+        <span>qty ${escapeHtml(line.qty)}</span>
+        <button class="btn danger" data-remove-bundle-line="${idx}" type="button">Remove</button>
+      </div>
+    `).join('') : '<div class="small muted">No components added.</div>';
+  }
+
+  function renderBundles() {
+    const available = bundles.filter((b) => Number(b.available || 0)).length;
+    const unavailable = bundles.filter((b) => b.status === 'active' && !Number(b.available || 0)).length;
+    if (bundleSummary) {
+      bundleSummary.textContent = bundles.length
+        ? `${bundles.length} bundle${bundles.length === 1 ? '' : 's'} - ${available} available, ${unavailable} unavailable`
+        : 'No bundles yet.';
+    }
+    const rowHtml = (b, compact = false) => `
+      <div class="bundle-mini">
+        <div class="bundle-mini-title">
+          <span>${escapeHtml(b.title || 'Bundle')}</span>
+          <span class="stock-pill stock-${Number(b.available || 0) ? 'in' : 'out'}">${Number(b.available || 0) ? 'Available' : 'Unavailable'}</span>
+        </div>
+        <div class="small muted">${escapeHtml(b.sku || '')} - ${fmt$(b.price || 0)} - ${escapeHtml(b.status || '')}</div>
+        ${compact ? '' : `<div class="bundle-line-list">${(b.components || []).map((c) => `<div class="bundle-line"><span>${escapeHtml(c.title || c.sku || '')}</span><span>needs ${escapeHtml(c.qty)}</span><span>on hand ${escapeHtml(c.current_qty || 0)}</span></div>`).join('')}</div>`}
+        ${compact ? '' : `<div class="actions"><button class="btn danger" data-archive-bundle="${escapeHtml(b.id)}" type="button">Archive</button></div>`}
+      </div>
+    `;
+    if (bundleMiniList) {
+      bundleMiniList.innerHTML = bundles.slice(0, 4).map((b) => rowHtml(b, true)).join('') || '<div class="small muted">No bundles yet.</div>';
+    }
+    if (bundleFullList) {
+      bundleFullList.innerHTML = bundles.map((b) => rowHtml(b, false)).join('') || '<div class="small muted">No bundles yet.</div>';
+    }
+    fillBundleOptions();
+    renderBundleLines();
+  }
+
+  async function loadBundles() {
+    try {
+      const data = await apiJson('/api/bundles');
+      bundles = Array.isArray(data.rows) ? data.rows : [];
+      renderBundles();
+    } catch (err) {
+      console.warn('Bundle load failed:', err);
+      bundles = [];
+      renderBundles();
+    }
+  }
+
+  function openBundleModal() {
+    if (!bundleModal) return;
+    fillBundleOptions();
+    renderBundles();
+    bundleModal.classList.remove('hidden');
+  }
+
+  function closeBundleModal() {
+    if (bundleModal) bundleModal.classList.add('hidden');
+  }
+
+  async function createBundle() {
+    if (!bundleTitle || !bundleTitle.value.trim()) {
+      alert('Enter a bundle title.');
+      return;
+    }
+    if (!bundleLines.length) {
+      alert('Add at least one component.');
+      return;
+    }
+    try {
+      await apiJson('/api/bundles', {
+        method: 'POST',
+        body: JSON.stringify({
+          title: bundleTitle.value.trim(),
+          sku: bundleSku ? bundleSku.value.trim() : '',
+          price: Number(bundlePrice?.value || 0) || 0,
+          notes: bundleNotes ? bundleNotes.value.trim() : '',
+          components: bundleLines.map((line) => ({ item_id: line.item_id, qty: line.qty }))
+        })
+      });
+      bundleLines = [];
+      if (bundleTitle) bundleTitle.value = '';
+      if (bundleSku) bundleSku.value = '';
+      if (bundlePrice) bundlePrice.value = '';
+      if (bundleNotes) bundleNotes.value = '';
+      if (bundleStatus) bundleStatus.textContent = 'Bundle created. Its POS availability follows component inventory.';
+      items = await loadFromAPI();
+      await loadBundles();
+      render();
+    } catch (err) {
+      alert(err.message === 'bundle_sku_exists' ? 'That bundle SKU already exists.' : 'Bundle could not be created.');
+    }
   }
 
   // --- Age helpers ---
@@ -1342,10 +1859,10 @@
     if (!(age0_30 && platLines && marginAvgEl && marginMedEl && marginLowEl && marginHighEl && alertsList)) return;
 
     if (!Array.isArray(normAll) || !normAll.length) {
-      age0_30.textContent    = '0–30 days: 0 items • $0.00';
-      age31_90.textContent   = '31–90 days: 0 items • $0.00';
-      age91_180.textContent  = '91–180 days: 0 items • $0.00';
-      age181Plus.textContent = '180+ days: 0 items • $0.00';
+      age0_30.textContent    = '0-30 days: 0 items - $0.00';
+      age31_90.textContent   = '31-90 days: 0 items - $0.00';
+      age91_180.textContent  = '91-180 days: 0 items - $0.00';
+      age181Plus.textContent = '180+ days: 0 items - $0.00';
 
       if (agebar0_30)    agebar0_30.style.width = '0%';
       if (agebar31_90)   agebar31_90.style.width = '0%';
@@ -1357,7 +1874,7 @@
       marginMedEl.textContent  = '0%';
       marginLowEl.textContent  = '0%';
       marginHighEl.textContent = '0%';
-      alertsList.innerHTML   = '<li class="muted small">no alerts — add some inventory</li>';
+      alertsList.innerHTML   = '<li class="muted small">no alerts - add some inventory</li>';
       return;
     }
 
@@ -1381,10 +1898,10 @@
       else buckets['181+'].count++, buckets['181+'].value += val;
     }
 
-    age0_30.textContent    = `0–30 days: ${buckets['0-30'].count} items • ${fmt$(buckets['0-30'].value)}`;
-    age31_90.textContent   = `31–90 days: ${buckets['31-90'].count} items • ${fmt$(buckets['31-90'].value)}`;
-    age91_180.textContent  = `91–180 days: ${buckets['91-180'].count} items • ${fmt$(buckets['91-180'].value)}`;
-    age181Plus.textContent = `180+ days: ${buckets['181+'].count} items • ${fmt$(buckets['181+'].value)}`;
+    age0_30.textContent    = `0-30 days: ${buckets['0-30'].count} items - ${fmt$(buckets['0-30'].value)}`;
+    age31_90.textContent   = `31-90 days: ${buckets['31-90'].count} items - ${fmt$(buckets['31-90'].value)}`;
+    age91_180.textContent  = `91-180 days: ${buckets['91-180'].count} items - ${fmt$(buckets['91-180'].value)}`;
+    age181Plus.textContent = `180+ days: ${buckets['181+'].count} items - ${fmt$(buckets['181+'].value)}`;
 
     const totalVal = Object.values(buckets).reduce((s,b)=>s + b.value, 0) || 1;
     if (agebar0_30)    agebar0_30.style.width    = `${((buckets['0-30'].value)/totalVal)*100}%`;
@@ -1488,7 +2005,7 @@
       pushAlert(`low stock: ${lowStockCount} items with qty = 1`, '#facc15');
     }
     if (highValueSingles > 0) {
-      pushAlert(`high value singles: ${highValueSingles} items priced ≥ $100`, '#34d399');
+      pushAlert(`high value singles: ${highValueSingles} items priced >= $100`, '#34d399');
     }
     if (oldExpensive > 0) {
       pushAlert(`old & expensive: ${oldExpensive} items > $75 and > 180 days`, '#f97373');
@@ -1498,7 +2015,7 @@
     }
 
     if (!alertsList.children.length) {
-      alertsList.innerHTML = '<li class="muted small">no alerts — looking good</li>';
+      alertsList.innerHTML = '<li class="muted small">no alerts - looking good</li>';
     }
   }
 
@@ -1543,13 +2060,18 @@
         const stockStatus = getStockStatus(it.qty);
         if (stockStatus === 'out') tr.classList.add('row-out');
         const ageDays = getAverageAgeDays(it);
-        const cb = `<input type="checkbox" class="chk row-chk" data-id="${it.id}" data-idx="${idx}" ${selectedIds.has(it.id)?'checked':''} />`;
+        const safeId = escapeHtml(it.id);
+        const cb = `<input type="checkbox" class="chk row-chk" data-id="${safeId}" data-idx="${idx}" ${selectedIds.has(it.id)?'checked':''} />`;
 
         const sku8 = skuDigits(it.sku || it.barcode || '');
-        const labelDesc = labelDescForItem(it);
-        const bcUrl = barcodeImageUrlForItem(it);
+        const labelDesc = escapeHtml(labelDescForItem(it));
+        const bcUrl = escapeHtml(barcodeImageUrlForItem(it));
         const platCell = platformCellHtml(it);
         const thumb = thumbCellHtml(it);
+        const wishMatches = wishlistMatchMap.get(Number(it.id)) || [];
+        const wishBadge = wishMatches.length
+          ? `<button class="wish-match-btn" data-act="wishlist-match" data-id="${safeId}" title="${escapeHtml(wishMatches.length + ' wishlist match' + (wishMatches.length === 1 ? '' : 'es'))}">&#9733; ${escapeHtml(wishMatches.length)}</button>`
+          : '';
         const stockLabel = stockStatus === 'in'
           ? 'In Stock'
           : stockStatus === 'low'
@@ -1560,32 +2082,33 @@
         const reorderClass = isFlagged ? 'flag-pill' : 'flag-pill inactive';
 
         const actions = `
-          <button class="btn" data-act="edit" data-id="${it.id}">Edit</button>
-          <button class="btn" data-act="waste" data-id="${it.id}">Write Off</button>
-          <button class="btn" data-act="log-sale" data-id="${it.id}">Log Sale</button>
-          <button class="btn danger" data-act="del" data-id="${it.id}">Delete</button>
-          <button class="btn ghost" data-act="print" data-id="${it.id}">Reprint</button>
+          <button class="btn" data-act="edit" data-id="${safeId}">Edit</button>
+          <button class="btn" data-act="status" data-id="${safeId}">Status</button>
+          <button class="btn" data-act="waste" data-id="${safeId}">Write Off</button>
+          <button class="btn" data-act="log-sale" data-id="${safeId}">Log Sale</button>
+          <button class="btn danger" data-act="del" data-id="${safeId}">Delete</button>
+          <button class="btn ghost" data-act="print" data-id="${safeId}">Reprint</button>
         `;
 
         tr.innerHTML = `
           <td class="chk-col">${cb}</td>
-          <td>${it.sku ?? ''}</td>
+          <td>${escapeHtml(it.sku ?? '')}</td>
           <td class="thumb-cell">${thumb}</td>
-          <td>${it.title ?? ''}</td>
+          <td>${wishBadge}${escapeHtml(it.title ?? '')}</td>
           <td>${platCell}</td>
-          <td>${it.category ?? ''}</td>
-          <td>${it.condition ?? ''}</td>
+          <td>${escapeHtml(it.category ?? '')}</td>
+          <td>${escapeHtml(it.condition ?? '')}</td>
           <td class="right">${fmt$(it.cost)}</td>
           <td class="right">${fmt$(it.price)}</td>
-          <td class="right">${it.qty}<div class="stock-pill stock-${stockStatus}">${stockLabel}</div></td>
-          <td><button class="${reorderClass}" data-act="reorder-toggle" data-id="${it.id}">${reorderLabel}</button></td>
+          <td class="right">${escapeHtml(it.qty)}<div class="stock-pill stock-${stockStatus}">${stockLabel}</div>${bucketSummaryHtml(it)}</td>
+          <td><button class="${reorderClass}" data-act="reorder-toggle" data-id="${safeId}">${reorderLabel}</button></td>
           <td>${ageDays}</td>
-          <td>${it.createdAt ? new Date(it.createdAt).toLocaleString() : ''}</td>
+          <td>${escapeHtml(it.createdAt ? new Date(it.createdAt).toLocaleString() : '')}</td>
           <td class="bc-col">
-            <div class="bc-wrap" data-id="${it.id}">
-              <img class="bc-img" src="${bcUrl}" alt="barcode for ${sku8}" />
+            <div class="bc-wrap" data-id="${safeId}">
+              <img class="bc-img" src="${bcUrl}" alt="barcode for ${escapeHtml(sku8)}" />
               <div class="bc-meta">
-                <div class="bc-sku">${sku8}</div>
+                <div class="bc-sku">${escapeHtml(sku8)}</div>
                 <div class="bc-desc">${labelDesc}</div>
               </div>
             </div>
@@ -1719,10 +2242,64 @@
       return;
     }
 
+    if (act === 'wishlist-match') {
+      const id = Number(btn.dataset.id);
+      const it = items.find(x => Number(x.id) === id);
+      const matches = wishlistMatchMap.get(id) || [];
+      if (!matches.length) {
+        alert('No active wishlist matches for this item.');
+        return;
+      }
+      const lines = matches.map((m, idx) => {
+        const contact = [m.customer_phone, m.customer_email].filter(Boolean).join(' / ');
+        return `${idx + 1}. ${m.customer_name || 'Walk-in'}${contact ? ' - ' + contact : ''}\nWanted: ${m.title || ''}${m.max_price ? ' up to ' + fmt$(m.max_price) : ''}${m.notes ? '\nNotes: ' + m.notes : ''}`;
+      }).join('\n\n');
+      alert(`Wishlist matches for ${it?.title || it?.sku || 'item'}:\n\n${lines}`);
+      return;
+    }
+
     if (act === 'edit') {
       const id = Number(btn.dataset.id);
       const it = items.find(x => x.id === id);
       if (it) openEditModal(it);
+      return;
+    }
+
+    if (act === 'status') {
+      const id = Number(btn.dataset.id);
+      const it = items.find(x => x.id === id);
+      if (!it) return;
+
+      const result = await openStatusModal(it);
+      if (!result) return;
+
+      try {
+        const res = await fetch(API_URL + '/' + id + '/buckets/move', {
+          method: 'POST',
+          headers: { 'Content-Type':'application/json', ...getAuthHeaders() },
+          body: JSON.stringify(result)
+        });
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok || data.ok === false) {
+          if (data.error === 'insufficient_bucket_qty') {
+            alert('There is not enough inventory in that status/location.');
+            return;
+          }
+          throw new Error(data.error || `Status change failed ${res.status}`);
+        }
+        const updated = data.item || null;
+        if (updated) {
+          if (Array.isArray(data.buckets)) updated.inventory_buckets = data.buckets;
+          const idx = items.findIndex(x => x.id === id);
+          if (idx >= 0) items[idx] = updated;
+        } else {
+          items = await loadFromAPI();
+        }
+        render();
+      } catch (err) {
+        console.error(err);
+        alert('Status change failed.');
+      }
       return;
     }
 
@@ -1873,6 +2450,14 @@
     if (storedFilter) fStock = storedFilter;
   } catch {}
   setStockFilter(fStock);
+  try {
+    const params = new URLSearchParams(window.location.search || '');
+    const searchParam = params.get('search') || params.get('sku') || '';
+    if (searchParam) {
+      q = searchParam.trim();
+      if (elSearch) elSearch.value = q;
+    }
+  } catch {}
 
   // Bulk actions
   btnSelReprint.addEventListener('click', async () => {
@@ -1963,6 +2548,7 @@
         <div><label>SKU</label><input id="e-sku" value="${it.sku ?? ''}"></div>
         <div><label>Title</label><input id="e-title" value="${it.title ?? ''}"></div>
         <div><label>Platform</label><input id="e-platform" value="${it.platform ?? ''}"></div>
+        <div><label>Category</label><input id="e-category" value="${it.category ?? ''}"></div>
         <div><label>Condition</label><input id="e-condition" value="${it.condition ?? ''}"></div>
         <div><label>Variant</label><input id="e-variant" value="${it.variant ?? ''}"></div>
         <div><label>Wix Product ID</label><input id="e-wix-id" value="${it.wix_product_id ?? ''}" placeholder="Paste Wix product ID"></div>
@@ -1989,6 +2575,7 @@
         sku: m.querySelector('#e-sku').value.trim(),
         title: m.querySelector('#e-title').value.trim(),
         platform: m.querySelector('#e-platform').value.trim(),
+        category: m.querySelector('#e-category').value.trim(),
         condition: m.querySelector('#e-condition').value.trim(),
         variant: m.querySelector('#e-variant').value.trim(),
         wix_product_id: m.querySelector('#e-wix-id').value.trim(),
@@ -2075,7 +2662,8 @@
 
   async function importCsvText(csvText) {
     const lines = csvText.split(/\r?\n/).filter(l => l.trim());
-    if (!lines.length) return;
+    const summary = { total: 0, imported: 0, skipped: 0, failed: 0, failures: [] };
+    if (!lines.length) return summary;
 
     const header = parseCsvLine(lines[0]).map(h => h.trim());
     const idx = (name) => header.findIndex(h => h.toLowerCase() === name.toLowerCase());
@@ -2091,12 +2679,16 @@
 
     if (colTitle < 0) {
       alert('CSV must have at least a "title" column.');
-      return;
+      summary.fatal = 'missing_title';
+      return summary;
     }
+
+    const canOverridePrice = !!(currentUser && currentUser.permissions && currentUser.permissions.cost_change);
 
     for (let i = 1; i < lines.length; i++) {
       const line = lines[i];
       if (!line.trim()) continue;
+      summary.total += 1;
       const cols = parseCsvLine(line);
 
       const body = {
@@ -2107,22 +2699,36 @@
         qty: colQty >= 0 ? Number(cols[colQty] || 1) : 1,
         cost: colCost >= 0 ? Number(cols[colCost] || 0) : 0,
         price: colPrice >= 0 ? Number(cols[colPrice] || 0) : 0,
-        barcode: colBarcode >= 0 ? (cols[colBarcode] || '') : '',
-        overridePrice: true
+        barcode: colBarcode >= 0 ? (cols[colBarcode] || '') : ''
       };
+      if (canOverridePrice && colPrice >= 0) {
+        body.overridePrice = true;
+      }
 
-      if (!body.title) continue;
+      if (!body.title) {
+        summary.skipped += 1;
+        continue;
+      }
 
       try {
-        await fetch(API_URL, {
+        const res = await fetch(API_URL, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json', ...getAuthHeaders() },
           body: JSON.stringify(body)
         });
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok || data.ok === false) {
+          const message = data.error || data.message || `HTTP ${res.status}`;
+          throw new Error(message);
+        }
+        summary.imported += 1;
       } catch (err) {
         console.error('Import row failed:', err, line);
+        summary.failed += 1;
+        summary.failures.push({ row: i + 1, title: body.title, error: err.message || String(err) });
       }
     }
+    return summary;
   }
 
   // Import CSV (toolbar)
@@ -2136,11 +2742,18 @@
     if (!file) return;
     try {
       const text = await file.text();
-      await importCsvText(text);
+      const result = await importCsvText(text);
+      if (result && result.fatal) return;
       items = await loadFromAPI();
+      await loadWishlistMatches();
       populateFilters();
       render();
-      alert('CSV import complete.');
+      if (result && result.failed) {
+        const examples = result.failures.slice(0, 3).map(f => `row ${f.row}: ${f.error}`).join('\n');
+        alert(`CSV import finished with ${result.failed} failed row(s).\nImported: ${result.imported}\nSkipped: ${result.skipped}\n\n${examples}`);
+      } else {
+        alert(`CSV import complete. Imported: ${result ? result.imported : 0}. Skipped: ${result ? result.skipped : 0}.`);
+      }
     } catch (err) {
       console.error('CSV import failed:', err);
       alert('CSV import failed. Check console for details.');
@@ -2184,7 +2797,7 @@
     URL.revokeObjectURL(url);
   });
 
-// Wix Export — matches Wix_Templates_Products_CSV.csv structure
+// Wix Export - matches Wix_Templates_Products_CSV.csv structure
 btnWixExport.addEventListener('click', () => {
   if (!items.length) {
     alert('No items to export.');
@@ -2245,9 +2858,47 @@ btnWixExport.addEventListener('click', () => {
     'brand'
   ];
 
-  const rows = items.map((i, idx) => {
+  const skipped = {
+    outOfStock: 0,
+    missingSku: 0,
+    missingTitle: 0,
+    missingPrice: 0
+  };
+
+  const exportItems = items.filter((i) => {
+    if (onlineQty(i) <= 0) {
+      skipped.outOfStock += 1;
+      return false;
+    }
+    if (!String(i.sku || '').trim()) {
+      skipped.missingSku += 1;
+      return false;
+    }
+    if (!String(i.title || '').trim()) {
+      skipped.missingTitle += 1;
+      return false;
+    }
+    if (!(Number(i.price) > 0)) {
+      skipped.missingPrice += 1;
+      return false;
+    }
+    return true;
+  });
+
+  if (!exportItems.length) {
+    const details = [
+      skipped.outOfStock ? `${skipped.outOfStock} out of stock` : '',
+      skipped.missingSku ? `${skipped.missingSku} missing SKU` : '',
+      skipped.missingTitle ? `${skipped.missingTitle} missing title` : '',
+      skipped.missingPrice ? `${skipped.missingPrice} missing price` : ''
+    ].filter(Boolean).join(', ');
+    alert(`No Wix-ready in-stock items to export.${details ? ` Skipped: ${details}.` : ''}`);
+    return;
+  }
+
+  const rows = exportItems.map((i) => {
     const rawSku = String(i.sku || '').trim();
-    const safeSku = rawSku || `ITEM_${i.id || (idx + 1)}`;
+    const safeSku = rawSku;
 
     // handleId is the unique product handle Wix uses (URL-ish slug)
     const handleId = `SKU_${safeSku.replace(/[^a-zA-Z0-9_-]/g, '_')}`;
@@ -2263,16 +2914,16 @@ btnWixExport.addEventListener('click', () => {
     const collection = collectionParts.join(';');
 
     const price = Number(i.price) || 0;
-    const inventory = toQty(i.qty);
+    const inventory = onlineQty(i);
     const cost = i.cost !== undefined && i.cost !== null && i.cost !== ''
       ? Number(i.cost)
       : '';
 
-    const visible = 'TRUE';            // make them live on import
+    const visible = 'TRUE';            // only in-stock, priced rows reach this export
     const brand = 'Retro Catz Games';  // nice little branding touch
 
     return [
-      // 0–15 core fields
+      // 0-15 core fields
       handleId,           // handleId
       'Product',          // fieldType
       name,               // name
@@ -2290,7 +2941,7 @@ btnWixExport.addEventListener('click', () => {
       '',                 // weight
       cost,               // cost
 
-      // 16–33: product options (not used yet, all blank)
+      // 16-33: product options (not used yet, all blank)
       '', '', '',         // productOptionName1, productOptionType1, productOptionDescription1
       '', '', '',         // productOptionName2, productOptionType2, productOptionDescription2
       '', '', '',         // productOptionName3, productOptionType3, productOptionDescription3
@@ -2298,7 +2949,7 @@ btnWixExport.addEventListener('click', () => {
       '', '', '',         // productOptionName5, productOptionType5, productOptionDescription5
       '', '', '',         // productOptionName6, productOptionType6, productOptionDescription6
 
-      // 34–45: additional info sections (blank for now)
+      // 34-45: additional info sections (blank for now)
       '', '',             // additionalInfoTitle1, additionalInfoDescription1
       '', '',             // additionalInfoTitle2, additionalInfoDescription2
       '', '',             // additionalInfoTitle3, additionalInfoDescription3
@@ -2306,7 +2957,7 @@ btnWixExport.addEventListener('click', () => {
       '', '',             // additionalInfoTitle5, additionalInfoDescription5
       '', '',             // additionalInfoTitle6, additionalInfoDescription6
 
-      // 46–48: custom text field (blank)
+      // 46-48: custom text field (blank)
       '',                 // customTextField1
       '',                 // customTextCharLimit1
       '',                 // customTextMandatory1
@@ -2327,9 +2978,20 @@ btnWixExport.addEventListener('click', () => {
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
   a.href = url;
-  a.download = 'retrocats-wix-products.csv';
+  a.download = 'vaultcore-wix-products.csv';
   a.click();
   URL.revokeObjectURL(url);
+
+  const skippedLines = [
+    skipped.outOfStock ? `${skipped.outOfStock} out-of-stock item(s)` : '',
+    skipped.missingSku ? `${skipped.missingSku} item(s) missing SKU` : '',
+    skipped.missingTitle ? `${skipped.missingTitle} item(s) missing title` : '',
+    skipped.missingPrice ? `${skipped.missingPrice} item(s) missing price` : ''
+  ].filter(Boolean);
+  alert([
+    `Wix export created ${rows.length} in-stock product row(s).`,
+    skippedLines.length ? `Skipped ${skippedLines.join(', ')}.` : ''
+  ].filter(Boolean).join('\n'));
 });
 
   function openPrintWindow(rows) {
@@ -2406,7 +3068,7 @@ btnWixExport.addEventListener('click', () => {
       'function fixText(s){' +
       '  const t = String(s ?? "");' +
       '  if (!t) return t;' +
-      '  const looksMojibake = /Ã|â€”|â€“|â€™|â€œ|â€|â€˜/.test(t);' +
+      '  const looksMojibake = /\\u00c3|\\u00e2\\u20ac\\u201d|\\u00e2\\u20ac\\u201c|\\u00e2\\u20ac\\u2122|\\u00e2\\u20ac\\u0153|\\u00e2\\u20ac\\u009d|\\u00e2\\u20ac\\u02dc/.test(t);' +
       '  if (looksMojibake) {' +
       '    try {' +
       '      const bytes = Uint8Array.from(t, c => c.charCodeAt(0) & 0xff);' +
@@ -2513,7 +3175,10 @@ btnWixExport.addEventListener('click', () => {
   (async()=>{
     try {
       await ensureSession();
+      await loadInventoryLocations();
       items = await loadFromAPI();
+      await loadWishlistMatches();
+      await loadBundles();
       populateFilters();
       render();
     } catch(err){
@@ -2528,7 +3193,10 @@ btnWixExport.addEventListener('click', () => {
     if (now - lastRefresh < 1500) return;
     lastRefresh = now;
     try {
+      await loadInventoryLocations();
       items = await loadFromAPI();
+      await loadWishlistMatches();
+      await loadBundles();
       populateFilters();
       render();
       if (reason === 'manual') {
@@ -2546,6 +3214,62 @@ btnWixExport.addEventListener('click', () => {
 
   if (btnRefreshInv) {
     btnRefreshInv.addEventListener('click', () => refreshInventory('manual'));
+  }
+
+  if (btnOpenBundles) btnOpenBundles.addEventListener('click', openBundleModal);
+  if (btnOpenBundlesSide) btnOpenBundlesSide.addEventListener('click', openBundleModal);
+  if (btnBundleClose) btnBundleClose.addEventListener('click', closeBundleModal);
+  if (btnBundleRefresh) {
+    btnBundleRefresh.addEventListener('click', async () => {
+      items = await loadFromAPI();
+      await loadBundles();
+      render();
+    });
+  }
+  if (btnBundleAddLine) {
+    btnBundleAddLine.addEventListener('click', () => {
+      const item = parseBundleItem(bundleItem ? bundleItem.value : '');
+      if (!item) {
+        alert('Pick an inventory item.');
+        return;
+      }
+      if (String(item.source || '').startsWith('bundle:')) {
+        alert('Bundles cannot contain other bundles.');
+        return;
+      }
+      bundleLines.push({
+        item_id: item.id,
+        sku: item.sku,
+        title: item.title,
+        qty: Math.max(1, Number(bundleQty?.value || 1) || 1)
+      });
+      if (bundleItem) bundleItem.value = '';
+      renderBundleLines();
+    });
+  }
+  if (btnBundleCreate) btnBundleCreate.addEventListener('click', createBundle);
+  if (bundleLinesEl) {
+    bundleLinesEl.addEventListener('click', (event) => {
+      const btn = event.target.closest('button[data-remove-bundle-line]');
+      if (!btn) return;
+      bundleLines.splice(Number(btn.dataset.removeBundleLine), 1);
+      renderBundleLines();
+    });
+  }
+  if (bundleFullList) {
+    bundleFullList.addEventListener('click', async (event) => {
+      const btn = event.target.closest('button[data-archive-bundle]');
+      if (!btn) return;
+      if (!confirm('Archive this bundle SKU?')) return;
+      try {
+        await apiJson(`/api/bundles/${encodeURIComponent(btn.dataset.archiveBundle)}`, { method: 'DELETE' });
+        items = await loadFromAPI();
+        await loadBundles();
+        render();
+      } catch (err) {
+        alert('Bundle could not be archived.');
+      }
+    });
   }
 
   // Auto-refresh every 15s while visible

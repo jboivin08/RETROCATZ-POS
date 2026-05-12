@@ -15,321 +15,602 @@
     --bg: #0b0b0d;
     --panel: #111827;
     --panel-2: #0f172a;
-    --border: #374151;
+    --panel-3: #0c1017;
+    --border: #334155;
+    --border-soft: rgba(148, 163, 184, 0.18);
     --text: #e5e7eb;
     --muted: #9ca3af;
     --blue: #2563eb;
-    --green: #22c55e;
+    --green: #16a34a;
+    --amber: #d97706;
     --danger: #7f1d1d;
-    --row-hover: #14161b;
+    --row-hover: #151a24;
   }
+
   * { box-sizing: border-box; }
-  body { margin: 16px; background: var(--bg); color: var(--text); font-family: system-ui, sans-serif; }
-  .page-shell { max-width: 1380px; margin: 0 auto; width: 100%; }
+  body {
+    margin: 16px;
+    background: var(--bg);
+    color: var(--text);
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  }
+  .page-shell { max-width: 1480px; margin: 0 auto; width: 100%; }
 
   .toolbar {
-    display:flex;
-    align-items:center;
-    gap:10px;
-    background:#091226;
-    padding:12px;
-    border-radius:8px;
-    border:1px solid #0e1b36;
-    flex-wrap:wrap;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: #091226;
+    padding: 12px;
+    border-radius: 8px;
+    border: 1px solid #0e1b36;
+    flex-wrap: wrap;
   }
-  .toolbar h1 { margin:0; font-size:20px; font-weight:700; }
-  .logo { height:22px; width:auto; display:block; }
-  .toolbar-spacer { flex:1; }
+  .toolbar h1 { margin: 0; font-size: 20px; font-weight: 700; }
+  .logo { height: 22px; width: auto; display: block; }
+  .toolbar-spacer { flex: 1; }
 
   .btn {
-    padding:8px 12px;
-    border:1px solid var(--border);
-    border-radius:8px;
-    background:#0c0c0f;
-    color:var(--text);
-    cursor:pointer;
-    transition:box-shadow 0.12s ease, transform 0.12s ease, border-color 0.12s ease;
-    font-size:13px;
-    white-space:nowrap;
+    min-height: 36px;
+    padding: 8px 12px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: #0c0c0f;
+    color: var(--text);
+    cursor: pointer;
+    transition: box-shadow 0.12s ease, transform 0.12s ease, border-color 0.12s ease, filter 0.12s ease;
+    font-size: 13px;
+    white-space: nowrap;
   }
-  .btn:hover{
-    border-color:#596274;
-    box-shadow:0 0 0 1px rgba(148,163,184,.35);
-    transform:translateY(-0.5px);
+  .btn:hover {
+    border-color: #64748b;
+    box-shadow: 0 0 0 1px rgba(148, 163, 184, 0.28);
+    transform: translateY(-0.5px);
   }
-  .btn.primary{ background: var(--blue); border-color: var(--blue); }
-  .btn.primary:hover{ filter:brightness(1.1); }
-  .btn.ghost{ background:transparent; }
+  .btn:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+  }
+  .btn.primary { background: var(--blue); border-color: var(--blue); }
+  .btn.success { background: var(--green); border-color: var(--green); }
+  .btn.ghost { background: transparent; }
+  .btn.danger { background: var(--danger); border-color: var(--danger); }
 
   .input, .select, textarea {
-    padding:8px 10px;
-    border:1px solid var(--border);
-    border-radius:8px;
-    background:#000;
-    color:var(--text);
+    min-height: 36px;
+    padding: 8px 10px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: #000;
+    color: var(--text);
+    width: 100%;
   }
-  textarea { resize: vertical; }
+  textarea { resize: vertical; min-height: 72px; }
+  label { display: block; margin-bottom: 4px; }
 
-  .row { display:flex; gap:8px; flex-wrap:wrap; align-items:center; margin:10px 0 12px; }
+  .controls {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 12px;
+    margin-top: 12px;
+  }
+  .row { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+  .row .input, .row .select { width: auto; }
+  .small { font-size: 12px; color: var(--muted); }
   .muted { color: var(--muted); }
-  .small { font-size:12px; color: var(--muted); }
-
-  .panel { background: var(--panel); border:1px solid var(--border); border-radius:12px; padding:12px; margin-top:12px; }
-  .panel h2 {
-    margin:0 0 10px;
-    font-size:14px;
-    text-transform:uppercase;
-    letter-spacing:0.08em;
-    color:var(--muted);
+  .right {
+    text-align: right;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
   }
-  .section { border:1px solid var(--border); border-radius:10px; padding:10px; margin-top:10px; background: rgba(255,255,255,0.02); }
 
-  .table-wrap {
-    border:1px solid var(--border);
-    border-radius:10px;
-    overflow-x:auto;
-    overflow-y:hidden;
+  .tabs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-top: 12px;
   }
-  .table-wrap.spaced { margin-top:10px; }
-  table { width:100%; border-collapse:collapse; }
-  thead th { text-align:left; font-weight:600; color:#cbd5e1; background:#0d0d10; padding:10px; border-bottom:1px solid #1f2937; user-select:none; }
-  tbody td { padding:10px; }
-  tbody tr { border-bottom:1px solid rgba(148,163,184,0.10); }
-  tbody tr:nth-child(even) { background:rgba(255,255,255,0.015); }
-  tbody tr:hover { background:var(--row-hover); }
-  .right { text-align:right; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono","Courier New", monospace; }
+  .tab {
+    min-height: 36px;
+    padding: 8px 12px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: #0b0f16;
+    color: var(--text);
+    cursor: pointer;
+  }
+  .tab.active { background: var(--blue); border-color: var(--blue); }
+
+  .view { display: none; margin-top: 12px; }
+  .view.active { display: block; }
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+  }
+  .panel {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 12px;
+    min-width: 0;
+  }
+  .panel.full { grid-column: 1 / -1; }
+  .section-head {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 10px;
+    margin-bottom: 10px;
+  }
+  .section-head h2,
+  .section-head h3 {
+    margin: 0;
+    font-size: 16px;
+  }
+  .section-actions { display: flex; gap: 8px; flex-wrap: wrap; justify-content: flex-end; }
+
+  .form-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 10px;
+  }
+  .span-2 { grid-column: span 2; }
+  .span-3 { grid-column: span 3; }
 
   .kpi {
-    display:grid;
-    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-    gap:10px;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 10px;
   }
   .kpi-card {
-    border:1px solid var(--border);
-    border-radius:10px;
-    padding:10px;
-    background:#0c1017;
+    border: 1px solid var(--border-soft);
+    border-radius: 8px;
+    padding: 10px;
+    background: var(--panel-3);
+    min-height: 72px;
   }
-  .kpi-card .label { font-size:11px; color: var(--muted); }
-  .kpi-card .value { font-size:16px; font-weight:700; margin-top:4px; }
+  .kpi-card .label { font-size: 11px; color: var(--muted); }
+  .kpi-card .value { font-size: 16px; font-weight: 700; margin-top: 5px; overflow-wrap: anywhere; }
+  .kpi-card.good .value { color: #86efac; }
+  .kpi-card.warn .value { color: #fbbf24; }
+  .kpi-card.bad .value { color: #fca5a5; }
 
-  .grid-2 {
-    display:grid;
-    grid-template-columns: repeat(2, minmax(0,1fr));
-    gap:10px;
+  .table-wrap {
+    border: 1px solid var(--border-soft);
+    border-radius: 8px;
+    overflow-x: auto;
+    overflow-y: hidden;
   }
-  .grid-3 {
-    display:grid;
-    grid-template-columns: repeat(3, minmax(0,1fr));
-    gap:10px;
+  table { width: 100%; border-collapse: collapse; min-width: 640px; }
+  thead th {
+    text-align: left;
+    font-weight: 600;
+    color: #cbd5e1;
+    background: #0d0d10;
+    padding: 10px;
+    border-bottom: 1px solid #1f2937;
+    user-select: none;
+    white-space: nowrap;
   }
-  @media (max-width: 1000px) { .grid-2, .grid-3 { grid-template-columns: 1fr; } }
+  tbody td { padding: 10px; vertical-align: top; }
+  tbody tr { border-bottom: 1px solid rgba(148, 163, 184, 0.10); }
+  tbody tr:nth-child(even) { background: rgba(255, 255, 255, 0.015); }
+  tbody tr:hover { background: var(--row-hover); }
+  .compact table { min-width: 460px; }
 
   .pill {
-    display:inline-flex;
-    align-items:center;
-    gap:6px;
-    padding:2px 8px;
-    border-radius:999px;
-    font-size:11px;
-    border:1px solid var(--border);
-    color:#cbd5e1;
-    background:#0b1224;
+    display: inline-flex;
+    align-items: center;
+    padding: 2px 8px;
+    border-radius: 999px;
+    font-size: 11px;
+    border: 1px solid var(--border);
+    background: #0b1224;
+    color: #cbd5e1;
+    white-space: nowrap;
   }
-  .pill.good { border-color: rgba(34,197,94,0.6); color:#bbf7d0; }
+  .pill.good { border-color: rgba(34, 197, 94, 0.65); color: #bbf7d0; }
+  .pill.warn { border-color: rgba(217, 119, 6, 0.70); color: #fde68a; }
+  .pill.bad { border-color: rgba(127, 29, 29, 0.90); color: #fecaca; }
+  .status-line { min-height: 16px; margin-top: 3px; }
+
+  @media (max-width: 1000px) {
+    body { margin: 10px; }
+    .grid, .form-grid { grid-template-columns: 1fr; }
+    .span-2, .span-3 { grid-column: span 1; }
+    .toolbar-spacer { display: none; }
+    .section-head { flex-direction: column; }
+    .section-actions { justify-content: flex-start; width: 100%; }
+    .row .input, .row .select { width: 100%; }
+  }
+
+  @media print {
+    body { background: #fff; color: #000; }
+    .toolbar, .controls, .tabs, .section-actions, .form-panel { display: none; }
+    .view { display: block; }
+    .view:not(.active) { display: none; }
+    .panel { border-color: #999; background: #fff; break-inside: avoid; }
+    .kpi-card { border-color: #bbb; background: #fff; }
+    thead th { background: #eee; color: #111; }
+    .small, .muted { color: #555; }
+  }
 </style>
+  <script src="theme.js"></script>
+  <link rel="stylesheet" href="themes.css" />
 </head>
 <body>
   <div class="page-shell">
     <div class="toolbar">
       <img class="logo" src="assets/VaultCore_Logo_White.png" alt="VaultCore" />
       <h1>Accounting</h1>
-      <button class="btn" id="btnBack">Back to Dashboard</button>
+      <button class="btn" id="btnBack">Dashboard</button>
       <span class="toolbar-spacer"></span>
       <span class="small" id="statusText">Ready</span>
     </div>
 
-    <div class="panel">
+    <div class="controls">
       <div class="row">
-        <label class="small">Start</label>
+        <label class="small" for="startDate">Start</label>
         <input class="input" type="date" id="startDate" />
-        <label class="small">End</label>
+        <label class="small" for="endDate">End</label>
         <input class="input" type="date" id="endDate" />
         <button class="btn primary" id="btnRefresh">Refresh</button>
-        <button class="btn ghost" id="btnExportExpenses">Export Expenses CSV</button>
-        <button class="btn ghost" id="btnExportTax">Export Tax CSV</button>
+        <button class="btn ghost" id="btnPrint">Print</button>
+        <button class="btn success" id="btnExportActive">Export Active View</button>
       </div>
-      <div class="small muted">Expense and tax reports use the selected date range.</div>
+      <div id="accountingRangePresets"></div>
+      <div class="small status-line" id="rangeStatus">Accounting uses the selected date range.</div>
     </div>
 
-    <div class="panel">
-      <h2>Expenses</h2>
-      <div class="section">
-        <div class="grid-3">
-        <div>
-          <label class="small">Date</label>
-          <input class="input" type="date" id="expenseDate" />
-        </div>
-        <div>
-          <label class="small">Type</label>
-          <select class="select" id="expenseType">
-            <option value="operating">Operating</option>
-            <option value="inventory">Inventory</option>
-          </select>
-        </div>
-        <div>
-          <label class="small">Category</label>
-          <select class="select" id="expenseCategory">
-            <option value="">(select)</option>
-            <option>Inventory</option>
-            <option>Shipping Supplies</option>
-            <option>Packaging</option>
-            <option>Office</option>
-            <option>Utilities</option>
-            <option>Rent</option>
-            <option>Repairs</option>
-            <option>Marketing</option>
-            <option>Software</option>
-            <option>Fees</option>
-            <option>Insurance</option>
-            <option>Travel</option>
-            <option>Other</option>
-          </select>
-        </div>
-        <div>
-          <label class="small">Vendor</label>
-          <input class="input" id="expenseVendor" placeholder="Vendor / store" />
-        </div>
-        <div>
-          <label class="small">Amount</label>
-          <input class="input" id="expenseAmount" inputmode="decimal" placeholder="0.00" />
-        </div>
-        <div>
-          <label class="small">Tax Paid</label>
-          <input class="input" id="expenseTax" inputmode="decimal" placeholder="0.00" />
-        </div>
-        <div>
-          <label class="small">Payment Method</label>
-          <input class="input" id="expensePay" placeholder="Cash / Card / ACH" />
-        </div>
-        <div style="grid-column: span 2;">
-          <label class="small">Memo</label>
-          <input class="input" id="expenseMemo" placeholder="Notes (shipping boxes, tape, etc.)" />
-        </div>
-        </div>
-        <div class="row" style="margin-top:12px;">
-          <button class="btn primary" id="btnAddExpense">Add Expense</button>
-          <span class="small muted">Inventory adds from Add Item are logged automatically.</span>
-        </div>
-      </div>
-
-      <div class="section">
-        <div class="kpi" id="expenseSummary"></div>
-        <div class="table-wrap spaced">
-          <table>
-            <thead>
-              <tr>
-                <th>Date</th>
-                <th>Type</th>
-                <th>Category</th>
-                <th>Vendor</th>
-                <th>Memo</th>
-                <th class="right">Amount</th>
-                <th class="right">Tax</th>
-                <th class="right">Total</th>
-                <th>Source</th>
-                <th>SKU</th>
-                <th></th>
-              </tr>
-            </thead>
-            <tbody id="expensesBody"></tbody>
-          </table>
-        </div>
-      </div>
+    <div class="tabs" role="tablist" aria-label="Accounting views">
+      <button class="tab active" type="button" data-tab="summary">Summary</button>
+      <button class="tab" type="button" data-tab="expenses">Expenses</button>
+      <button class="tab" type="button" data-tab="tax">Tax</button>
+      <button class="tab" type="button" data-tab="closeouts">Closeouts</button>
     </div>
 
-    <div class="panel">
-      <h2>Tax Center</h2>
-      <div class="kpi" id="taxSummary"></div>
-      <div class="section">
-        <div class="table-wrap">
-          <table>
-            <thead>
-              <tr>
-                <th>Date</th>
-                <th class="right">Taxable Sales</th>
-                <th class="right">Exempt Sales</th>
-                <th class="right">Tax Collected</th>
-                <th class="right">Total Sales</th>
-              </tr>
-            </thead>
-            <tbody id="taxBody"></tbody>
-          </table>
+    <section class="view active" data-view="summary">
+      <div class="grid">
+        <div class="panel full">
+          <div class="section-head">
+            <div>
+              <h2>Accounting Snapshot</h2>
+              <div class="small status-line" id="summaryStatus">Ready</div>
+            </div>
+            <div class="section-actions"><button class="btn ghost" data-export="summary">Export</button></div>
+          </div>
+          <div class="kpi" id="accountingSummary"></div>
         </div>
-        <div class="small muted" style="margin-top:8px;">
-          Tax refunds are not tracked separately yet. This report uses completed sales only.
+
+        <div class="panel">
+          <div class="section-head">
+            <h3>Expense Breakdown</h3>
+            <div class="section-actions"><button class="btn ghost" data-export="expenseBreakdown">Export</button></div>
+          </div>
+          <div class="table-wrap compact">
+            <table>
+              <thead><tr><th>Type</th><th>Category</th><th class="right">Count</th><th class="right">Total</th></tr></thead>
+              <tbody id="expenseBreakdownBody"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="panel">
+          <div class="section-head">
+            <h3>Expense Payment Mix</h3>
+            <div class="section-actions"><button class="btn ghost" data-export="expensePayments">Export</button></div>
+          </div>
+          <div class="table-wrap compact">
+            <table>
+              <thead><tr><th>Payment</th><th class="right">Count</th><th class="right">Amount</th><th class="right">Tax</th><th class="right">Total</th></tr></thead>
+              <tbody id="expensePaymentBody"></tbody>
+            </table>
+          </div>
         </div>
       </div>
-    </div>
+    </section>
+
+    <section class="view" data-view="expenses">
+      <div class="grid">
+        <div class="panel full form-panel">
+          <div class="section-head">
+            <h2>Add Expense</h2>
+          </div>
+          <div class="form-grid">
+            <div>
+              <label class="small" for="expenseDate">Date</label>
+              <input class="input" type="date" id="expenseDate" />
+              <div id="expenseDatePresets"></div>
+            </div>
+            <div>
+              <label class="small" for="expenseType">Type</label>
+              <select class="select" id="expenseType">
+                <option value="operating">Operating</option>
+                <option value="inventory">Inventory</option>
+              </select>
+            </div>
+            <div>
+              <label class="small" for="expenseCategory">Category</label>
+              <select class="select" id="expenseCategory">
+                <option value="">Select</option>
+                <option>Inventory</option>
+                <option>Shipping Supplies</option>
+                <option>Packaging</option>
+                <option>Office</option>
+                <option>Utilities</option>
+                <option>Rent</option>
+                <option>Repairs</option>
+                <option>Marketing</option>
+                <option>Software</option>
+                <option>Fees</option>
+                <option>Insurance</option>
+                <option>Travel</option>
+                <option>Other</option>
+              </select>
+            </div>
+            <div>
+              <label class="small" for="expenseVendor">Vendor</label>
+              <input class="input" id="expenseVendor" placeholder="Vendor or store" />
+            </div>
+            <div>
+              <label class="small" for="expenseAmount">Amount</label>
+              <input class="input" id="expenseAmount" inputmode="decimal" placeholder="0.00" />
+            </div>
+            <div>
+              <label class="small" for="expenseTax">Tax Paid</label>
+              <input class="input" id="expenseTax" inputmode="decimal" placeholder="0.00" />
+            </div>
+            <div>
+              <label class="small" for="expensePay">Payment Method</label>
+              <input class="input" id="expensePay" placeholder="Cash, card, ACH" />
+            </div>
+            <div class="span-2">
+              <label class="small" for="expenseMemo">Memo</label>
+              <input class="input" id="expenseMemo" placeholder="Receipt notes" />
+            </div>
+          </div>
+          <div class="row" style="margin-top:12px;">
+            <button class="btn primary" id="btnAddExpense">Add Expense</button>
+            <span class="small muted">Inventory adds from Add Item are logged automatically.</span>
+          </div>
+        </div>
+
+        <div class="panel full">
+          <div class="section-head">
+            <div>
+              <h2>Expenses</h2>
+              <div class="small status-line" id="expenseStatus">Ready</div>
+            </div>
+            <div class="section-actions">
+              <select class="select" id="expenseFilterType" title="Type filter">
+                <option value="">All Types</option>
+                <option value="operating">Operating</option>
+                <option value="inventory">Inventory</option>
+              </select>
+              <select class="select" id="expenseFilterCategory" title="Category filter">
+                <option value="">All Categories</option>
+                <option>Inventory</option>
+                <option>Shipping Supplies</option>
+                <option>Packaging</option>
+                <option>Office</option>
+                <option>Utilities</option>
+                <option>Rent</option>
+                <option>Repairs</option>
+                <option>Marketing</option>
+                <option>Software</option>
+                <option>Fees</option>
+                <option>Insurance</option>
+                <option>Travel</option>
+                <option>Other</option>
+              </select>
+              <input class="input" id="expenseSearch" placeholder="Search expenses" />
+              <button class="btn ghost" id="btnFilterExpenses">Apply</button>
+              <button class="btn ghost" data-export="expenses">Export</button>
+            </div>
+          </div>
+          <div class="kpi" id="expenseSummary"></div>
+          <div class="table-wrap" style="margin-top:10px;">
+            <table>
+              <thead>
+                <tr>
+                  <th>Date</th><th>Type</th><th>Category</th><th>Vendor</th><th>Memo</th><th class="right">Amount</th><th class="right">Tax</th><th class="right">Total</th><th>Source</th><th>SKU</th><th></th>
+                </tr>
+              </thead>
+              <tbody id="expensesBody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="view" data-view="tax">
+      <div class="grid">
+        <div class="panel full">
+          <div class="section-head">
+            <div>
+              <h2>Sales Tax Summary</h2>
+              <div class="small status-line" id="taxStatus">Ready</div>
+            </div>
+            <div class="section-actions"><button class="btn ghost" data-export="taxDaily">Export</button></div>
+          </div>
+          <div class="kpi" id="taxSummary"></div>
+          <div class="table-wrap" style="margin-top:10px;">
+            <table>
+              <thead><tr><th>Date</th><th class="right">Taxable Sales</th><th class="right">Exempt Sales</th><th class="right">Tax Collected</th><th class="right">Total Sales</th></tr></thead>
+              <tbody id="taxBody"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="panel full form-panel">
+          <div class="section-head">
+            <h2>Sales Tax Filing</h2>
+            <div class="section-actions"><button class="btn ghost" id="btnUseTaxDue">Use Current Period</button></div>
+          </div>
+          <div class="form-grid">
+            <div>
+              <label class="small" for="filingStart">Period Start</label>
+              <input class="input" type="date" id="filingStart" />
+            </div>
+            <div>
+              <label class="small" for="filingEnd">Period End</label>
+              <input class="input" type="date" id="filingEnd" />
+            </div>
+            <div class="span-3" id="filingPeriodPresets"></div>
+            <div>
+              <label class="small" for="filingStatus">Status</label>
+              <select class="select" id="filingStatus">
+                <option value="draft">Draft</option>
+                <option value="filed">Filed</option>
+                <option value="paid">Paid</option>
+              </select>
+            </div>
+            <div>
+              <label class="small" for="filingAmountDue">Amount Due</label>
+              <input class="input" id="filingAmountDue" inputmode="decimal" placeholder="0.00" />
+            </div>
+            <div>
+              <label class="small" for="filingAmountPaid">Amount Paid</label>
+              <input class="input" id="filingAmountPaid" inputmode="decimal" placeholder="0.00" />
+            </div>
+            <div>
+              <label class="small" for="filingFiledAt">Filed Date</label>
+              <input class="input" type="date" id="filingFiledAt" />
+              <div id="filingFiledAtPresets"></div>
+            </div>
+            <div class="span-3">
+              <label class="small" for="filingNotes">Notes</label>
+              <textarea id="filingNotes" placeholder="Confirmation number or filing notes"></textarea>
+            </div>
+          </div>
+          <div class="row" style="margin-top:12px;">
+            <button class="btn primary" id="btnSaveFiling">Save Filing</button>
+          </div>
+        </div>
+
+        <div class="panel full">
+          <div class="section-head">
+            <h2>Filing History</h2>
+            <div class="section-actions"><button class="btn ghost" data-export="taxFilings">Export</button></div>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>Period</th><th>Status</th><th class="right">Due</th><th class="right">Paid</th><th class="right">Balance</th><th>Filed</th><th>Notes</th><th></th></tr></thead>
+              <tbody id="taxFilingsBody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="view" data-view="closeouts">
+      <div class="grid">
+        <div class="panel full">
+          <div class="section-head">
+            <div>
+              <h2>Register Closeouts</h2>
+              <div class="small status-line" id="closeoutStatus">Ready</div>
+            </div>
+            <div class="section-actions"><button class="btn ghost" data-export="closeouts">Export</button></div>
+          </div>
+          <div class="kpi" id="closeoutSummary"></div>
+          <div class="table-wrap" style="margin-top:10px;">
+            <table>
+              <thead><tr><th>Date</th><th>Status</th><th class="right">Transactions</th><th class="right">Items</th><th class="right">Net Sales</th><th class="right">Cash</th><th class="right">Card</th><th class="right">Expected Cash</th><th class="right">Counted Cash</th><th class="right">Variance</th><th>Closed By</th></tr></thead>
+              <tbody id="closeoutsBody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </section>
   </div>
 
+<script src="date-presets.js"></script>
 <script>
 (() => {
   const API_BASE = 'http://127.0.0.1:5175';
-  const fmt$ = (n) => `$${(Number(n||0)).toFixed(2)}`;
-  const statusText = document.getElementById('statusText');
+  const money = (n) => `$${Number(n || 0).toFixed(2)}`;
+  const rawMoney = (n) => Number(n || 0).toFixed(2);
+  const intFmt = (n) => Number(n || 0).toLocaleString();
 
+  const statusText = document.getElementById('statusText');
+  const rangeStatus = document.getElementById('rangeStatus');
   const startDate = document.getElementById('startDate');
   const endDate = document.getElementById('endDate');
   const btnRefresh = document.getElementById('btnRefresh');
   const btnBack = document.getElementById('btnBack');
-  const btnExportExpenses = document.getElementById('btnExportExpenses');
-  const btnExportTax = document.getElementById('btnExportTax');
+  const btnPrint = document.getElementById('btnPrint');
+  const btnExportActive = document.getElementById('btnExportActive');
 
-  const expenseDate = document.getElementById('expenseDate');
-  const expenseType = document.getElementById('expenseType');
-  const expenseCategory = document.getElementById('expenseCategory');
-  const expenseVendor = document.getElementById('expenseVendor');
-  const expenseAmount = document.getElementById('expenseAmount');
-  const expenseTax = document.getElementById('expenseTax');
-  const expensePay = document.getElementById('expensePay');
-  const expenseMemo = document.getElementById('expenseMemo');
-  const btnAddExpense = document.getElementById('btnAddExpense');
+  const els = {
+    accountingSummary: document.getElementById('accountingSummary'),
+    summaryStatus: document.getElementById('summaryStatus'),
+    expenseSummary: document.getElementById('expenseSummary'),
+    expenseStatus: document.getElementById('expenseStatus'),
+    expenseBreakdownBody: document.getElementById('expenseBreakdownBody'),
+    expensePaymentBody: document.getElementById('expensePaymentBody'),
+    expensesBody: document.getElementById('expensesBody'),
+    taxSummary: document.getElementById('taxSummary'),
+    taxStatus: document.getElementById('taxStatus'),
+    taxBody: document.getElementById('taxBody'),
+    taxFilingsBody: document.getElementById('taxFilingsBody'),
+    closeoutSummary: document.getElementById('closeoutSummary'),
+    closeoutStatus: document.getElementById('closeoutStatus'),
+    closeoutsBody: document.getElementById('closeoutsBody')
+  };
 
-  const expenseSummary = document.getElementById('expenseSummary');
-  const expensesBody = document.getElementById('expensesBody');
+  const form = {
+    expenseDate: document.getElementById('expenseDate'),
+    expenseType: document.getElementById('expenseType'),
+    expenseCategory: document.getElementById('expenseCategory'),
+    expenseVendor: document.getElementById('expenseVendor'),
+    expenseAmount: document.getElementById('expenseAmount'),
+    expenseTax: document.getElementById('expenseTax'),
+    expensePay: document.getElementById('expensePay'),
+    expenseMemo: document.getElementById('expenseMemo'),
+    expenseFilterType: document.getElementById('expenseFilterType'),
+    expenseFilterCategory: document.getElementById('expenseFilterCategory'),
+    expenseSearch: document.getElementById('expenseSearch'),
+    filingStart: document.getElementById('filingStart'),
+    filingEnd: document.getElementById('filingEnd'),
+    filingStatus: document.getElementById('filingStatus'),
+    filingAmountDue: document.getElementById('filingAmountDue'),
+    filingAmountPaid: document.getElementById('filingAmountPaid'),
+    filingFiledAt: document.getElementById('filingFiledAt'),
+    filingNotes: document.getElementById('filingNotes')
+  };
 
-  const taxSummary = document.getElementById('taxSummary');
-  const taxBody = document.getElementById('taxBody');
+  const state = {
+    activeTab: 'summary',
+    failures: 0,
+    summary: {},
+    expenseSummary: {},
+    expenses: [],
+    expenseBreakdown: [],
+    expensePayments: [],
+    taxSummary: {},
+    taxDaily: [],
+    taxFilings: [],
+    closeoutSummary: {},
+    closeouts: []
+  };
 
   function getHeaders() {
     const sid = localStorage.getItem('rc_session_id') || '';
     return { 'Content-Type': 'application/json', 'rc_session_id': sid };
   }
 
-  async function apiGet(path) {
-    const res = await fetch(API_BASE + path, { headers: getHeaders() });
-    if (res.status === 401) {
-      localStorage.removeItem('rc_session_id');
-      window.location.href = 'login.html';
-      throw new Error('session_invalid');
-    }
-    if (!res.ok) {
-      const text = await res.text().catch(() => '');
-      throw new Error(`${res.status} ${text}`.trim());
-    }
-    return res.json();
-  }
-
-  async function apiPost(path, body) {
+  async function api(path, options = {}) {
     const res = await fetch(API_BASE + path, {
-      method: 'POST',
-      headers: getHeaders(),
-      body: JSON.stringify(body || {})
+      ...options,
+      headers: { ...getHeaders(), ...(options.headers || {}) }
     });
     if (res.status === 401) {
       localStorage.removeItem('rc_session_id');
-      window.location.href = 'login.html';
+      window.location.href = '../../public/index.html';
       throw new Error('session_invalid');
     }
     if (!res.ok) {
@@ -339,230 +620,538 @@
     return res.json();
   }
 
-  async function apiDelete(path) {
-    const res = await fetch(API_BASE + path, { method: 'DELETE', headers: getHeaders() });
-    if (res.status === 401) {
-      localStorage.removeItem('rc_session_id');
-      window.location.href = 'login.html';
-      throw new Error('session_invalid');
-    }
-    if (!res.ok) {
-      const text = await res.text().catch(() => '');
-      throw new Error(`${res.status} ${text}`.trim());
-    }
-    return res.json();
+  function apiGet(path) {
+    return api(path);
   }
 
-  function setStatus(msg) { statusText.textContent = msg; }
+  function apiPost(path, body) {
+    return api(path, { method: 'POST', body: JSON.stringify(body || {}) });
+  }
+
+  function apiDelete(path) {
+    return api(path, { method: 'DELETE' });
+  }
+
+  function setStatus(message) {
+    statusText.textContent = message;
+  }
+
+  function setSectionStatus(el, message) {
+    if (el) el.textContent = message;
+  }
+
+  function rangeParams() {
+    return `start=${encodeURIComponent(startDate.value)}&end=${encodeURIComponent(endDate.value)}`;
+  }
+
+  function rangeIsValid() {
+    return !!startDate.value && !!endDate.value && startDate.value <= endDate.value;
+  }
 
   function setDefaultDates() {
     const today = new Date();
     const end = new Date(today.getFullYear(), today.getMonth(), today.getDate());
     const start = new Date(end);
     start.setDate(start.getDate() - 29);
-    const toInput = (d) => d.toISOString().slice(0,10);
+    const toInput = (d) => d.toISOString().slice(0, 10);
     startDate.value = toInput(start);
     endDate.value = toInput(end);
-    expenseDate.value = toInput(end);
+    form.expenseDate.value = toInput(end);
+    form.filingStart.value = toInput(start);
+    form.filingEnd.value = toInput(end);
   }
 
-  function kpiCard(label, value) {
+  function setBusy(isBusy) {
+    btnRefresh.disabled = isBusy;
+    btnExportActive.disabled = isBusy;
+  }
+
+  async function safeGet(label, path, statusEl) {
+    setSectionStatus(statusEl, 'Loading');
+    try {
+      const data = await apiGet(path);
+      setSectionStatus(statusEl, 'Loaded');
+      return data;
+    } catch (err) {
+      console.error(`[Accounting] ${label} failed`, err);
+      state.failures += 1;
+      if (String(err.message || '').includes('403')) setSectionStatus(statusEl, 'Reports permission is required');
+      else if (err.message !== 'session_invalid') setSectionStatus(statusEl, 'Unavailable');
+      return null;
+    }
+  }
+
+  function kpiCard(label, value, tone = '') {
     const div = document.createElement('div');
-    div.className = 'kpi-card';
-    div.innerHTML = `<div class="label">${label}</div><div class="value">${value}</div>`;
+    div.className = `kpi-card${tone ? ` ${tone}` : ''}`;
+    const labelEl = document.createElement('div');
+    labelEl.className = 'label';
+    labelEl.textContent = String(label ?? '');
+    const valueEl = document.createElement('div');
+    valueEl.className = 'value';
+    valueEl.textContent = String(value ?? '');
+    div.append(labelEl, valueEl);
     return div;
   }
 
-  function toCSV(rows) {
-    const esc = (v) => {
-      const s = String(v ?? '');
-      if (s.includes('"') || s.includes(',') || s.includes('\n')) {
-        return `"${s.replace(/"/g, '""')}"`;
-      }
-      return s;
-    };
-    return rows.map(r => r.map(esc).join(',')).join('\n');
+  function renderKpis(container, cards) {
+    container.replaceChildren(...cards.map((card) => kpiCard(card.label, card.value, card.tone || '')));
+  }
+
+  function cell(value, className = '') {
+    const td = document.createElement('td');
+    if (className) td.className = className;
+    td.textContent = String(value ?? '');
+    return td;
+  }
+
+  function nodeCell(node) {
+    const td = document.createElement('td');
+    td.appendChild(node);
+    return td;
+  }
+
+  function row(cells) {
+    const tr = document.createElement('tr');
+    for (const item of cells) tr.appendChild(item instanceof Node ? item : cell(item));
+    return tr;
+  }
+
+  function renderRows(body, rows, cols, emptyMessage) {
+    body.replaceChildren();
+    if (!rows || !rows.length) {
+      const td = cell(emptyMessage, 'muted');
+      td.colSpan = cols;
+      body.appendChild(row([td]));
+      return;
+    }
+    body.replaceChildren(...rows);
+  }
+
+  function pill(text, tone = '') {
+    const span = document.createElement('span');
+    span.className = `pill${tone ? ` ${tone}` : ''}`;
+    span.textContent = text;
+    return span;
+  }
+
+  function dateOnly(value) {
+    return String(value || '').slice(0, 10);
+  }
+
+  function renderSummary() {
+    const s = state.summary || {};
+    renderKpis(els.accountingSummary, [
+      { label: 'Sales', value: money(s.total_sales), tone: 'good' },
+      { label: 'Refunds', value: money(s.refund_total), tone: s.refund_total ? 'bad' : '' },
+      { label: 'Net Sales', value: money(s.net_sales), tone: 'good' },
+      { label: 'Tax Collected', value: money(s.tax_collected), tone: 'warn' },
+      { label: 'Expenses', value: money(s.expense_total), tone: s.expense_total ? 'bad' : '' },
+      { label: 'Inventory Spend', value: money(s.inventory_expenses) },
+      { label: 'Operating Spend', value: money(s.operating_expenses) },
+      { label: 'After Expenses', value: money(s.net_after_expenses), tone: Number(s.net_after_expenses || 0) >= 0 ? 'good' : 'bad' },
+      { label: 'Closeouts', value: `${intFmt(s.closed_count)} closed / ${intFmt(s.draft_count)} draft` },
+      { label: 'Cash Variance', value: money(s.variance), tone: Math.abs(Number(s.variance || 0)) > 0 ? 'warn' : 'good' }
+    ]);
+  }
+
+  async function loadSummary() {
+    const data = await safeGet('accounting summary', `/api/accounting/summary?${rangeParams()}`, els.summaryStatus);
+    if (!data) return;
+    state.summary = data.summary || {};
+    renderSummary();
+  }
+
+  function expenseFilterParams() {
+    const params = new URLSearchParams();
+    params.set('start', startDate.value);
+    params.set('end', endDate.value);
+    if (form.expenseFilterType.value) params.set('type', form.expenseFilterType.value);
+    if (form.expenseFilterCategory.value) params.set('category', form.expenseFilterCategory.value);
+    if (form.expenseSearch.value.trim()) params.set('search', form.expenseSearch.value.trim());
+    return params.toString();
   }
 
   async function loadExpenses() {
-    const start = startDate.value;
-    const end = endDate.value;
-    const data = await apiGet(`/api/accounting/expenses?start=${encodeURIComponent(start)}&end=${encodeURIComponent(end)}`);
+    const data = await safeGet('expenses', `/api/accounting/expenses?${expenseFilterParams()}`, els.expenseStatus);
+    if (!data) return;
 
-    expenseSummary.innerHTML = '';
-    expenseSummary.appendChild(kpiCard('Amount', fmt$(data.summary.amount)));
-    expenseSummary.appendChild(kpiCard('Tax Paid', fmt$(data.summary.tax_amount)));
-    expenseSummary.appendChild(kpiCard('Total', fmt$(data.summary.total)));
+    state.expenseSummary = data.summary || {};
+    state.expenses = data.rows || [];
+    state.expenseBreakdown = data.byCategory || [];
+    state.expensePayments = data.byPayment || [];
 
-    expensesBody.innerHTML = '';
-    if (!data.rows || !data.rows.length) {
-      const tr = document.createElement('tr');
-      tr.innerHTML = `<td colspan="11" class="muted">No expenses in range</td>`;
-      expensesBody.appendChild(tr);
-      return;
-    }
+    renderKpis(els.expenseSummary, [
+      { label: 'Amount', value: money(state.expenseSummary.amount) },
+      { label: 'Tax Paid', value: money(state.expenseSummary.tax_amount), tone: state.expenseSummary.tax_amount ? 'warn' : '' },
+      { label: 'Total', value: money(state.expenseSummary.total), tone: state.expenseSummary.total ? 'bad' : '' },
+      { label: 'Rows', value: intFmt(state.expenses.length) }
+    ]);
 
-    for (const r of data.rows) {
-      const total = Number(r.amount || 0) + Number(r.tax_amount || 0);
+    renderRows(els.expenseBreakdownBody, state.expenseBreakdown.map((r) => row([
+      r.type || '',
+      r.category || 'Uncategorized',
+      cell(intFmt(r.count), 'right'),
+      cell(money(r.total), 'right')
+    ])), 4, 'No expense categories in range');
+
+    renderRows(els.expensePaymentBody, state.expensePayments.map((r) => row([
+      r.payment_method || 'Unspecified',
+      cell(intFmt(r.count), 'right'),
+      cell(money(r.amount), 'right'),
+      cell(money(r.tax_amount), 'right'),
+      cell(money(r.total), 'right')
+    ])), 5, 'No expense payments in range');
+
+    renderRows(els.expensesBody, state.expenses.map((r) => {
       const source = r.source || '';
-      const badge = source === 'add-item' ? '<span class="pill good">auto</span>' : '';
-      const tr = document.createElement('tr');
-      tr.innerHTML = `
-        <td>${(r.expense_date || '').slice(0,10)}</td>
-        <td>${r.type || ''}</td>
-        <td>${r.category || ''}</td>
-        <td>${r.vendor || ''}</td>
-        <td>${r.memo || r.title || ''}</td>
-        <td class="right">${fmt$(r.amount)}</td>
-        <td class="right">${fmt$(r.tax_amount)}</td>
-        <td class="right">${fmt$(total)}</td>
-        <td>${badge} ${source}</td>
-        <td>${r.sku || ''}</td>
-        <td><button class="btn ghost" data-id="${r.id}">Delete</button></td>
-      `;
-      tr.querySelector('button').addEventListener('click', async () => {
+      const sourceNode = pill(source || 'manual', source === 'add-item' ? 'good' : '');
+      const deleteBtn = document.createElement('button');
+      deleteBtn.className = 'btn ghost';
+      deleteBtn.type = 'button';
+      deleteBtn.textContent = 'Delete';
+      deleteBtn.addEventListener('click', async () => {
         if (!confirm('Delete this expense?')) return;
         await apiDelete(`/api/accounting/expenses/${r.id}`);
-        await loadExpenses();
+        await Promise.all([loadSummary(), loadExpenses()]);
+        setStatus('Expense deleted');
       });
-      expensesBody.appendChild(tr);
-    }
-  }
-
-  async function loadTaxSummary() {
-    const start = startDate.value;
-    const end = endDate.value;
-    const data = await apiGet(`/api/accounting/tax-summary?start=${encodeURIComponent(start)}&end=${encodeURIComponent(end)}`);
-
-    taxSummary.innerHTML = '';
-    taxSummary.appendChild(kpiCard('Taxable Sales', fmt$(data.summary.taxable_sales)));
-    taxSummary.appendChild(kpiCard('Exempt Sales', fmt$(data.summary.exempt_sales)));
-    taxSummary.appendChild(kpiCard('Tax Collected', fmt$(data.summary.tax_collected)));
-    taxSummary.appendChild(kpiCard('Total Sales', fmt$(data.summary.total_sales)));
-
-    taxBody.innerHTML = '';
-    if (!data.rows || !data.rows.length) {
-      const tr = document.createElement('tr');
-      tr.innerHTML = `<td colspan="5" class="muted">No sales in range</td>`;
-      taxBody.appendChild(tr);
-      return;
-    }
-    for (const r of data.rows) {
-      const tr = document.createElement('tr');
-      tr.innerHTML = `
-        <td>${r.day}</td>
-        <td class="right">${fmt$(r.taxable_sales)}</td>
-        <td class="right">${fmt$(r.exempt_sales)}</td>
-        <td class="right">${fmt$(r.tax_collected)}</td>
-        <td class="right">${fmt$(r.total_sales)}</td>
-      `;
-      taxBody.appendChild(tr);
-    }
-  }
-
-  async function refreshAll() {
-    try {
-      setStatus('Loading accounting...');
-      await Promise.all([loadExpenses(), loadTaxSummary()]);
-      setStatus('Accounting loaded');
-    } catch (e) {
-      console.error(e);
-      setStatus('Accounting load failed');
-      alert('Accounting load failed. Check server connectivity and session.');
-    }
-  }
-
-  btnAddExpense.addEventListener('click', async () => {
-    const payload = {
-      expense_date: expenseDate.value,
-      type: expenseType.value,
-      category: expenseCategory.value,
-      vendor: expenseVendor.value,
-      amount: expenseAmount.value,
-      tax_amount: expenseTax.value,
-      payment_method: expensePay.value,
-      memo: expenseMemo.value
-    };
-    try {
-      await apiPost('/api/accounting/expenses', payload);
-      expenseVendor.value = '';
-      expenseAmount.value = '';
-      expenseTax.value = '';
-      expensePay.value = '';
-      expenseMemo.value = '';
-      await loadExpenses();
-      setStatus('Expense saved');
-    } catch (e) {
-      alert('Failed to save expense: ' + e.message);
-    }
-  });
-
-  btnExportExpenses.addEventListener('click', async () => {
-    const start = startDate.value;
-    const end = endDate.value;
-    const data = await apiGet(`/api/accounting/expenses?start=${encodeURIComponent(start)}&end=${encodeURIComponent(end)}`);
-    const rows = [
-      ['date','type','category','vendor','memo','amount','tax','total','source','sku','title']
-    ];
-    for (const r of data.rows || []) {
-      rows.push([
-        (r.expense_date || '').slice(0,10),
+      const total = Number(r.amount || 0) + Number(r.tax_amount || 0);
+      return row([
+        dateOnly(r.expense_date),
         r.type || '',
         r.category || '',
         r.vendor || '',
-        r.memo || '',
-        Number(r.amount || 0).toFixed(2),
-        Number(r.tax_amount || 0).toFixed(2),
-        (Number(r.amount || 0) + Number(r.tax_amount || 0)).toFixed(2),
-        r.source || '',
+        r.memo || r.title || '',
+        cell(money(r.amount), 'right'),
+        cell(money(r.tax_amount), 'right'),
+        cell(money(total), 'right'),
+        nodeCell(sourceNode),
         r.sku || '',
-        r.title || ''
+        nodeCell(deleteBtn)
       ]);
+    }), 11, 'No expenses in range');
+  }
+
+  async function loadTax() {
+    const data = await safeGet('tax summary', `/api/accounting/tax-summary?${rangeParams()}`, els.taxStatus);
+    if (!data) return;
+    state.taxSummary = data.summary || {};
+    state.taxDaily = data.rows || [];
+
+    renderKpis(els.taxSummary, [
+      { label: 'Taxable Sales', value: money(state.taxSummary.taxable_sales) },
+      { label: 'Exempt Sales', value: money(state.taxSummary.exempt_sales) },
+      { label: 'Tax Collected', value: money(state.taxSummary.tax_collected), tone: 'warn' },
+      { label: 'Total Sales', value: money(state.taxSummary.total_sales), tone: 'good' }
+    ]);
+
+    renderRows(els.taxBody, state.taxDaily.map((r) => row([
+      r.day || '',
+      cell(money(r.taxable_sales), 'right'),
+      cell(money(r.exempt_sales), 'right'),
+      cell(money(r.tax_collected), 'right'),
+      cell(money(r.total_sales), 'right')
+    ])), 5, 'No sales tax data in range');
+  }
+
+  async function loadTaxFilings() {
+    const data = await safeGet('tax filings', '/api/accounting/tax-filings?limit=120', els.taxStatus);
+    if (!data) return;
+    state.taxFilings = data.rows || [];
+
+    renderRows(els.taxFilingsBody, state.taxFilings.map((r) => {
+      const statusTone = r.status === 'paid' ? 'good' : r.status === 'filed' ? 'warn' : '';
+      const deleteBtn = document.createElement('button');
+      deleteBtn.className = 'btn ghost';
+      deleteBtn.type = 'button';
+      deleteBtn.textContent = 'Delete';
+      deleteBtn.addEventListener('click', async () => {
+        if (!confirm('Delete this tax filing record?')) return;
+        await apiDelete(`/api/accounting/tax-filings/${r.id}`);
+        await loadTaxFilings();
+        setStatus('Tax filing deleted');
+      });
+      return row([
+        `${dateOnly(r.period_start)} to ${dateOnly(r.period_end)}`,
+        nodeCell(pill(r.status || 'draft', statusTone)),
+        cell(money(r.amount_due), 'right'),
+        cell(money(r.amount_paid), 'right'),
+        cell(money(r.balance_due), 'right'),
+        dateOnly(r.filed_at),
+        r.notes || '',
+        nodeCell(deleteBtn)
+      ]);
+    }), 8, 'No tax filing records yet');
+  }
+
+  async function loadCloseouts() {
+    const data = await safeGet('closeouts', `/api/accounting/closeouts?${rangeParams()}`, els.closeoutStatus);
+    if (!data) return;
+    state.closeoutSummary = data.summary || {};
+    state.closeouts = data.rows || [];
+
+    renderKpis(els.closeoutSummary, [
+      { label: 'Closeouts', value: intFmt(state.closeoutSummary.count) },
+      { label: 'Closed', value: intFmt(state.closeoutSummary.closed_count), tone: 'good' },
+      { label: 'Draft', value: intFmt(state.closeoutSummary.draft_count), tone: state.closeoutSummary.draft_count ? 'warn' : '' },
+      { label: 'Net Sales', value: money(state.closeoutSummary.net_sales), tone: 'good' },
+      { label: 'Cash Sales', value: money(state.closeoutSummary.cash_sales) },
+      { label: 'Card Sales', value: money(state.closeoutSummary.card_sales) },
+      { label: 'Expected Cash', value: money(state.closeoutSummary.expected_cash) },
+      { label: 'Counted Cash', value: money(state.closeoutSummary.counted_cash) },
+      { label: 'Variance', value: money(state.closeoutSummary.variance), tone: Math.abs(Number(state.closeoutSummary.variance || 0)) > 0 ? 'warn' : 'good' }
+    ]);
+
+    renderRows(els.closeoutsBody, state.closeouts.map((r) => row([
+      r.business_date || '',
+      nodeCell(pill(r.status || 'draft', r.status === 'closed' ? 'good' : 'warn')),
+      cell(intFmt(r.transaction_count), 'right'),
+      cell(intFmt(r.item_count), 'right'),
+      cell(money(r.net_sales), 'right'),
+      cell(money(r.cash_sales), 'right'),
+      cell(money(r.card_sales), 'right'),
+      cell(money(r.expected_cash), 'right'),
+      cell(money(r.counted_cash), 'right'),
+      cell(money(r.variance), 'right'),
+      r.closed_by_username || r.opened_by_username || ''
+    ])), 11, 'No closeouts in range');
+  }
+
+  async function refreshAll() {
+    if (!rangeIsValid()) {
+      rangeStatus.textContent = 'Choose a valid date range.';
+      setStatus('Date range needed');
+      return;
     }
-    const csv = toCSV(rows);
-    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    state.failures = 0;
+    setBusy(true);
+    setStatus('Loading accounting...');
+    rangeStatus.textContent = `Showing ${startDate.value} through ${endDate.value}.`;
+    await Promise.all([loadSummary(), loadExpenses(), loadTax(), loadTaxFilings(), loadCloseouts()]);
+    setBusy(false);
+    const time = new Date().toLocaleTimeString();
+    setStatus(state.failures ? `Accounting loaded with ${state.failures} issue(s) ${time}` : `Accounting loaded ${time}`);
+  }
+
+  function clearExpenseForm() {
+    form.expenseVendor.value = '';
+    form.expenseAmount.value = '';
+    form.expenseTax.value = '';
+    form.expensePay.value = '';
+    form.expenseMemo.value = '';
+  }
+
+  async function addExpense() {
+    const payload = {
+      expense_date: form.expenseDate.value,
+      type: form.expenseType.value,
+      category: form.expenseCategory.value,
+      vendor: form.expenseVendor.value,
+      amount: form.expenseAmount.value,
+      tax_amount: form.expenseTax.value,
+      payment_method: form.expensePay.value,
+      memo: form.expenseMemo.value
+    };
+    try {
+      await apiPost('/api/accounting/expenses', payload);
+      clearExpenseForm();
+      await Promise.all([loadSummary(), loadExpenses()]);
+      setStatus('Expense saved');
+    } catch (err) {
+      console.error(err);
+      alert(`Failed to save expense: ${err.message}`);
+    }
+  }
+
+  function useCurrentTaxPeriod() {
+    form.filingStart.value = startDate.value;
+    form.filingEnd.value = endDate.value;
+    form.filingAmountDue.value = rawMoney(state.taxSummary.tax_collected);
+    if (!form.filingAmountPaid.value) form.filingAmountPaid.value = '0.00';
+  }
+
+  async function saveTaxFiling() {
+    const payload = {
+      period_start: form.filingStart.value,
+      period_end: form.filingEnd.value,
+      status: form.filingStatus.value,
+      amount_due: form.filingAmountDue.value,
+      amount_paid: form.filingAmountPaid.value,
+      filed_at: form.filingFiledAt.value,
+      notes: form.filingNotes.value
+    };
+    try {
+      await apiPost('/api/accounting/tax-filings', payload);
+      form.filingNotes.value = '';
+      await loadTaxFilings();
+      setStatus('Tax filing saved');
+    } catch (err) {
+      console.error(err);
+      alert(`Failed to save tax filing: ${err.message}`);
+    }
+  }
+
+  function setActiveTab(tabName) {
+    state.activeTab = tabName;
+    document.querySelectorAll('.tab').forEach((btn) => {
+      btn.classList.toggle('active', btn.dataset.tab === tabName);
+    });
+    document.querySelectorAll('.view').forEach((view) => {
+      view.classList.toggle('active', view.dataset.view === tabName);
+    });
+  }
+
+  function csvValue(value) {
+    const raw = String(value ?? '');
+    if (/[",\r\n]/.test(raw)) return `"${raw.replace(/"/g, '""')}"`;
+    return raw;
+  }
+
+  function downloadCsv(name, rows) {
+    if (!rows.length) {
+      setStatus('No rows to export');
+      return;
+    }
+    const headers = Object.keys(rows[0]);
+    const csv = [
+      headers.map(csvValue).join(','),
+      ...rows.map((r) => headers.map((h) => csvValue(r[h])).join(','))
+    ].join('\r\n');
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });
     const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `expenses_${start}_to_${end}.csv`;
-    document.body.appendChild(a);
-    a.click();
-    a.remove();
-    URL.revokeObjectURL(url);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `${name}-${startDate.value}-to-${endDate.value}.csv`;
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+    setStatus('Export ready');
+  }
+
+  const exportBuilders = {
+    summary: () => Object.entries(state.summary || {}).map(([metric, value]) => ({ metric, value })),
+    expenseBreakdown: () => state.expenseBreakdown.map((r) => ({
+      type: r.type || '',
+      category: r.category || '',
+      count: r.count || 0,
+      amount: rawMoney(r.amount),
+      tax: rawMoney(r.tax_amount),
+      total: rawMoney(r.total)
+    })),
+    expensePayments: () => state.expensePayments.map((r) => ({
+      payment_method: r.payment_method || '',
+      count: r.count || 0,
+      amount: rawMoney(r.amount),
+      tax: rawMoney(r.tax_amount),
+      total: rawMoney(r.total)
+    })),
+    expenses: () => state.expenses.map((r) => ({
+      date: dateOnly(r.expense_date),
+      type: r.type || '',
+      category: r.category || '',
+      vendor: r.vendor || '',
+      memo: r.memo || r.title || '',
+      amount: rawMoney(r.amount),
+      tax: rawMoney(r.tax_amount),
+      total: rawMoney(Number(r.amount || 0) + Number(r.tax_amount || 0)),
+      source: r.source || '',
+      sku: r.sku || ''
+    })),
+    taxDaily: () => state.taxDaily.map((r) => ({
+      date: r.day || '',
+      taxable_sales: rawMoney(r.taxable_sales),
+      exempt_sales: rawMoney(r.exempt_sales),
+      tax_collected: rawMoney(r.tax_collected),
+      total_sales: rawMoney(r.total_sales)
+    })),
+    taxFilings: () => state.taxFilings.map((r) => ({
+      period_start: dateOnly(r.period_start),
+      period_end: dateOnly(r.period_end),
+      status: r.status || '',
+      amount_due: rawMoney(r.amount_due),
+      amount_paid: rawMoney(r.amount_paid),
+      balance_due: rawMoney(r.balance_due),
+      filed_at: dateOnly(r.filed_at),
+      notes: r.notes || ''
+    })),
+    closeouts: () => state.closeouts.map((r) => ({
+      business_date: r.business_date || '',
+      status: r.status || '',
+      transactions: r.transaction_count || 0,
+      items: r.item_count || 0,
+      net_sales: rawMoney(r.net_sales),
+      cash_sales: rawMoney(r.cash_sales),
+      card_sales: rawMoney(r.card_sales),
+      expected_cash: rawMoney(r.expected_cash),
+      counted_cash: rawMoney(r.counted_cash),
+      variance: rawMoney(r.variance),
+      closed_by: r.closed_by_username || r.opened_by_username || ''
+    }))
+  };
+
+  const activeExport = {
+    summary: 'summary',
+    expenses: 'expenses',
+    tax: 'taxDaily',
+    closeouts: 'closeouts'
+  };
+
+  document.querySelectorAll('.tab').forEach((btn) => {
+    btn.addEventListener('click', () => setActiveTab(btn.dataset.tab));
+  });
+  document.addEventListener('click', (event) => {
+    const btn = event.target.closest('[data-export]');
+    if (!btn) return;
+    const key = btn.dataset.export;
+    const rows = exportBuilders[key] ? exportBuilders[key]() : [];
+    downloadCsv(key, rows);
   });
 
-  btnExportTax.addEventListener('click', async () => {
-    const start = startDate.value;
-    const end = endDate.value;
-    const data = await apiGet(`/api/accounting/tax-summary?start=${encodeURIComponent(start)}&end=${encodeURIComponent(end)}`);
-    const rows = [
-      ['date','taxable_sales','exempt_sales','tax_collected','total_sales']
-    ];
-    for (const r of data.rows || []) {
-      rows.push([
-        r.day,
-        Number(r.taxable_sales || 0).toFixed(2),
-        Number(r.exempt_sales || 0).toFixed(2),
-        Number(r.tax_collected || 0).toFixed(2),
-        Number(r.total_sales || 0).toFixed(2)
-      ]);
-    }
-    const csv = toCSV(rows);
-    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `tax_${start}_to_${end}.csv`;
-    document.body.appendChild(a);
-    a.click();
-    a.remove();
-    URL.revokeObjectURL(url);
+  document.getElementById('btnAddExpense').addEventListener('click', addExpense);
+  document.getElementById('btnFilterExpenses').addEventListener('click', loadExpenses);
+  document.getElementById('btnUseTaxDue').addEventListener('click', useCurrentTaxPeriod);
+  document.getElementById('btnSaveFiling').addEventListener('click', saveTaxFiling);
+  btnExportActive.addEventListener('click', () => {
+    const key = activeExport[state.activeTab] || 'summary';
+    downloadCsv(key, exportBuilders[key] ? exportBuilders[key]() : []);
   });
-
   btnRefresh.addEventListener('click', refreshAll);
   btnBack.addEventListener('click', () => { window.location.href = 'index.html'; });
+  btnPrint.addEventListener('click', () => window.print());
+  form.expenseSearch.addEventListener('keydown', (event) => {
+    if (event.key === 'Enter') loadExpenses();
+  });
 
   setDefaultDates();
+  if (window.VaultCoreDatePresets) {
+    window.VaultCoreDatePresets.installRangePresets({
+      container: 'accountingRangePresets',
+      start: startDate,
+      end: endDate,
+      onApply: refreshAll
+    });
+    window.VaultCoreDatePresets.installSingleDatePresets({
+      container: 'expenseDatePresets',
+      input: form.expenseDate,
+      presets: ['today', 'yesterday'],
+      label: false
+    });
+    window.VaultCoreDatePresets.installRangePresets({
+      container: 'filingPeriodPresets',
+      start: form.filingStart,
+      end: form.filingEnd,
+      presets: ['thisMonth', 'lastMonth', 'thisWeek', 'lastWeek', 'last30'],
+      label: 'Filing period'
+    });
+    window.VaultCoreDatePresets.installSingleDatePresets({
+      container: 'filingFiledAtPresets',
+      input: form.filingFiledAt,
+      presets: ['today', 'yesterday'],
+      label: false
+    });
+  }
   refreshAll();
 })();
 </script>

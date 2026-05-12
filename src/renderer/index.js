@@ -5,6 +5,7 @@
   document.addEventListener("DOMContentLoaded", () => {
     const root = document.body;
     const layoutSelect = document.getElementById("layout-select");
+    const themeSelect = document.getElementById("theme-select");
     const STORAGE_KEY_LAYOUT = "rc_dashboard_layout";
     const STORAGE_KEY_NOTES = "rc_store_notes";
 
@@ -16,7 +17,7 @@
       try {
         localStorage.setItem(STORAGE_KEY_LAYOUT, value);
       } catch (err) {
-        console.warn("[RetroCatz] Could not persist layout:", err);
+        console.warn("[VaultCore] Could not persist layout:", err);
       }
       if (layoutSelect && layoutSelect.value !== value) {
         layoutSelect.value = value;
@@ -44,7 +45,29 @@
     }
     setLayout(savedLayout);
 
-    // Keyboard shortcuts 1–5
+    /* ---------------- VISUAL STYLE SWITCHING ---------------- */
+
+    if (themeSelect && window.VaultCoreTheme) {
+      const themes = Array.isArray(window.VaultCoreTheme.themes) ? window.VaultCoreTheme.themes : [];
+      themeSelect.replaceChildren();
+      themes.forEach((theme) => {
+        const option = document.createElement("option");
+        option.value = theme.id;
+        option.textContent = theme.label;
+        themeSelect.appendChild(option);
+      });
+      themeSelect.value = window.VaultCoreTheme.get();
+      themeSelect.addEventListener("change", (e) => {
+        const next = window.VaultCoreTheme.set(e.target.value);
+        themeSelect.value = next;
+      });
+      window.addEventListener("vaultcore-theme-change", (event) => {
+        const next = event.detail && event.detail.theme;
+        if (next && themeSelect.value !== next) themeSelect.value = next;
+      });
+    }
+
+    // Keyboard shortcuts 1-5
     document.addEventListener("keydown", (e) => {
       const tag = (e.target && e.target.tagName) || "";
       if (tag === "INPUT" || tag === "TEXTAREA" || tag === "SELECT") return;
@@ -73,6 +96,8 @@
     const STOCK_FILTER_KEY = "rc_inventory_stock_filter";
     const activityList = document.getElementById("recent-activity-list");
     const hotSheetList = document.getElementById("hot-sheet-list");
+    const taskCountPill = document.getElementById("task-count-pill");
+    const dashboardTaskList = document.getElementById("dashboard-task-list");
 
     function getReorderCount() {
       try {
@@ -104,7 +129,8 @@
       rows.slice(0, 6).forEach((item) => {
         const li = document.createElement("li");
         const platform = item.platform ? ` (${item.platform})` : "";
-        li.textContent = `Added: ${item.title}${platform} • SKU ${item.sku}`;
+        const date = item.createdAt ? String(item.createdAt).split("T")[0] : "";
+        li.textContent = `Added: ${item.title || item.sku || "Item"}${platform} - SKU ${item.sku || "--"}${date ? " - " + date : ""}`;
         activityList.appendChild(li);
       });
     }
@@ -116,17 +142,34 @@
       if (!rows || !rows.length) {
         const li = document.createElement("li");
         li.className = "hint";
-        li.textContent = "Hot sheet will populate as inventory grows.";
+        li.textContent = "No inventory signals yet.";
         hotSheetList.appendChild(li);
         return;
       }
 
-      // Super simple preview: top 3 by price
-      const sorted = [...rows].sort((a, b) => (b.price || 0) - (a.price || 0));
-      sorted.slice(0, 3).forEach((item) => {
+      const lowStock = rows
+        .filter((item) => Number(item.qty || 0) <= 1)
+        .sort((a, b) => (b.price || 0) - (a.price || 0));
+      const highValue = [...rows]
+        .filter((item) => Number(item.price || 0) >= 50)
+        .sort((a, b) => (b.price || 0) - (a.price || 0));
+      const signals = [...lowStock.slice(0, 3), ...highValue.slice(0, 3)]
+        .filter((item, idx, arr) => arr.findIndex((x) => x.id === item.id || x.sku === item.sku) === idx)
+        .slice(0, 5);
+
+      if (!signals.length) {
+        const li = document.createElement("li");
+        li.textContent = "Stock levels look steady.";
+        hotSheetList.appendChild(li);
+        return;
+      }
+
+      signals.forEach((item) => {
         const li = document.createElement("li");
         const price = (item.price && item.price > 0) ? `$${item.price.toFixed(2)}` : "$--";
-        li.textContent = `${item.title} • ${price}`;
+        const qty = Number(item.qty || 0);
+        const signal = qty <= 1 ? "low stock" : "high value";
+        li.textContent = `${item.title || item.sku || "Item"} - ${signal} - qty ${qty} - ${price}`;
         hotSheetList.appendChild(li);
       });
     }
@@ -157,10 +200,10 @@
             headers: { "Content-Type": "application/json", "rc_session_id": sid }
           });
         } catch (err) {
-          console.warn("[RetroCatz] Logout failed:", err);
+          console.warn("[VaultCore] Logout failed:", err);
         } finally {
           localStorage.removeItem(SESSION_KEY);
-          window.location.href = "login.html";
+          window.location.href = "../../public/index.html";
         }
       });
     }
@@ -177,28 +220,79 @@
     async function fetchJson(url) {
       const res = await fetch(url, { headers: getAuthHeaders() });
       if (res.status === 401) {
-        window.location.href = "login.html";
+        window.location.href = "../../public/index.html";
         throw new Error("unauthorized");
+      }
+      if (!res.ok) {
+        throw new Error(`request_failed_${res.status}`);
       }
       return res.json();
     }
 
     function fetchItemsForDashboard() {
-      const sid = localStorage.getItem(SESSION_KEY) || "";
-      const headers = sid ? { "rc_session_id": sid } : {};
       fetchJson(API_BASE + "/api/items")
         .then((rows) => {
           if (!Array.isArray(rows)) return;
-          refreshDashboardFromItems(rows);
-          window.__RC_ITEMS_CACHE = rows; // simple cache for quick scan
+          const activeRows = rows.filter((r) => !r.deleted_at && !r.deletedAt);
+          const recentRows = [...activeRows].sort((a, b) => String(b.createdAt || "").localeCompare(String(a.createdAt || "")));
+          refreshDashboardFromItems(recentRows);
+          window.__RC_ITEMS_CACHE = activeRows; // simple cache for quick scan
         })
         .catch((err) => {
-          console.warn("[RetroCatz] Could not load items for dashboard:", err);
+          console.warn("[VaultCore] Could not load items for dashboard:", err);
         });
     }
 
     fetchItemsForDashboard();
     refreshReorderFlagCount();
+
+    function taskDueLabel(value) {
+      if (!value) return "No due date";
+      const d = new Date(value);
+      if (Number.isNaN(d.getTime())) return String(value);
+      return d.toLocaleString([], { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" });
+    }
+
+    function escapeHtml(value) {
+      return String(value ?? "")
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#39;");
+    }
+
+    function renderDashboardTasks(payload) {
+      if (!taskCountPill || !dashboardTaskList) return;
+      const counts = payload?.counts || {};
+      const rows = Array.isArray(payload?.rows) ? payload.rows : [];
+      taskCountPill.textContent = `${Number(counts.open || 0)} open`;
+      dashboardTaskList.innerHTML = "";
+      if (!rows.length) {
+        dashboardTaskList.innerHTML = '<div class="task-mini-item"><strong>No open tasks</strong><span>Store task queue is clear.</span></div>';
+        return;
+      }
+      rows.slice(0, 5).forEach((task) => {
+        const div = document.createElement("div");
+        div.className = "task-mini-item";
+        const hard = Number(task.hard_due || 0) === 1 ? " - hard date" : "";
+        div.innerHTML = `<strong>${escapeHtml(task.title || "Task")}</strong><span>${escapeHtml(task.category || "store")} - ${escapeHtml(task.assigned_label || "Management")} - ${escapeHtml(taskDueLabel(task.due_at))}${hard}</span>`;
+        dashboardTaskList.appendChild(div);
+      });
+    }
+
+    function fetchTasksForDashboard() {
+      fetchJson(API_BASE + "/api/tasks/summary")
+        .then(renderDashboardTasks)
+        .catch((err) => {
+          console.warn("[VaultCore] Could not load task summary:", err);
+          if (dashboardTaskList) {
+            dashboardTaskList.innerHTML = '<div class="task-mini-item"><strong>Tasks unavailable</strong><span>Open the Tasks page after login.</span></div>';
+          }
+        });
+    }
+
+    fetchTasksForDashboard();
 
     if (heroReorderCard) {
       heroReorderCard.addEventListener("click", () => {
@@ -242,7 +336,7 @@
       }
 
       const platform = match.platform ? ` (${match.platform})` : "";
-      showQuickScanMessage(`Found: ${match.title}${platform} • Qty: ${match.qty} • Price: $${match.price?.toFixed?.(2) || "--"}`);
+      showQuickScanMessage(`Found: ${match.title}${platform} - Qty: ${match.qty} - Price: $${match.price?.toFixed?.(2) || "--"}`);
 
       // Simple: offer a link to open inventory page
       if (quickScanResult) {
@@ -294,7 +388,7 @@
         try {
           localStorage.setItem(STORAGE_KEY_NOTES, notesEl.value || "");
         } catch (err) {
-          console.warn("[RetroCatz] Could not save notes:", err);
+          console.warn("[VaultCore] Could not save notes:", err);
         }
       });
     }
@@ -531,12 +625,12 @@
         dot.style.bottom = y * 100 + "%";
         const tip = document.createElement("div");
         tip.className = "heatmap-tooltip";
-        tip.innerHTML =
-          "<strong>" +
-          (p.name || "Point") +
-          "</strong><br><span style=\"color:#9ca3af\">" +
-          (p.detail || "Coming soon") +
-          "</span>";
+        const name = document.createElement("strong");
+        name.textContent = p.name || "Point";
+        const detail = document.createElement("span");
+        detail.style.color = "#9ca3af";
+        detail.textContent = p.detail || "No detail yet";
+        tip.append(name, document.createElement("br"), detail);
         dot.appendChild(tip);
         quadrantPoints.appendChild(dot);
       });
@@ -590,12 +684,12 @@
       try {
         const data = await fetchJson(url);
         if (heatmapSummaryEl) {
-          heatmapSummaryEl.textContent = data?.summary || "Coming soon";
+          heatmapSummaryEl.textContent = data?.summary || "No data yet";
         }
         renderPoints(data?.points || []);
       } catch (err) {
         console.warn("[Dashboard] heatmap detail load failed:", err);
-        if (heatmapSummaryEl) heatmapSummaryEl.textContent = "Coming soon";
+        if (heatmapSummaryEl) heatmapSummaryEl.textContent = "No data yet";
         renderPoints([]);
       }
     }
@@ -692,9 +786,13 @@
     /* ---------------- DASHBOARD SUMMARY ---------------- */
 
     const heroSalesToday = document.getElementById("hero-sales-today");
+    const heroSalesSub = document.getElementById("hero-sales-sub");
+    const heroTradeins = document.getElementById("hero-tradeins");
+    const heroTradeinsSub = document.getElementById("hero-tradeins-sub");
     const statsSales = document.getElementById("stats-sales");
     const statsItemsSold = document.getElementById("stats-items-sold");
     const statsMargin = document.getElementById("stats-margin");
+    const statsFootnote = document.getElementById("stats-footnote");
 
     function money(v) {
       const n = Number(v || 0);
@@ -707,9 +805,24 @@
         if (heroInventoryCount) heroInventoryCount.textContent = String(data?.inventoryTotalItems ?? "--");
         if (heroLowStock) heroLowStock.textContent = String(data?.lowStockCount ?? "--");
         if (heroSalesToday) heroSalesToday.textContent = money(data?.todaySalesTotal ?? 0);
+        if (heroSalesSub) {
+          const refundTotal = Number(data?.refundTotal || 0);
+          heroSalesSub.textContent = refundTotal > 0 ? `${money(refundTotal)} refunded today` : "net sales today";
+        }
+        if (heroTradeins) heroTradeins.textContent = String(data?.pendingTradeIns ?? "--");
+        if (heroTradeinsSub) {
+          const accepted = Number(data?.acceptedTradeIns || 0);
+          heroTradeinsSub.textContent = accepted > 0 ? `${accepted} accepted in range` : "open quotes";
+        }
         if (statsSales) statsSales.textContent = money(data?.todaySalesTotal ?? 0);
         if (statsItemsSold) statsItemsSold.textContent = String(data?.itemsSold ?? "--");
         if (statsMargin) statsMargin.textContent = data?.marginPct != null ? `${data.marginPct.toFixed(1)}%` : "--%";
+        if (statsFootnote) {
+          const txns = Number(data?.transactionCount || 0);
+          statsFootnote.textContent = txns
+            ? `${txns} completed transaction${txns === 1 ? "" : "s"} in this range.`
+            : "No completed sales in this range yet.";
+        }
       } catch (err) {
         console.warn("[Dashboard] summary load failed:", err);
       }
@@ -751,6 +864,6 @@
       }
     }
 
-    console.log("[RetroCatz] Dashboard initialized.");
+    console.log("[VaultCore] Dashboard initialized.");
   });
 })();

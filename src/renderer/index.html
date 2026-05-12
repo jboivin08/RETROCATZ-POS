@@ -8,6 +8,7 @@
         content="default-src 'self' file:;
                  img-src 'self' file: data:;
                  style-src 'self' 'unsafe-inline';
+                 connect-src 'self' http://127.0.0.1:5175 http://localhost:5175;
                  script-src 'self' 'unsafe-inline';" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <link rel="stylesheet" href="index.css" />
@@ -337,6 +338,8 @@
       }
     }
   </style>
+  <script src="theme.js"></script>
+  <link rel="stylesheet" href="themes.css" />
 </head>
 
 <body data-layout="1">
@@ -365,19 +368,19 @@
         <span class="hero-sub">total items</span>
       </div>
       <div class="hero-item">
-        <span class="hero-label">Today’s Sales</span>
+        <span class="hero-label">Today's Sales</span>
         <span class="hero-value" id="hero-sales-today">$--</span>
-        <span class="hero-sub">coming soon</span>
+        <span class="hero-sub" id="hero-sales-sub">net sales today</span>
       </div>
       <div class="hero-item">
         <span class="hero-label">Pending Trade-Ins</span>
         <span class="hero-value" id="hero-tradeins">--</span>
-        <span class="hero-sub">manual for now</span>
+        <span class="hero-sub" id="hero-tradeins-sub">open quotes</span>
       </div>
       <div class="hero-item">
         <span class="hero-label">Low Stock Alerts</span>
         <span class="hero-value" id="hero-low-stock">--</span>
-        <span class="hero-sub">qty ≤ 1</span>
+        <span class="hero-sub">qty &lt;= 1</span>
       </div>
       <div class="hero-item" id="hero-reorder-card" style="cursor:pointer;">
         <span class="hero-label">Reorder Flags</span>
@@ -397,15 +400,15 @@
         </div>
         <div class="heatmap-sub">When the register is most active (by hour).</div>
         <div class="heatmap-mini-grid" id="mini-hm-sales">
-          <!-- simple static pattern; data will come later -->
+          <!-- updated from live dashboard data -->
           <div class="heatmap-cell level-1"></div><div class="heatmap-cell level-0"></div><div class="heatmap-cell level-0"></div><div class="heatmap-cell level-1"></div><div class="heatmap-cell level-2"></div><div class="heatmap-cell level-3"></div><div class="heatmap-cell level-2"></div>
           <div class="heatmap-cell level-0"></div><div class="heatmap-cell level-1"></div><div class="heatmap-cell level-1"></div><div class="heatmap-cell level-2"></div><div class="heatmap-cell level-3"></div><div class="heatmap-cell level-2"></div><div class="heatmap-cell level-1"></div>
           <div class="heatmap-cell level-0"></div><div class="heatmap-cell level-0"></div><div class="heatmap-cell level-1"></div><div class="heatmap-cell level-1"></div><div class="heatmap-cell level-2"></div><div class="heatmap-cell level-2"></div><div class="heatmap-cell level-3"></div>
           <div class="heatmap-cell level-0"></div><div class="heatmap-cell level-0"></div><div class="heatmap-cell level-0"></div><div class="heatmap-cell level-1"></div><div class="heatmap-cell level-1"></div><div class="heatmap-cell level-2"></div><div class="heatmap-cell level-2"></div>
         </div>
         <div class="heatmap-foot">
-          <span id="mini-hm-sales-summary">peak: Fri evening</span>
-          <span class="heatmap-expand">expand ⟶</span>
+          <span id="mini-hm-sales-summary">Loading sales activity</span>
+          <span class="heatmap-expand">details</span>
         </div>
       </article>
 
@@ -415,15 +418,15 @@
           <div class="heatmap-title">Category Movement</div>
           <div class="heatmap-chip">7 days</div>
         </div>
-        <div class="heatmap-sub">What’s moving: games, consoles, accessories & media.</div>
+        <div class="heatmap-sub">What's moving: games, consoles, accessories and media.</div>
         <div class="heatmap-mini-grid" id="mini-hm-category">
           <div class="heatmap-cell level-1"></div><div class="heatmap-cell level-2"></div><div class="heatmap-cell level-3"></div><div class="heatmap-cell level-2"></div><div class="heatmap-cell level-1"></div><div class="heatmap-cell level-0"></div>
           <div class="heatmap-cell level-0"></div><div class="heatmap-cell level-1"></div><div class="heatmap-cell level-2"></div><div class="heatmap-cell level-3"></div><div class="heatmap-cell level-2"></div><div class="heatmap-cell level-1"></div>
           <div class="heatmap-cell level-0"></div><div class="heatmap-cell level-0"></div><div class="heatmap-cell level-1"></div><div class="heatmap-cell level-2"></div><div class="heatmap-cell level-3"></div><div class="heatmap-cell level-2"></div>
         </div>
         <div class="heatmap-foot">
-          <span id="mini-hm-category-summary">strong: games & accessories</span>
-          <span class="heatmap-expand">expand ⟶</span>
+          <span id="mini-hm-category-summary">Loading category movement</span>
+          <span class="heatmap-expand">details</span>
         </div>
       </article>
 
@@ -433,15 +436,15 @@
           <div class="heatmap-title">Inventory Health</div>
           <div class="heatmap-chip">by platform</div>
         </div>
-        <div class="heatmap-sub">Where you’re low, healthy, or heavy on stock.</div>
+        <div class="heatmap-sub">Where stock is low, healthy, or heavy.</div>
         <div class="heatmap-mini-grid" id="mini-hm-inventory">
           <div class="heatmap-cell level-2"></div><div class="heatmap-cell level-3"></div><div class="heatmap-cell level-1"></div><div class="heatmap-cell level-0"></div>
           <div class="heatmap-cell level-1"></div><div class="heatmap-cell level-2"></div><div class="heatmap-cell level-3"></div><div class="heatmap-cell level-1"></div>
           <div class="heatmap-cell level-0"></div><div class="heatmap-cell level-1"></div><div class="heatmap-cell level-2"></div><div class="heatmap-cell level-3"></div>
         </div>
         <div class="heatmap-foot">
-          <span id="mini-hm-inventory-summary">watch: NES & N64 low</span>
-          <span class="heatmap-expand">expand ⟶</span>
+          <span id="mini-hm-inventory-summary">Loading inventory health</span>
+          <span class="heatmap-expand">details</span>
         </div>
       </article>
 
@@ -457,8 +460,8 @@
           <div class="heatmap-cell level-0"></div><div class="heatmap-cell level-0"></div><div class="heatmap-cell level-1"></div><div class="heatmap-cell level-2"></div><div class="heatmap-cell level-2"></div>
         </div>
         <div class="heatmap-foot">
-          <span id="mini-hm-dormant-summary">markdown: 60+ day items</span>
-          <span class="heatmap-expand">expand ⟶</span>
+          <span id="mini-hm-dormant-summary">Loading inventory age</span>
+          <span class="heatmap-expand">details</span>
         </div>
       </article>
 
@@ -474,8 +477,8 @@
           <div class="heatmap-cell level-0"></div><div class="heatmap-cell level-0"></div><div class="heatmap-cell level-1"></div><div class="heatmap-cell level-2"></div><div class="heatmap-cell level-3"></div>
         </div>
         <div class="heatmap-foot">
-          <span id="mini-hm-tradein-summary">heaviest: weekends</span>
-          <span class="heatmap-expand">expand ⟶</span>
+          <span id="mini-hm-tradein-summary">Loading trade-in flow</span>
+          <span class="heatmap-expand">details</span>
         </div>
       </article>
     </section>
@@ -485,7 +488,7 @@
       <div class="top-left">
         <div class="quick-scan-card">
           <label for="quick-scan-input" class="quick-scan-label">Quick Scan</label>
-          <input id="quick-scan-input" type="text" placeholder="Scan barcode / type SKU…" autocomplete="off" />
+          <input id="quick-scan-input" type="text" placeholder="Scan barcode / type SKU..." autocomplete="off" />
           <p class="hint">Scan with USB scanner or type SKU, then press Enter.</p>
           <div id="quick-scan-result" class="quick-scan-result"></div>
         </div>
@@ -496,24 +499,41 @@
           <button type="button" class="quick-btn" data-nav="customers.html">Customer Lookup</button>
           <button type="button" class="quick-btn" data-nav="inventory.html">Bulk Price Adjust</button>
           <button type="button" class="quick-btn" data-nav="trade-in.html">Open Trade-In Calculator</button>
+          <button type="button" class="quick-btn" data-nav="tasks.html">Tasks</button>
           <button type="button" class="quick-btn" data-nav="add-item.html">Add Console</button>
           <button type="button" class="quick-btn" data-nav="add-item.html">Add Accessory</button>
         </div>
       </div>
 
-      <aside class="stats-card">
-        <h2>Today’s Snapshot</h2>
-        <div class="stats-row">
-          <span>Sales</span><strong id="stats-sales">$--</strong>
-        </div>
-        <div class="stats-row">
-          <span>Items Sold</span><strong id="stats-items-sold">--</strong>
-        </div>
-        <div class="stats-row">
-          <span>Gross Margin</span><strong id="stats-margin">--%</strong>
-        </div>
-        <p class="hint">Sales stats will light up once we wire in sales endpoints.</p>
-      </aside>
+      <div class="top-right">
+        <aside class="tasks-card">
+          <header>
+            <h2>Tasks</h2>
+            <span class="task-count-pill" id="task-count-pill">-- open</span>
+          </header>
+          <div class="task-mini-list" id="dashboard-task-list">
+            <div class="task-mini-item"><strong>Loading tasks</strong><span>Checking manager queue and reminders.</span></div>
+          </div>
+          <div class="task-actions">
+            <button type="button" class="quick-btn" data-nav="tasks.html">Open Tasks Page</button>
+            <button type="button" class="quick-btn" data-nav="add-item.html">Trade Intake Bucket</button>
+          </div>
+        </aside>
+
+        <aside class="stats-card">
+          <h2>Today's Snapshot</h2>
+          <div class="stats-row">
+            <span>Sales</span><strong id="stats-sales">$--</strong>
+          </div>
+          <div class="stats-row">
+            <span>Items Sold</span><strong id="stats-items-sold">--</strong>
+          </div>
+          <div class="stats-row">
+            <span>Gross Margin</span><strong id="stats-margin">--%</strong>
+          </div>
+          <p class="hint" id="stats-footnote">Live from completed sales and current inventory.</p>
+        </aside>
+      </div>
     </section>
 
     <!-- MAIN -->
@@ -521,34 +541,64 @@
 
       <section class="dashboard grid dashboard-buttons">
         <a class="btn" href="add-item.html">
-          <span class="btn-label">➕ Add Item</span>
+          <span class="btn-label">Add Item</span>
           <div class="desc">Create a new inventory record</div>
         </a>
 
         <a class="btn" href="inventory.html">
-          <span class="btn-label">📦 Inventory</span>
+          <span class="btn-label">Inventory</span>
           <div class="desc">View and manage all stored items</div>
         </a>
 
+        <a class="btn" href="inventory-control.html">
+          <span class="btn-label">Inventory Control</span>
+          <div class="desc">Audit sellable stock, event plans, holds, and movement history</div>
+        </a>
+
         <a class="btn" href="trade-in.html">
-          <span class="btn-label">🔄 Trade-In</span>
-          <div class="desc">Scan UPC/title → market comps → accept</div>
+          <span class="btn-label">Trade-In</span>
+          <div class="desc">Scan UPC/title, review market comps, accept</div>
+        </a>
+
+        <a class="btn" href="store-workflows.html">
+          <span class="btn-label">Open Work</span>
+          <div class="desc">Follow-ups for wishlist matches, layaways, preorders, repairs, bundles</div>
+        </a>
+
+        <a class="btn" href="tasks.html">
+          <span class="btn-label">Tasks</span>
+          <div class="desc">Manager tasks, reminders, assignments, and trade intake alerts</div>
+        </a>
+
+        <a class="btn" href="advanced-operations.html">
+          <span class="btn-label">Operations</span>
+          <div class="desc">Ordering, holds, fulfillment, gift cards, services, backups</div>
         </a>
 
         <a class="btn" href="categories.html">
-          <span class="btn-label">🗂 Categories</span>
+          <span class="btn-label">Categories</span>
           <div class="desc">Manage inventory categories</div>
         </a>
 
         <a class="btn" href="pos.html">
-          <span class="btn-label">💳 POS</span>
+          <span class="btn-label">Register</span>
           <div class="desc">Build cart and complete a sale</div>
         </a>
 
-	<a class="btn" href="live-events.html">
-  	<span class="btn-label">🎤 Live Events</span>
- 	 <div class="desc">Whatnot / expos / pop-ups: scan + on-the-fly prices + finalize</div>
-	</a>
+        <a class="btn" href="closeout.html">
+          <span class="btn-label">Closeout</span>
+          <div class="desc">Count drawer and close the day</div>
+        </a>
+
+        <a class="btn" href="live-events.html">
+          <span class="btn-label">Live Events</span>
+          <div class="desc">Whatnot / expos / pop-ups: scan + on-the-fly prices + finalize</div>
+        </a>
+
+        <a class="btn" href="community-events.html">
+          <span class="btn-label">Community Events</span>
+          <div class="desc">Tournaments, leagues, prereleases, signups, and check-in</div>
+        </a>
 
 
         <a class="btn" href="customers.html">
@@ -563,7 +613,7 @@
 
 
         <a class="btn" href="reports.html">
-          <span class="btn-label">📊 Reports</span>
+          <span class="btn-label">Reports</span>
           <div class="desc">Run daily summaries</div>
         </a>
 
@@ -582,7 +632,7 @@
         </a>
 
         <a class="btn" href="ai.html">
-          <span class="btn-label">🧠 VaultCore Brain</span>
+          <span class="btn-label">VaultCore Brain</span>
           <div class="desc">AI insights, trends, and store oracle</div>
         </a>
       </section>
@@ -596,15 +646,15 @@
         </section>
 
         <section class="panel hot-sheet">
-          <h2>Hot Sheet (Preview)</h2>
+          <h2>Hot Sheet</h2>
           <ul id="hot-sheet-list" class="hot-list">
-            <li class="hint">Future: top sellers, most valuable, trending down.</li>
+            <li class="hint">Inventory signals will show here after data loads.</li>
           </ul>
         </section>
 
         <section class="panel notes-panel">
           <h2>Store Notes</h2>
-          <textarea id="store-notes" rows="4" placeholder="Quick notes for today (saved locally)…"></textarea>
+          <textarea id="store-notes" rows="4" placeholder="Quick notes for today (saved locally)..."></textarea>
           <p class="hint">Notes are stored on this machine only.</p>
         </section>
       </aside>
@@ -613,13 +663,17 @@
 
     <div class="layout-selector">
       <label>
-        Select Dashboard Layout:
+        Visual Style:
+        <select id="theme-select"></select>
+      </label>
+      <label>
+        Dashboard View:
         <select id="layout-select">
-          <option value="1">Layout 1 – Classic Grid</option>
-          <option value="2">Layout 2 – Wide Tiles</option>
-          <option value="3">Layout 3 – Console Grid</option>
-          <option value="4">Layout 4 – List View</option>
-          <option value="5" selected>Layout 5 – Big Buttons</option>
+          <option value="1">Classic Grid</option>
+          <option value="2">Wide Tiles</option>
+          <option value="3">Console Grid</option>
+          <option value="4">List View</option>
+          <option value="5" selected>Big Buttons</option>
         </select>
       </label>
     </div>
@@ -643,7 +697,7 @@
               <option value="90d">Last 90 days</option>
             </select>
           </div>
-          <button class="heatmap-close-btn" type="button" id="heatmap-close-btn">Close ✕</button>
+          <button class="heatmap-close-btn" type="button" id="heatmap-close-btn">Close</button>
         </header>
 
         <div class="heatmap-modal-body">
@@ -678,7 +732,7 @@
 
         <footer class="heatmap-modal-footer">
           <span id="heatmap-modal-summary">Hover a dot to see exact sales and repeat behavior.</span>
-          <span>Demo data for now – will wire to VaultCore POS analytics.</span>
+          <span>Live analytics from completed sales, inventory, and trade-in quotes.</span>
         </footer>
       </div>
     </div>

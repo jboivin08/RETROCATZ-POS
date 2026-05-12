@@ -1,8 +1,8 @@
-# RetroCatz POS Overnight Punch List (2026-02-25)
+# VaultCore POS Overnight Punch List (2026-02-25)
 
 ## Completed
 - [x] Aligned POS header/tabs visual language to match Inventory page colors, borders, and pill controls.
-- [x] Swapped POS synthetic logo badge for the same RetroCatz logo asset used across the app.
+- [x] Swapped POS synthetic logo badge for the same VaultCore logo asset used across the app.
 - [x] Flattened high-contrast gradients in POS quick keys and sales table to match inventory row/column treatment.
 - [x] Improved session reliability by replacing static auth headers with `getAuthHeaders()` per request.
 - [x] Added catalog search indexing cache to reduce repeated string processing on every lookup.
@@ -23,7 +23,7 @@
 - [x] Added trade-in draft persistence/resume (`localStorage`) for long appraisal sessions.
 - [x] Hardened trade-in table rendering with HTML escaping for AI/user-facing text.
 - [x] Upgraded `POST /api/ai/chat` from placeholder response to store-aware operational answers (inventory + sales context, optional OpenAI enhancement).
-- [x] Brought Trade-In and RetroCatz Brain visual treatment closer to Inventory page styling language.
+- [x] Brought Trade-In and VaultCore Brain visual treatment closer to Inventory page styling language.
 
 ## Remaining High-Value Items
 - [ ] Move `pos.html` inline `<style>` and `<script>` into dedicated `pos.css` and `pos.js` modules for maintainability.

@@ -1,4 +1,4 @@
-// ai.js — RetroCatz Brain front-end
+// ai.js - VaultCore Brain front-end
 const API_BASE = "http://127.0.0.1:5175";
 const SESSION_KEY = "rc_session_id";
 

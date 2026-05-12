@@ -1,0 +1,557 @@
+html[data-theme="classic"] {
+  --vc-bg: #0b0d12;
+  --vc-bg-soft: #0f172a;
+  --vc-panel: #111827;
+  --vc-panel-2: #0f172a;
+  --vc-panel-3: #0c1017;
+  --vc-toolbar: #091226;
+  --vc-toolbar-border: #0e1b36;
+  --vc-border: #374151;
+  --vc-border-soft: rgba(148, 163, 184, 0.18);
+  --vc-text: #e5e7eb;
+  --vc-muted: #9ca3af;
+  --vc-primary: #2563eb;
+  --vc-on-primary: #ffffff;
+  --vc-primary-soft: rgba(37, 99, 235, 0.14);
+  --vc-primary-strong: rgba(37, 99, 235, 0.32);
+  --vc-success: #4ade80;
+  --vc-danger: #7f1d1d;
+  --vc-warning: #d97706;
+  --vc-row-hover: #14161b;
+  --vc-input: #000000;
+  --vc-button: #0c0c0f;
+  --vc-radius: 8px;
+  --vc-shadow: none;
+}
+
+html[data-theme="arcade-cabinet"] {
+  --vc-bg: #090913;
+  --vc-bg-soft: #151022;
+  --vc-panel: #161323;
+  --vc-panel-2: #111827;
+  --vc-panel-3: #0d1020;
+  --vc-toolbar: #11101f;
+  --vc-toolbar-border: #30224a;
+  --vc-border: #44325f;
+  --vc-border-soft: rgba(250, 204, 21, 0.18);
+  --vc-text: #fff7ed;
+  --vc-muted: #c9bfd1;
+  --vc-primary: #f43f5e;
+  --vc-on-primary: #ffffff;
+  --vc-primary-soft: rgba(244, 63, 94, 0.16);
+  --vc-primary-strong: rgba(244, 63, 94, 0.38);
+  --vc-success: #22c55e;
+  --vc-danger: #dc2626;
+  --vc-warning: #facc15;
+  --vc-row-hover: #221933;
+  --vc-input: #080711;
+  --vc-button: #1c1630;
+  --vc-radius: 8px;
+  --vc-shadow: 0 0 0 1px rgba(250, 204, 21, 0.08);
+}
+
+html[data-theme="crt-neon"] {
+  --vc-bg: #020806;
+  --vc-bg-soft: #06130f;
+  --vc-panel: #07150f;
+  --vc-panel-2: #03110d;
+  --vc-panel-3: #020d0a;
+  --vc-toolbar: #04120e;
+  --vc-toolbar-border: #0f3f31;
+  --vc-border: #176049;
+  --vc-border-soft: rgba(34, 197, 94, 0.2);
+  --vc-text: #d1fae5;
+  --vc-muted: #7dd3ac;
+  --vc-primary: #22c55e;
+  --vc-on-primary: #020806;
+  --vc-primary-soft: rgba(34, 197, 94, 0.14);
+  --vc-primary-strong: rgba(34, 197, 94, 0.34);
+  --vc-success: #86efac;
+  --vc-danger: #ef4444;
+  --vc-warning: #facc15;
+  --vc-row-hover: #0d241b;
+  --vc-input: #000805;
+  --vc-button: #062016;
+  --vc-radius: 8px;
+  --vc-shadow: 0 0 18px rgba(34, 197, 94, 0.08);
+}
+
+html[data-theme="clean-light"] {
+  --vc-bg: #f5f7fb;
+  --vc-bg-soft: #edf1f8;
+  --vc-panel: #ffffff;
+  --vc-panel-2: #f8fafc;
+  --vc-panel-3: #eef2f7;
+  --vc-toolbar: #182235;
+  --vc-toolbar-border: #2b3955;
+  --vc-border: #cfd7e6;
+  --vc-border-soft: rgba(74, 85, 104, 0.2);
+  --vc-text: #132033;
+  --vc-muted: #5b6575;
+  --vc-primary: #2563eb;
+  --vc-on-primary: #ffffff;
+  --vc-primary-soft: rgba(37, 99, 235, 0.12);
+  --vc-primary-strong: rgba(37, 99, 235, 0.26);
+  --vc-success: #15803d;
+  --vc-danger: #b91c1c;
+  --vc-warning: #b45309;
+  --vc-row-hover: #eaf0f8;
+  --vc-input: #ffffff;
+  --vc-button: #ffffff;
+  --vc-radius: 8px;
+  --vc-shadow: none;
+}
+
+html[data-theme="event-expo"] {
+  --vc-bg: #050505;
+  --vc-bg-soft: #101010;
+  --vc-panel: #111111;
+  --vc-panel-2: #0b0b0b;
+  --vc-panel-3: #050505;
+  --vc-toolbar: #000000;
+  --vc-toolbar-border: #404040;
+  --vc-border: #525252;
+  --vc-border-soft: rgba(245, 158, 11, 0.22);
+  --vc-text: #fafafa;
+  --vc-muted: #d4d4d4;
+  --vc-primary: #f59e0b;
+  --vc-on-primary: #111111;
+  --vc-primary-soft: rgba(245, 158, 11, 0.16);
+  --vc-primary-strong: rgba(245, 158, 11, 0.4);
+  --vc-success: #22c55e;
+  --vc-danger: #ef4444;
+  --vc-warning: #fbbf24;
+  --vc-row-hover: #1f1f1f;
+  --vc-input: #000000;
+  --vc-button: #171717;
+  --vc-radius: 8px;
+  --vc-shadow: 0 0 0 1px rgba(245, 158, 11, 0.12);
+}
+
+html[data-theme="retro-console"] {
+  --vc-bg: #111318;
+  --vc-bg-soft: #171a22;
+  --vc-panel: #1a1d26;
+  --vc-panel-2: #12151d;
+  --vc-panel-3: #0c0f16;
+  --vc-toolbar: #151922;
+  --vc-toolbar-border: #334155;
+  --vc-border: #475569;
+  --vc-border-soft: rgba(248, 113, 113, 0.18);
+  --vc-text: #f8fafc;
+  --vc-muted: #cbd5e1;
+  --vc-primary: #dc2626;
+  --vc-on-primary: #ffffff;
+  --vc-primary-soft: rgba(220, 38, 38, 0.15);
+  --vc-primary-strong: rgba(220, 38, 38, 0.32);
+  --vc-success: #16a34a;
+  --vc-danger: #991b1b;
+  --vc-warning: #eab308;
+  --vc-row-hover: #252a36;
+  --vc-input: #05070d;
+  --vc-button: #202431;
+  --vc-radius: 8px;
+  --vc-shadow: none;
+}
+
+html[data-theme="playstation-midnight"] {
+  --vc-bg: #070b18;
+  --vc-bg-soft: #0b1230;
+  --vc-panel: #0e1730;
+  --vc-panel-2: #091126;
+  --vc-panel-3: #060d1d;
+  --vc-toolbar: #050b1e;
+  --vc-toolbar-border: #1d3c7a;
+  --vc-border: #28477e;
+  --vc-border-soft: rgba(96, 165, 250, 0.2);
+  --vc-text: #eaf2ff;
+  --vc-muted: #9fb3d1;
+  --vc-primary: #3b82f6;
+  --vc-on-primary: #ffffff;
+  --vc-primary-soft: rgba(59, 130, 246, 0.16);
+  --vc-primary-strong: rgba(59, 130, 246, 0.34);
+  --vc-success: #22c55e;
+  --vc-danger: #ef4444;
+  --vc-warning: #f59e0b;
+  --vc-row-hover: #122047;
+  --vc-input: #030814;
+  --vc-button: #0b1533;
+  --vc-radius: 8px;
+  --vc-shadow: 0 0 18px rgba(59, 130, 246, 0.07);
+}
+
+html[data-theme="game-boy"] {
+  --vc-bg: #10180f;
+  --vc-bg-soft: #1b2a18;
+  --vc-panel: #25351f;
+  --vc-panel-2: #1b2a18;
+  --vc-panel-3: #142012;
+  --vc-toolbar: #172513;
+  --vc-toolbar-border: #526b3f;
+  --vc-border: #6f8a52;
+  --vc-border-soft: rgba(190, 242, 100, 0.18);
+  --vc-text: #ecfccb;
+  --vc-muted: #c7d9a6;
+  --vc-primary: #84cc16;
+  --vc-on-primary: #10180f;
+  --vc-primary-soft: rgba(132, 204, 22, 0.16);
+  --vc-primary-strong: rgba(132, 204, 22, 0.32);
+  --vc-success: #bef264;
+  --vc-danger: #dc2626;
+  --vc-warning: #eab308;
+  --vc-row-hover: #2f4328;
+  --vc-input: #0b1209;
+  --vc-button: #23351c;
+  --vc-radius: 8px;
+  --vc-shadow: none;
+}
+
+html[data-theme="trading-card-shop"] {
+  --vc-bg: #07110d;
+  --vc-bg-soft: #0d1f17;
+  --vc-panel: #10251b;
+  --vc-panel-2: #0c1d15;
+  --vc-panel-3: #08150f;
+  --vc-toolbar: #0a1912;
+  --vc-toolbar-border: #2f4d3e;
+  --vc-border: #3f6652;
+  --vc-border-soft: rgba(234, 179, 8, 0.16);
+  --vc-text: #f2f7ef;
+  --vc-muted: #b7c7b7;
+  --vc-primary: #d4a017;
+  --vc-on-primary: #07110d;
+  --vc-primary-soft: rgba(212, 160, 23, 0.14);
+  --vc-primary-strong: rgba(212, 160, 23, 0.32);
+  --vc-success: #22c55e;
+  --vc-danger: #b91c1c;
+  --vc-warning: #eab308;
+  --vc-row-hover: #173425;
+  --vc-input: #030a07;
+  --vc-button: #142a1f;
+  --vc-radius: 8px;
+  --vc-shadow: none;
+}
+
+html[data-theme="cyberpunk-market"] {
+  --vc-bg: #06030c;
+  --vc-bg-soft: #10091d;
+  --vc-panel: #130b22;
+  --vc-panel-2: #0e071a;
+  --vc-panel-3: #080411;
+  --vc-toolbar: #0c0617;
+  --vc-toolbar-border: #3b166a;
+  --vc-border: #51317a;
+  --vc-border-soft: rgba(34, 211, 238, 0.2);
+  --vc-text: #fdf4ff;
+  --vc-muted: #d6c2e4;
+  --vc-primary: #22d3ee;
+  --vc-on-primary: #06030c;
+  --vc-primary-soft: rgba(34, 211, 238, 0.16);
+  --vc-primary-strong: rgba(34, 211, 238, 0.36);
+  --vc-success: #a3e635;
+  --vc-danger: #f43f5e;
+  --vc-warning: #facc15;
+  --vc-row-hover: #221236;
+  --vc-input: #05020a;
+  --vc-button: #1a102d;
+  --vc-radius: 8px;
+  --vc-shadow: 0 0 18px rgba(34, 211, 238, 0.08);
+}
+
+html[data-theme="repair-bench"] {
+  --vc-bg: #111111;
+  --vc-bg-soft: #191919;
+  --vc-panel: #202020;
+  --vc-panel-2: #181818;
+  --vc-panel-3: #121212;
+  --vc-toolbar: #181818;
+  --vc-toolbar-border: #4a4033;
+  --vc-border: #5a5044;
+  --vc-border-soft: rgba(245, 158, 11, 0.16);
+  --vc-text: #f5f0e8;
+  --vc-muted: #b8afa4;
+  --vc-primary: #d97706;
+  --vc-on-primary: #111111;
+  --vc-primary-soft: rgba(217, 119, 6, 0.15);
+  --vc-primary-strong: rgba(217, 119, 6, 0.34);
+  --vc-success: #22c55e;
+  --vc-danger: #dc2626;
+  --vc-warning: #f59e0b;
+  --vc-row-hover: #2a241d;
+  --vc-input: #080808;
+  --vc-button: #23201c;
+  --vc-radius: 8px;
+  --vc-shadow: none;
+}
+
+html[data-theme="tournament-night"] {
+  --vc-bg: #080814;
+  --vc-bg-soft: #11112a;
+  --vc-panel: #151534;
+  --vc-panel-2: #101027;
+  --vc-panel-3: #09091d;
+  --vc-toolbar: #0b0b24;
+  --vc-toolbar-border: #37307a;
+  --vc-border: #4c44a2;
+  --vc-border-soft: rgba(250, 204, 21, 0.18);
+  --vc-text: #f6f5ff;
+  --vc-muted: #bfbced;
+  --vc-primary: #8b5cf6;
+  --vc-on-primary: #ffffff;
+  --vc-primary-soft: rgba(139, 92, 246, 0.16);
+  --vc-primary-strong: rgba(139, 92, 246, 0.36);
+  --vc-success: #22c55e;
+  --vc-danger: #ef4444;
+  --vc-warning: #facc15;
+  --vc-row-hover: #211f48;
+  --vc-input: #050511;
+  --vc-button: #181636;
+  --vc-radius: 8px;
+  --vc-shadow: 0 0 16px rgba(139, 92, 246, 0.08);
+}
+
+html[data-theme="minimal-pro"] {
+  --vc-bg: #101214;
+  --vc-bg-soft: #15181b;
+  --vc-panel: #181b1f;
+  --vc-panel-2: #14171a;
+  --vc-panel-3: #111315;
+  --vc-toolbar: #121519;
+  --vc-toolbar-border: #2a3037;
+  --vc-border: #343a42;
+  --vc-border-soft: rgba(148, 163, 184, 0.14);
+  --vc-text: #e4e7eb;
+  --vc-muted: #9aa1aa;
+  --vc-primary: #64748b;
+  --vc-on-primary: #ffffff;
+  --vc-primary-soft: rgba(100, 116, 139, 0.14);
+  --vc-primary-strong: rgba(100, 116, 139, 0.28);
+  --vc-success: #22c55e;
+  --vc-danger: #b91c1c;
+  --vc-warning: #d97706;
+  --vc-row-hover: #202429;
+  --vc-input: #08090a;
+  --vc-button: #171a1e;
+  --vc-radius: 8px;
+  --vc-shadow: none;
+}
+
+html[data-theme] {
+  --bg: var(--vc-bg);
+  --bg-elevated: var(--vc-panel);
+  --bg-soft: var(--vc-bg-soft);
+  --panel: var(--vc-panel);
+  --panel-2: var(--vc-panel-2);
+  --panel-3: var(--vc-panel-3);
+  --panel-bg: var(--vc-panel-2);
+  --toolbar-bg: var(--vc-toolbar);
+  --toolbar-border: var(--vc-toolbar-border);
+  --border: var(--vc-border);
+  --border-soft: var(--vc-border-soft);
+  --text: var(--vc-text);
+  --muted: var(--vc-muted);
+  --blue: var(--vc-primary);
+  --accent: var(--vc-primary);
+  --on-accent: var(--vc-on-primary, #ffffff);
+  --accent-soft: var(--vc-primary-soft);
+  --accent-strong: var(--vc-primary-strong);
+  --green: var(--vc-success);
+  --success: var(--vc-success);
+  --amber: var(--vc-warning);
+  --danger: var(--vc-danger);
+  --row-hover: var(--vc-row-hover);
+  --radius-lg: var(--vc-radius);
+  --radius-xl: var(--vc-radius);
+  --shadow-soft: var(--vc-shadow);
+}
+
+html[data-theme] body {
+  background: var(--vc-bg) !important;
+  color: var(--vc-text) !important;
+}
+
+html[data-theme] #dashboard-bg {
+  background:
+    linear-gradient(135deg, color-mix(in srgb, var(--vc-bg-soft) 85%, #000 15%) 0%, var(--vc-bg) 100%) !important;
+  opacity: 1;
+}
+
+html[data-theme] header,
+html[data-theme] nav,
+html[data-theme] .toolbar,
+html[data-theme] .page-toolbar,
+html[data-theme] .nav-bar,
+html[data-theme] .status-strip {
+  background: var(--vc-toolbar) !important;
+  border-color: var(--vc-toolbar-border) !important;
+  color: var(--vc-text) !important;
+  box-shadow: var(--vc-shadow);
+}
+
+html[data-theme] main,
+html[data-theme] .page,
+html[data-theme] .app-shell,
+html[data-theme] .dashboard-shell {
+  color: var(--vc-text);
+}
+
+html[data-theme] .panel,
+html[data-theme] .card,
+html[data-theme] .hero-item,
+html[data-theme] .quick-scan-card,
+html[data-theme] .stats-card,
+html[data-theme] .heatmap-card,
+html[data-theme] .op-section,
+html[data-theme] .totals-card,
+html[data-theme] .payment-card,
+html[data-theme] .cart-table-wrapper,
+html[data-theme] .table-wrap,
+html[data-theme] .sales-table-wrapper,
+html[data-theme] .modal,
+html[data-theme] dialog,
+html[data-theme] .toggle,
+html[data-theme] .kpi-card,
+html[data-theme] .local-note,
+html[data-theme] .customer-selected,
+html[data-theme] .customer-results,
+html[data-theme] .search-results,
+html[data-theme] .tender-lines,
+html[data-theme] .hold-item,
+html[data-theme] .receipt-preview,
+html[data-theme] .cart-summary-strip {
+  background: var(--vc-panel) !important;
+  border-color: var(--vc-border) !important;
+  color: var(--vc-text) !important;
+  box-shadow: var(--vc-shadow);
+}
+
+html[data-theme] .op-section,
+html[data-theme] .toggle,
+html[data-theme] .kpi-card,
+html[data-theme] .receipt-preview,
+html[data-theme] .cart-summary-strip,
+html[data-theme] .hold-item,
+html[data-theme] .search-results,
+html[data-theme] .customer-results,
+html[data-theme] .tender-lines {
+  background: var(--vc-panel-2) !important;
+}
+
+html[data-theme] input,
+html[data-theme] select,
+html[data-theme] textarea,
+html[data-theme] .input,
+html[data-theme] .select {
+  background: var(--vc-input) !important;
+  border-color: var(--vc-border) !important;
+  color: var(--vc-text) !important;
+}
+
+html[data-theme] input::placeholder,
+html[data-theme] textarea::placeholder {
+  color: color-mix(in srgb, var(--vc-muted) 74%, transparent);
+}
+
+html[data-theme] button,
+html[data-theme] .btn,
+html[data-theme] a.btn,
+html[data-theme] .quick-btn,
+html[data-theme] .quick-key,
+html[data-theme] .nav-tab,
+html[data-theme] .tab,
+html[data-theme] .sales-date-btn,
+html[data-theme] .cash-keypad-btn {
+  background: var(--vc-button) !important;
+  border-color: var(--vc-border) !important;
+  color: var(--vc-text) !important;
+}
+
+html[data-theme] .btn.primary,
+html[data-theme] .btn-primary,
+html[data-theme] .nav-tab-active,
+html[data-theme] .tab.active,
+html[data-theme] button.primary,
+html[data-theme] .cash-keypad-btn.accent {
+  background: var(--vc-primary) !important;
+  border-color: var(--vc-primary) !important;
+  color: var(--vc-on-primary, #ffffff) !important;
+}
+
+html[data-theme] .btn.danger,
+html[data-theme] .btn-danger,
+html[data-theme] button.danger {
+  background: var(--vc-danger) !important;
+  border-color: var(--vc-danger) !important;
+  color: #fff !important;
+}
+
+html[data-theme] .muted,
+html[data-theme] .hint,
+html[data-theme] .desc,
+html[data-theme] label,
+html[data-theme] .status,
+html[data-theme] .page-toolbar-note,
+html[data-theme] .hero-label,
+html[data-theme] .hero-sub,
+html[data-theme] .card-header,
+html[data-theme] .op-header,
+html[data-theme] .title-meta,
+html[data-theme] .nav-right,
+html[data-theme] .subtext,
+html[data-theme] .small {
+  color: var(--vc-muted) !important;
+}
+
+html[data-theme] th,
+html[data-theme] td,
+html[data-theme] .cart-table-header,
+html[data-theme] .sales-table thead th {
+  border-color: var(--vc-border) !important;
+}
+
+html[data-theme] tbody tr:hover,
+html[data-theme] .search-item:hover,
+html[data-theme] .customer-row:hover {
+  background: var(--vc-row-hover) !important;
+}
+
+html[data-theme] .badge,
+html[data-theme] .pill,
+html[data-theme] .heatmap-chip,
+html[data-theme] .cart-footer-left span {
+  background: var(--vc-panel-3) !important;
+  border-color: var(--vc-border) !important;
+  color: var(--vc-muted) !important;
+}
+
+html[data-theme="arcade-cabinet"] .dashboard-buttons .btn,
+html[data-theme="arcade-cabinet"] .quick-key,
+html[data-theme="retro-console"] .dashboard-buttons .btn,
+html[data-theme="game-boy"] .dashboard-buttons .btn {
+  box-shadow: inset 0 -3px 0 rgba(0, 0, 0, 0.28), var(--vc-shadow);
+}
+
+html[data-theme="crt-neon"] .brand-title span:first-child,
+html[data-theme="crt-neon"] .page-toolbar h1,
+html[data-theme="crt-neon"] .toolbar h1 {
+  text-shadow: 0 0 8px rgba(34, 197, 94, 0.35);
+}
+
+html[data-theme="event-expo"] .btn,
+html[data-theme="event-expo"] button,
+html[data-theme="event-expo"] input,
+html[data-theme="event-expo"] select {
+  min-height: 40px;
+}
+
+html[data-theme="clean-light"] .logo,
+html[data-theme="clean-light"] .brand-logo {
+  filter: none;
+}
+
+html[data-theme="minimal-pro"] .btn,
+html[data-theme="minimal-pro"] button,
+html[data-theme="minimal-pro"] .panel,
+html[data-theme="minimal-pro"] .card {
+  box-shadow: none !important;
+}

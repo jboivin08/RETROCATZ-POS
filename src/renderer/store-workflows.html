@@ -1,0 +1,438 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Open Work - VaultCore POS</title>
+  <link rel="stylesheet" href="index.css" />
+  <style>
+    :root { color-scheme: dark; }
+    body {
+      margin: 0;
+      background: #08111f;
+      color: #e5edf8;
+      font-family: Inter, system-ui, -apple-system, Segoe UI, sans-serif;
+    }
+    .shell { max-width: 1440px; margin: 0 auto; padding: 22px; }
+    header { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-bottom: 18px; }
+    h1 { margin: 0; font-size: 26px; letter-spacing: 0; }
+    h2 { margin: 0; font-size: 16px; letter-spacing: 0; }
+    h3 { margin: 0 0 8px; font-size: 13px; letter-spacing: 0; color: #cbd5e1; }
+    .muted { color: #94a3b8; }
+    .grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; align-items: start; }
+    .box {
+      background: #0d1728;
+      border: 1px solid #1f2a44;
+      border-radius: 8px;
+      padding: 14px;
+      display: grid;
+      gap: 10px;
+      min-width: 0;
+    }
+    .box.full { grid-column: 1 / -1; }
+    .box-head { display:flex; justify-content:space-between; gap:12px; align-items:center; }
+    .form-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+    .full { grid-column: 1 / -1; }
+    input, select, textarea {
+      width: 100%;
+      box-sizing: border-box;
+      border: 1px solid #263757;
+      background: #08111f;
+      color: #e5edf8;
+      border-radius: 6px;
+      padding: 8px 9px;
+      font: inherit;
+      font-size: 13px;
+    }
+    textarea { min-height: 70px; resize: vertical; }
+    .btn {
+      border: 1px solid #31415f;
+      background: #142238;
+      color: #e5edf8;
+      border-radius: 6px;
+      padding: 8px 10px;
+      cursor: pointer;
+      font: inherit;
+      font-size: 13px;
+      text-decoration:none;
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+    }
+    .btn.primary { background: #2563eb; border-color: #60a5fa; color: white; }
+    .btn.danger { background: #7f1d1d; border-color: #ef4444; }
+    .btn.ghost { background: transparent; }
+    .btn.small { padding: 5px 7px; font-size: 11px; }
+    .actions { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+    .list { display: grid; gap: 8px; }
+    .row {
+      border: 1px solid #1f2a44;
+      background: #0a1424;
+      border-radius: 7px;
+      padding: 10px;
+      display: grid;
+      gap: 8px;
+    }
+    .row-head { display: flex; justify-content: space-between; gap: 12px; align-items: start; }
+    .row-title { font-weight: 750; overflow-wrap: anywhere; }
+    .meta { display: flex; flex-wrap: wrap; gap: 6px; color: #9fb0ca; font-size: 12px; }
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      border-radius: 999px;
+      border: 1px solid #263757;
+      background: #111c2e;
+      color: #cbd5e1;
+      padding: 3px 8px;
+      font-size: 12px;
+      white-space:nowrap;
+    }
+    .pill.good { border-color: #166534; background: #052e1b; color: #bbf7d0; }
+    .pill.warn { border-color: #92400e; background: #2b1703; color: #fde68a; }
+    .pill.bad { border-color: #991b1b; background: #2b0808; color: #fecaca; }
+    .line-list { display: grid; gap: 6px; }
+    .line {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto auto;
+      gap: 8px;
+      align-items: center;
+      border: 1px solid #1e293b;
+      border-radius: 6px;
+      padding: 7px;
+      background: #08111f;
+      font-size: 12px;
+    }
+    .status { min-height: 18px; color: #93c5fd; font-size: 13px; }
+    @media (max-width: 980px) {
+      .grid { grid-template-columns: 1fr; }
+      .box.full { grid-column: auto; }
+      header { align-items: flex-start; flex-direction: column; }
+    }
+  </style>
+  <script src="theme.js"></script>
+  <link rel="stylesheet" href="themes.css" />
+</head>
+<body>
+  <div class="shell">
+    <header>
+      <div>
+        <h1>Open Work</h1>
+        <div class="muted">Follow-ups that need staff attention across customers, POS, and inventory</div>
+      </div>
+      <div class="actions">
+        <button class="btn ghost" id="btnRefresh" type="button">Refresh</button>
+        <a class="btn" href="index.html">Back to Dashboard</a>
+      </div>
+    </header>
+
+    <datalist id="customerOptions"></datalist>
+
+    <section class="grid">
+      <div class="box full">
+        <div class="box-head">
+          <div>
+            <h2>Wishlist Matches</h2>
+            <div class="muted">Wishlist items are created on the customer profile; this queue shows stock that now matches.</div>
+          </div>
+          <a class="btn small" href="customers.html">Customers</a>
+        </div>
+        <div class="list" id="wishMatchList"></div>
+      </div>
+
+      <div class="box">
+        <div class="box-head">
+          <div>
+            <h2>Layaways</h2>
+            <div class="muted">New layaways are created from the POS cart.</div>
+          </div>
+          <a class="btn small" href="pos.html">POS</a>
+        </div>
+        <select id="layFilter">
+          <option value="active">Active</option>
+          <option value="all">All</option>
+          <option value="completed">Completed</option>
+          <option value="cancelled">Cancelled</option>
+        </select>
+        <div class="list" id="layList"></div>
+      </div>
+
+      <div class="box">
+        <div class="box-head">
+          <div>
+            <h2>Bundle Watch</h2>
+            <div class="muted">Bundle setup lives in Inventory; this queue highlights unavailable active bundles.</div>
+          </div>
+          <a class="btn small" href="inventory.html">Inventory</a>
+        </div>
+        <div class="list" id="bundleWatchList"></div>
+      </div>
+
+      <div class="box">
+        <div class="box-head">
+          <div>
+            <h2>Preorders</h2>
+            <div class="muted">Open customer promises and release follow-ups.</div>
+          </div>
+        </div>
+        <div class="form-grid">
+          <input id="preCustomer" list="customerOptions" placeholder="Customer" class="full" />
+          <input id="preTitle" placeholder="Title" class="full" />
+          <input id="prePlatform" placeholder="Platform" />
+          <input id="preDeposit" type="number" min="0" step="0.01" placeholder="Deposit" />
+          <input id="preRelease" type="date" />
+          <button class="btn primary" id="btnSavePre" type="button">Add Preorder</button>
+        </div>
+        <select id="preFilter">
+          <option value="open">Open</option>
+          <option value="all">All</option>
+          <option value="notified">Notified</option>
+          <option value="fulfilled">Fulfilled</option>
+          <option value="cancelled">Cancelled</option>
+        </select>
+        <div class="list" id="preList"></div>
+      </div>
+
+      <div class="box">
+        <div class="box-head">
+          <div>
+            <h2>Repairs</h2>
+            <div class="muted">Repair queue and pickup follow-ups.</div>
+          </div>
+        </div>
+        <div class="form-grid">
+          <input id="repCustomer" list="customerOptions" placeholder="Customer" class="full" />
+          <input id="repDevice" placeholder="Device" class="full" />
+          <textarea id="repIssue" placeholder="Issue" class="full"></textarea>
+          <input id="repEstimate" type="number" min="0" step="0.01" placeholder="Estimate" />
+          <input id="repDue" type="date" />
+          <button class="btn primary full" id="btnSaveRepair" type="button">Add Repair</button>
+        </div>
+        <select id="repFilter">
+          <option value="open">Open</option>
+          <option value="all">All</option>
+          <option value="ready">Ready</option>
+          <option value="picked_up">Picked Up</option>
+          <option value="cancelled">Cancelled</option>
+        </select>
+        <div class="list" id="repList"></div>
+      </div>
+    </section>
+  </div>
+
+<script>
+(() => {
+  const API_BASE = "http://127.0.0.1:5175";
+  const $ = (id) => document.getElementById(id);
+  const money = (value) => "$" + Number(value || 0).toFixed(2);
+  const num = (value) => Number(String(value || "").replace(/[^0-9.-]/g, "")) || 0;
+  const esc = (value) => String(value ?? "").replace(/[&<>"']/g, (ch) => ({ "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;", "'":"&#39;" }[ch]));
+  const headers = () => {
+    const sid = localStorage.getItem("rc_session_id") || "";
+    return sid ? { rc_session_id: sid } : {};
+  };
+  async function api(path, opts = {}) {
+    const res = await fetch(API_BASE + path, {
+      ...opts,
+      headers: { "Content-Type": "application/json", ...headers(), ...(opts.headers || {}) }
+    });
+    if (res.status === 401) {
+      localStorage.removeItem("rc_session_id");
+      window.location.href = "../../public/index.html";
+      throw new Error("session_invalid");
+    }
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok) throw new Error(data.error || "request_failed");
+    return data;
+  }
+
+  const state = { customers: [], wishlistMatches: [], layaways: [], preorders: [], repairs: [], bundles: [] };
+
+  function parseCustomer(value) {
+    const id = Number((String(value || "").match(/#(\d+)/) || [])[1] || 0);
+    return state.customers.find((c) => Number(c.id) === id) || null;
+  }
+
+  function customerPayload(inputId) {
+    const customer = parseCustomer($(inputId).value);
+    return customer ? {
+      customer_id: customer.id,
+      customer_name: customer.name || "",
+      customer_phone: customer.phone || "",
+      customer_email: customer.email || ""
+    } : { customer_name: $(inputId).value.trim() };
+  }
+
+  function fillCustomers() {
+    $("customerOptions").innerHTML = state.customers.map((c) =>
+      `<option value="${esc(c.name || "Customer")} #${esc(c.id)}">${esc(c.phone || c.email || "")}</option>`
+    ).join("");
+  }
+
+  function pill(status) {
+    const s = String(status || "").toLowerCase();
+    const tone = ["active", "open", "available", "ready", "completed", "fulfilled", "picked_up"].includes(s)
+      ? "good"
+      : (["cancelled", "archived", "sold", "unavailable"].includes(s) ? "bad" : "warn");
+    return `<span class="pill ${tone}">${esc(status || "status")}</span>`;
+  }
+
+  async function loadCustomers() {
+    const data = await api("/api/customers?active=active&limit=500");
+    state.customers = data.rows || [];
+    fillCustomers();
+  }
+
+  async function loadWishlistMatches() {
+    const data = await api("/api/wishlist/matches");
+    state.wishlistMatches = data.rows || [];
+    $("wishMatchList").innerHTML = state.wishlistMatches.length ? state.wishlistMatches.map((item) => `
+      <div class="row">
+        <div class="row-head">
+          <div>
+            <div class="row-title">${esc(item.title || item.sku || "Inventory item")}</div>
+            <div class="meta"><span>${esc(item.sku || "")}</span><span>${esc((item.matches || []).length)} wishlist match${(item.matches || []).length === 1 ? "" : "es"}</span></div>
+          </div>
+          <a class="btn small" href="inventory.html">Inventory</a>
+        </div>
+        <div class="line-list">
+          ${(item.matches || []).map((m) => `
+            <div class="line">
+              <span>${esc(m.customer_name || "Walk-in")} <span class="muted">${esc([m.customer_phone, m.customer_email].filter(Boolean).join(" / "))}</span></span>
+              <span>${m.max_price ? money(m.max_price) : ""}</span>
+              ${m.customer_id ? `<a class="btn small" href="customers.html?customer_id=${esc(m.customer_id)}">Customer</a>` : "<span></span>"}
+            </div>
+          `).join("")}
+        </div>
+      </div>
+    `).join("") : `<div class="muted">No active wishlist matches right now.</div>`;
+  }
+
+  async function loadLayaways() {
+    const data = await api(`/api/layaways?status=${encodeURIComponent($("layFilter").value)}`);
+    state.layaways = data.rows || [];
+    $("layList").innerHTML = state.layaways.length ? state.layaways.map((l) => `
+      <div class="row">
+        <div class="row-head">
+          <div><div class="row-title">${esc(l.label || "Layaway #" + l.id)}</div><div class="meta"><span>${esc(l.customer_name || "Walk-in")}</span><span>Due ${esc(l.due_at || "none")}</span><span>Balance ${money(l.balance)}</span></div></div>
+          ${pill(l.status)}
+        </div>
+        <div class="line-list">${(l.items || []).map((it) => `<div class="line"><span>${esc(it.title || it.sku)}</span><span>qty ${it.qty}</span><span>${money(it.line_total)}</span></div>`).join("")}</div>
+        ${l.status === "active" ? `<div class="actions"><button class="btn small" data-lay-pay="${l.id}">Payment</button><button class="btn small" data-lay-complete="${l.id}">Complete</button><button class="btn small danger" data-lay-cancel="${l.id}">Cancel</button></div>` : ""}
+      </div>
+    `).join("") : `<div class="muted">No layaways in this view.</div>`;
+  }
+
+  async function loadBundles() {
+    const data = await api("/api/bundles");
+    state.bundles = data.rows || [];
+    const watch = state.bundles.filter((b) => b.status === "active" && !Number(b.available || 0));
+    $("bundleWatchList").innerHTML = watch.length ? watch.map((b) => `
+      <div class="row">
+        <div class="row-head"><div><div class="row-title">${esc(b.title)}</div><div class="meta"><span>${esc(b.sku || "")}</span><span>${money(b.price)}</span></div></div>${pill("unavailable")}</div>
+        <div class="line-list">${(b.components || []).map((c) => `<div class="line"><span>${esc(c.title || c.sku)}</span><span>needs ${esc(c.qty)}</span><span>on hand ${esc(c.current_qty || 0)}</span></div>`).join("")}</div>
+      </div>
+    `).join("") : `<div class="muted">No unavailable active bundles.</div>`;
+  }
+
+  async function loadPreorders() {
+    const data = await api(`/api/preorders?status=${encodeURIComponent($("preFilter").value)}`);
+    state.preorders = data.rows || [];
+    $("preList").innerHTML = state.preorders.length ? state.preorders.map((p) => `
+      <div class="row">
+        <div class="row-head"><div><div class="row-title">${esc(p.title)}</div><div class="meta"><span>${esc(p.customer_name || "Walk-in")}</span><span>${esc(p.platform || "Any")}</span><span>Deposit ${money(p.deposit)}</span><span>Release ${esc(p.release_at || "TBD")}</span></div></div>${pill(p.status)}</div>
+        ${["open", "notified"].includes(p.status) ? `<div class="actions"><button class="btn small" data-pre-status="${p.id}:notified">Notified</button><button class="btn small" data-pre-status="${p.id}:fulfilled">Fulfilled</button><button class="btn small danger" data-pre-status="${p.id}:cancelled">Cancel</button></div>` : ""}
+      </div>
+    `).join("") : `<div class="muted">No preorders in this view.</div>`;
+  }
+
+  async function loadRepairs() {
+    const data = await api(`/api/repairs?status=${encodeURIComponent($("repFilter").value)}`);
+    state.repairs = data.rows || [];
+    $("repList").innerHTML = state.repairs.length ? state.repairs.map((r) => `
+      <div class="row">
+        <div class="row-head"><div><div class="row-title">${esc(r.ticket_no || "Repair #" + r.id)} - ${esc(r.device)}</div><div class="meta"><span>${esc(r.customer_name || "Walk-in")}</span><span>${esc(r.issue)}</span><span>Estimate ${money(r.estimate)}</span></div></div>${pill(r.status)}</div>
+        ${!["picked_up", "cancelled"].includes(r.status) ? `<div class="actions">${["diagnosing","approved","waiting_parts","ready","picked_up","cancelled"].map((s) => `<button class="btn small" data-rep-status="${r.id}:${s}">${esc(s.replace("_", " "))}</button>`).join("")}</div>` : ""}
+      </div>
+    `).join("") : `<div class="muted">No repairs in this view.</div>`;
+  }
+
+  async function savePreorder() {
+    await api("/api/preorders", {
+      method: "POST",
+      body: JSON.stringify({
+        ...customerPayload("preCustomer"),
+        title: $("preTitle").value,
+        platform: $("prePlatform").value,
+        deposit: num($("preDeposit").value),
+        release_at: $("preRelease").value
+      })
+    });
+    ["preTitle", "prePlatform", "preDeposit", "preRelease"].forEach((id) => $(id).value = "");
+    await loadPreorders();
+  }
+
+  async function saveRepair() {
+    await api("/api/repairs", {
+      method: "POST",
+      body: JSON.stringify({
+        ...customerPayload("repCustomer"),
+        device: $("repDevice").value,
+        issue: $("repIssue").value,
+        estimate: num($("repEstimate").value),
+        due_at: $("repDue").value
+      })
+    });
+    ["repDevice", "repIssue", "repEstimate", "repDue"].forEach((id) => $(id).value = "");
+    await loadRepairs();
+  }
+
+  async function refreshAll() {
+    await loadCustomers();
+    await Promise.all([loadWishlistMatches(), loadLayaways(), loadBundles(), loadPreorders(), loadRepairs()]);
+  }
+
+  document.body.addEventListener("click", async (event) => {
+    try {
+      const target = event.target;
+      if (target.id === "btnRefresh") await refreshAll();
+      if (target.id === "btnSavePre") await savePreorder();
+      if (target.id === "btnSaveRepair") await saveRepair();
+      const layPay = target.getAttribute("data-lay-pay");
+      if (layPay) {
+        const amount = prompt("Payment amount:");
+        if (amount) { await api(`/api/layaways/${layPay}/payment`, { method: "POST", body: JSON.stringify({ amount: num(amount), method: "payment" }) }); await loadLayaways(); }
+      }
+      const layComplete = target.getAttribute("data-lay-complete");
+      if (layComplete) { await api(`/api/layaways/${layComplete}/complete`, { method: "POST", body: "{}" }); await loadLayaways(); await loadBundles(); }
+      const layCancel = target.getAttribute("data-lay-cancel");
+      if (layCancel && confirm("Cancel this layaway and return items to inventory?")) { await api(`/api/layaways/${layCancel}/cancel`, { method: "POST", body: "{}" }); await refreshAll(); }
+      const preStatus = target.getAttribute("data-pre-status");
+      if (preStatus) {
+        const [id, status] = preStatus.split(":");
+        await api(`/api/preorders/${id}`, { method: "PUT", body: JSON.stringify({ status }) });
+        await loadPreorders();
+      }
+      const repStatus = target.getAttribute("data-rep-status");
+      if (repStatus) {
+        const [id, status] = repStatus.split(":");
+        await api(`/api/repairs/${id}`, { method: "PUT", body: JSON.stringify({ status }) });
+        await loadRepairs();
+      }
+    } catch (err) {
+      alert(err.message || "Action failed");
+    }
+  });
+
+  ["layFilter", "preFilter", "repFilter"].forEach((id) => {
+    $(id).addEventListener("change", () => {
+      if (id === "layFilter") loadLayaways();
+      if (id === "preFilter") loadPreorders();
+      if (id === "repFilter") loadRepairs();
+    });
+  });
+
+  refreshAll().catch((err) => alert(err.message || "Load failed"));
+})();
+</script>
+</body>
+</html>

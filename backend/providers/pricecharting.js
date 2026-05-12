@@ -36,13 +36,17 @@ function parseResults(html) {
       if (ths.length) headers = ths;
       continue;
     }
-    const linkMatch = rowHtml.match(/<a[^>]+href="([^"]+)"[^>]*>([\s\S]*?)<\/a>/i);
+    const cellMatches = Array.from(rowHtml.matchAll(/<td[^>]*>([\s\S]*?)<\/td>/gi));
+    const cells = cellMatches.map(m => stripTags(m[1]));
+    if (!cells.length) continue;
+    const titleIndex = headers ? headers.findIndex(h => h.includes("title")) : -1;
+    const titleCellHtml = titleIndex >= 0 && cellMatches[titleIndex] ? cellMatches[titleIndex][1] : "";
+    const linkMatch = titleCellHtml.match(/<a[^>]+href="([^"]+)"[^>]*>([\s\S]*?)<\/a>/i)
+      || rowHtml.match(/<a[^>]+href="([^"]+)"[^>]*>([\s\S]*?)<\/a>/i);
     if (!linkMatch) continue;
     const href = linkMatch[1] || "";
     const url = href.startsWith("http") ? href : `https://www.pricecharting.com${href}`;
     const linkText = stripTags(linkMatch[2]);
-    const cells = Array.from(rowHtml.matchAll(/<td[^>]*>([\s\S]*?)<\/td>/gi)).map(m => stripTags(m[1]));
-    if (!cells.length) continue;
     let platform = "";
     let loose = "";
     let cib = "";
@@ -52,7 +56,7 @@ function parseResults(html) {
     if (headers && headers.length === cells.length) {
       headers.forEach((h, i) => {
         const val = cells[i];
-        if (h.includes("console") || h.includes("platform")) platform = val;
+        if (h.includes("console") || h.includes("platform") || h.includes("set")) platform = val;
         if (h.includes("loose")) loose = val;
         if (h.includes("cib") || h.includes("complete")) cib = val;
         if (h.includes("new")) newPrice = val;
@@ -73,27 +77,28 @@ function parseResults(html) {
       cib,
       new: newPrice,
       graded,
-      volume
+      volume,
+      pricesText: [loose, cib, newPrice, graded].filter(Boolean).join(" - ")
     });
     if (rows.length >= 5) break;
   }
   return rows;
 }
 
-async function fetchPricecharting({ title, platform }) {
+async function fetchPricecharting({ title, platform, refresh = false }) {
   const query = [title, platform].filter(Boolean).join(" ").trim();
   if (!query) {
     return { ok: false, error: "missing_query" };
   }
   const key = normalizeQuery(query);
   const cached = cache.get(key);
-  if (cached && Date.now() - cached.ts < CACHE_TTL_MS) {
+  if (!refresh && cached && Date.now() - cached.ts < CACHE_TTL_MS) {
     return { ok: true, cached: true, url: cached.url, results: cached.results, fetchedAt: cached.fetchedAt };
   }
   const url = buildSearchUrl(query);
   const res = await fetch(url, {
     headers: {
-      "User-Agent": "RetroCatzPOS/1.0 (+local)"
+      "User-Agent": "VaultCorePOS/1.0 (+local)"
     }
   });
   if (!res.ok) {

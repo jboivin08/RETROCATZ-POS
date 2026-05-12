@@ -1,4 +1,4 @@
-/* index.css — RetroCatz POS styling */
+/* index.css - VaultCore POS styling */
 /* ------------------------------------------ */
 /* Base POS styling (login, tables, etc.) */
 
@@ -228,6 +228,12 @@ menu {
   gap: 10px;
 }
 
+.top-right {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
 .quick-scan-card {
   background: rgba(15, 23, 42, 0.98);
   border-radius: 10px;
@@ -303,6 +309,69 @@ menu {
 
 .stats-row span {
   color: #9ca3af;
+}
+
+.tasks-card {
+  background: rgba(15, 23, 42, 0.98);
+  border-radius: 10px;
+  padding: 12px 14px;
+  border: 1px solid #1f2937;
+}
+
+.tasks-card header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.tasks-card h2 {
+  margin: 0;
+  font-size: 1rem;
+}
+
+.task-count-pill {
+  border: 1px solid rgba(56, 189, 248, 0.5);
+  border-radius: 999px;
+  padding: 2px 8px;
+  font-size: 0.75rem;
+  color: #bae6fd;
+}
+
+.task-mini-list {
+  display: grid;
+  gap: 8px;
+  margin: 8px 0 10px;
+}
+
+.task-mini-item {
+  display: grid;
+  gap: 2px;
+  padding: 8px;
+  border: 1px solid #1f2937;
+  border-radius: 8px;
+  background: #0b1224;
+}
+
+.task-mini-item strong {
+  font-size: 0.85rem;
+}
+
+.task-mini-item span {
+  color: #9ca3af;
+  font-size: 0.76rem;
+}
+
+.task-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.task-actions a {
+  color: #e8eef6;
+  text-decoration: none;
 }
 
 /* MAIN AREA: buttons + sidebar */
@@ -385,6 +454,8 @@ menu {
   display: flex;
   justify-content: flex-end;
   align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
   font-size: 0.9rem;
   color: #9ca3af;
 }
@@ -405,17 +476,17 @@ menu {
 }
 
 /* -------------------------------------------------- */
-/* Dashboard layout modes (1–5)                       */
+/* Dashboard layout modes (1-5)                       */
 /* These tweak the button grid mainly                 */
 /* -------------------------------------------------- */
 
-/* Layout 1 – default responsive tile grid */
+/* Layout 1 - default responsive tile grid */
 body[data-layout="1"] .dashboard-buttons.grid {
   grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
   gap: 16px;
 }
 
-/* Layout 2 – wider tiles, row-feel */
+/* Layout 2 - wider tiles, row-feel */
 body[data-layout="2"] .dashboard-buttons.grid {
   grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
   gap: 20px;
@@ -425,7 +496,7 @@ body[data-layout="2"] .dashboard-buttons.grid .btn {
   text-align: left;
 }
 
-/* Layout 3 – three-column console-style grid (when possible) */
+/* Layout 3 - three-column console-style grid (when possible) */
 body[data-layout="3"] .dashboard-buttons.grid {
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 18px;
@@ -443,7 +514,7 @@ body[data-layout="3"] .dashboard-buttons.grid {
   }
 }
 
-/* Layout 4 – stacked list */
+/* Layout 4 - stacked list */
 body[data-layout="4"] .dashboard-buttons.grid {
   display: flex;
   flex-direction: column;
@@ -458,7 +529,7 @@ body[data-layout="4"] .dashboard-buttons.grid .btn {
   align-items: flex-start;
 }
 
-/* Layout 5 – compact two-column big buttons */
+/* Layout 5 - compact two-column big buttons */
 body[data-layout="5"] .dashboard-buttons.grid {
   grid-template-columns: repeat(2, minmax(240px, 1fr));
   gap: 18px;

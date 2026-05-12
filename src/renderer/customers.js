@@ -35,14 +35,31 @@ const els = {
   ein: document.getElementById("custEin"),
   taxExempt: document.getElementById("custTaxExempt"),
   taxExemptExpires: document.getElementById("custTaxExemptExpires"),
+  taxExemptExpiresPresets: document.getElementById("custTaxExpiresPresets"),
   tags: document.getElementById("custTags"),
   flagged: document.getElementById("custFlagged"),
   flagReason: document.getElementById("custFlagReason"),
   storeCredit: document.getElementById("custStoreCredit"),
+  loyaltyPoints: document.getElementById("custLoyaltyPoints"),
+  loyaltyAdjustPoints: document.getElementById("custLoyaltyAdjustPoints"),
+  loyaltyReason: document.getElementById("custLoyaltyReason"),
+  loyaltyStatus: document.getElementById("custLoyaltyStatus"),
+  loyaltyHistory: document.getElementById("custLoyaltyHistory"),
+  btnApplyLoyalty: document.getElementById("btnApplyLoyalty"),
+  btnRedeemLoyalty: document.getElementById("btnRedeemLoyalty"),
   creditAmount: document.getElementById("custCreditAmount"),
   creditReason: document.getElementById("custCreditReason"),
   btnApplyCredit: document.getElementById("btnApplyCredit"),
   btnAddNote: document.getElementById("btnAddNote"),
+  wishTitle: document.getElementById("custWishTitle"),
+  wishPlatform: document.getElementById("custWishPlatform"),
+  wishMax: document.getElementById("custWishMax"),
+  wishNotes: document.getElementById("custWishNotes"),
+  btnAddWishlist: document.getElementById("btnAddWishlist"),
+  wishlistList: document.getElementById("custWishlistList"),
+  layawayList: document.getElementById("custLayawayList"),
+  preorderList: document.getElementById("custPreorderList"),
+  repairList: document.getElementById("custRepairList"),
   address1: document.getElementById("custAddress1"),
   address2: document.getElementById("custAddress2"),
   city: document.getElementById("custCity"),
@@ -69,8 +86,30 @@ function apiFetch(path, opts = {}) {
   return fetch(API_BASE + path, { ...opts, headers });
 }
 
+async function apiJson(path, opts = {}) {
+  const res = await apiFetch(path, opts);
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error(data.error || "request_failed");
+  return data;
+}
+
 function formatPhone(v) {
   return (v || "").trim();
+}
+
+function pill(text, className = "") {
+  const span = document.createElement("span");
+  span.className = `pill ${className}`.trim();
+  span.textContent = text;
+  return span;
+}
+
+function mutedEmpty(text) {
+  const div = document.createElement("div");
+  div.className = "muted";
+  div.style.padding = "10px";
+  div.textContent = text;
+  return div;
 }
 
 function renderList() {
@@ -86,15 +125,26 @@ function renderList() {
     customers.forEach((c) => {
       const row = document.createElement("div");
       row.className = "list-row" + (c.id === selectedId ? " active" : "");
-      row.innerHTML = `
-        <div>
-          <div><strong>${c.name || "(no name)"}</strong></div>
-          <div class="muted">${c.email || c.phone || ""}</div>
-        </div>
-        <div>${c.type || "regular"}</div>
-        <div>${c.tax_exempt ? '<span class="pill good">Exempt</span>' : '<span class="pill">Standard</span>'}</div>
-        <div>${c.active ? '<span class="pill good">Active</span>' : '<span class="pill warn">Inactive</span>'}</div>
-      `;
+      const main = document.createElement("div");
+      const nameWrap = document.createElement("div");
+      const strong = document.createElement("strong");
+      strong.textContent = c.name || "(no name)";
+      nameWrap.appendChild(strong);
+      const contact = document.createElement("div");
+      contact.className = "muted";
+      contact.textContent = c.email || c.phone || "";
+      main.appendChild(nameWrap);
+      main.appendChild(contact);
+      const type = document.createElement("div");
+      type.textContent = c.type || "regular";
+      const tax = document.createElement("div");
+      tax.appendChild(c.tax_exempt ? pill("Exempt", "good") : pill("Standard"));
+      const active = document.createElement("div");
+      active.appendChild(c.active ? pill("Active", "good") : pill("Inactive", "warn"));
+      row.appendChild(main);
+      row.appendChild(type);
+      row.appendChild(tax);
+      row.appendChild(active);
       row.addEventListener("click", () => selectCustomer(c.id));
       els.list.appendChild(row);
     });
@@ -148,20 +198,43 @@ function clearForm() {
   if (els.txnCount) els.txnCount.textContent = "0";
   if (els.lastVisit) els.lastVisit.textContent = "--";
   if (els.storeCredit) els.storeCredit.textContent = "$0.00";
+  if (els.loyaltyPoints) els.loyaltyPoints.textContent = "0";
+  if (els.loyaltyAdjustPoints) els.loyaltyAdjustPoints.value = "";
+  if (els.loyaltyReason) els.loyaltyReason.value = "";
+  if (els.loyaltyStatus) els.loyaltyStatus.textContent = "1 point per sale dollar. 100 points redeems to $5 store credit.";
   if (els.creditAmount) els.creditAmount.value = "";
   if (els.creditReason) els.creditReason.value = "";
+  if (els.wishTitle) els.wishTitle.value = "";
+  if (els.wishPlatform) els.wishPlatform.value = "";
+  if (els.wishMax) els.wishMax.value = "";
+  if (els.wishNotes) els.wishNotes.value = "";
   if (els.alerts) {
     els.alerts.style.display = "none";
-    els.alerts.innerHTML = "";
+    els.alerts.replaceChildren();
+  }
+  if (els.loyaltyHistory) {
+    els.loyaltyHistory.replaceChildren(mutedEmpty("No loyalty activity yet."));
+  }
+  if (els.wishlistList) {
+    els.wishlistList.replaceChildren(mutedEmpty("Select a customer to manage wishlist items."));
+  }
+  if (els.layawayList) {
+    els.layawayList.replaceChildren(mutedEmpty("No layaways loaded."));
+  }
+  if (els.preorderList) {
+    els.preorderList.replaceChildren(mutedEmpty("No preorders loaded."));
+  }
+  if (els.repairList) {
+    els.repairList.replaceChildren(mutedEmpty("No repairs loaded."));
   }
   if (els.history) {
-    els.history.innerHTML = '<div class="muted" style="padding:10px;">No history yet.</div>';
+    els.history.replaceChildren(mutedEmpty("No history yet."));
   }
   if (els.timeline) {
-    els.timeline.innerHTML = '<div class="muted" style="padding:10px;">No activity yet.</div>';
+    els.timeline.replaceChildren(mutedEmpty("No activity yet."));
   }
   if (els.dupeList) {
-    els.dupeList.innerHTML = '<div class="muted" style="padding:10px;">No duplicates loaded.</div>';
+    els.dupeList.replaceChildren(mutedEmpty("No duplicates loaded."));
   }
   syncEinVisibility();
 }
@@ -247,6 +320,7 @@ async function selectCustomer(id) {
   if (!data || !data.customer) return;
   populateForm(data.customer);
   renderHistory(data.summary, data.history, data.timeline, data.alerts, data.customer);
+  await loadCustomerWorkflows(data.customer.id);
   renderList();
 }
 
@@ -264,58 +338,189 @@ function renderHistory(summary, history, timeline, alerts, customer) {
     els.storeCredit.textContent = formatMoney(cents / 100);
     els.storeCredit.dataset.cents = String(cents);
   }
+  if (els.loyaltyPoints) {
+    els.loyaltyPoints.textContent = String(Number(customer?.loyalty_points || 0));
+  }
   if (els.alerts) {
     const rows = Array.isArray(alerts) ? alerts : [];
-    if (!rows.length) {
-      els.alerts.style.display = "none";
-      els.alerts.innerHTML = "";
-    } else {
-      els.alerts.style.display = "flex";
-      els.alerts.innerHTML = rows.map((a) => `<div>• ${a.message}</div>`).join("");
-    }
+    els.alerts.replaceChildren();
+    els.alerts.style.display = rows.length ? "flex" : "none";
+    rows.forEach((a) => {
+      const div = document.createElement("div");
+      div.textContent = `- ${a.message || ""}`;
+      els.alerts.appendChild(div);
+    });
   }
-
   if (els.timeline) {
     const rows = Array.isArray(timeline) ? timeline : [];
+    els.timeline.replaceChildren();
     if (!rows.length) {
-      els.timeline.innerHTML = '<div class="muted" style="padding:10px;">No activity yet.</div>';
+      els.timeline.appendChild(mutedEmpty("No activity yet."));
     } else {
-      els.timeline.innerHTML = rows.slice(0, 200).map((t) => {
+      rows.slice(0, 200).forEach((t) => {
+        const row = document.createElement("div");
+        row.className = "timeline-row";
+        const kind = document.createElement("div");
+        kind.className = "timeline-kind";
+        kind.textContent = t.kind || "event";
+        const title = document.createElement("div");
+        title.textContent = t.title || "";
+        const meta = document.createElement("div");
+        meta.style.textAlign = "right";
         const date = (t.created_at || "").split("T")[0];
         const amt = (typeof t.amount === "number") ? formatMoney(t.amount) : "";
-        return `
-          <div class="timeline-row">
-            <div class="timeline-kind">${t.kind || "event"}</div>
-            <div>${t.title || ""}</div>
-            <div style="text-align:right;">${date} ${amt}</div>
-          </div>
-        `;
-      }).join("");
+        meta.textContent = `${date} ${amt}`.trim();
+        row.append(kind, title, meta);
+        els.timeline.appendChild(row);
+      });
     }
   }
-
   if (!els.history) return;
   const rows = Array.isArray(history) ? history : [];
+  els.history.replaceChildren();
   if (!rows.length) {
-    els.history.innerHTML = '<div class="muted" style="padding:10px;">No history yet.</div>';
+    els.history.appendChild(mutedEmpty("No history yet."));
     return;
   }
+  rows.forEach((r) => {
+    const row = document.createElement("div");
+    row.className = "list-row";
+    const main = document.createElement("div");
+    const strong = document.createElement("strong");
+    strong.textContent = r.title || r.sku || "Item";
+    const sku = document.createElement("div");
+    sku.className = "muted";
+    sku.textContent = r.sku || "";
+    main.append(strong, sku);
+    const date = document.createElement("div");
+    date.textContent = (r.created_at || "").split("T")[0];
+    const qty = document.createElement("div");
+    qty.textContent = String(Number(r.qty || 0));
+    const total = document.createElement("div");
+    total.textContent = formatMoney(Number(r.line_total || 0));
+    row.append(main, date, qty, total);
+    els.history.appendChild(row);
+  });
+}
 
-  const html = rows.map((r) => {
-    const date = (r.created_at || "").split("T")[0];
-    const title = r.title || r.sku || "Item";
-    const qty = Number(r.qty || 0);
-    const total = formatMoney(Number(r.line_total || 0));
-    return `
-      <div class="list-row">
-        <div><strong>${title}</strong><div class="muted">${r.sku || ""}</div></div>
-        <div>${date}</div>
-        <div>${qty}</div>
-        <div>${total}</div>
-      </div>
-    `;
-  }).join("");
-  els.history.innerHTML = html;
+function miniMeta(parts) {
+  return parts.filter(Boolean).join(" - ");
+}
+
+function setEmptyList(target, text) {
+  if (!target) return;
+  target.replaceChildren(mutedEmpty(text));
+}
+
+function appendMiniRow(target, { title, meta, status, actions = [] }) {
+  const row = document.createElement("div");
+  row.className = "mini-row";
+  const left = document.createElement("div");
+  const main = document.createElement("div");
+  main.className = "mini-title";
+  main.textContent = title || "Untitled";
+  const sub = document.createElement("div");
+  sub.className = "mini-meta";
+  sub.textContent = meta || "";
+  left.append(main, sub);
+  const right = document.createElement("div");
+  right.style.display = "flex";
+  right.style.gap = "6px";
+  right.style.alignItems = "center";
+  right.style.justifyContent = "flex-end";
+  if (status) right.appendChild(pill(status, ["active", "open", "ready", "fulfilled", "completed"].includes(String(status).toLowerCase()) ? "good" : ""));
+  actions.forEach((action) => right.appendChild(action));
+  row.append(left, right);
+  target.appendChild(row);
+}
+
+function smallAction(label, dataset) {
+  const btn = document.createElement("button");
+  btn.className = "btn";
+  btn.style.padding = "5px 7px";
+  btn.style.fontSize = "11px";
+  btn.textContent = label;
+  Object.entries(dataset || {}).forEach(([key, value]) => {
+    btn.dataset[key] = String(value);
+  });
+  return btn;
+}
+
+function renderWishlistRows(rows) {
+  if (!els.wishlistList) return;
+  els.wishlistList.replaceChildren();
+  if (!rows.length) {
+    setEmptyList(els.wishlistList, "No wishlist items for this customer.");
+    return;
+  }
+  rows.forEach((w) => {
+    const matchCount = Array.isArray(w.matches) ? w.matches.length : 0;
+    const meta = miniMeta([
+      w.platform || "Any platform",
+      Number(w.max_price || 0) > 0 ? `Max ${formatMoney(Number(w.max_price || 0))}` : "",
+      matchCount ? `${matchCount} inventory match${matchCount === 1 ? "" : "es"}` : "No match"
+    ]);
+    const actions = [];
+    if (w.status === "active") {
+      actions.push(smallAction("Fulfill", { wishFulfill: w.id }));
+      actions.push(smallAction("Cancel", { wishCancel: w.id }));
+    }
+    appendMiniRow(els.wishlistList, { title: w.title, meta, status: w.status, actions });
+  });
+}
+
+function renderLoyaltyHistory(rows) {
+  if (!els.loyaltyHistory) return;
+  els.loyaltyHistory.replaceChildren();
+  if (!rows.length) {
+    setEmptyList(els.loyaltyHistory, "No loyalty activity yet.");
+    return;
+  }
+  rows.forEach((row) => {
+    const points = Number(row.points_delta || 0);
+    appendMiniRow(els.loyaltyHistory, {
+      title: `${points > 0 ? "+" : ""}${points} points`,
+      meta: miniMeta([(row.created_at || "").split("T")[0], row.reason || "", Number(row.amount || 0) ? formatMoney(Number(row.amount || 0)) : ""]),
+      status: ""
+    });
+  });
+}
+
+function renderSimpleWorkflowList(target, rows, emptyText, mapper) {
+  if (!target) return;
+  target.replaceChildren();
+  if (!rows.length) {
+    setEmptyList(target, emptyText);
+    return;
+  }
+  rows.forEach((row) => appendMiniRow(target, mapper(row)));
+}
+
+async function loadCustomerWorkflows(id) {
+  if (!id) return;
+  try {
+    const data = await apiJson(`/api/customers/${encodeURIComponent(id)}/workflows`);
+    renderWishlistRows(Array.isArray(data.wishlist) ? data.wishlist : []);
+    renderLoyaltyHistory(Array.isArray(data.loyalty) ? data.loyalty : []);
+    renderSimpleWorkflowList(els.layawayList, Array.isArray(data.layaways) ? data.layaways : [], "No layaways for this customer.", (l) => ({
+      title: l.label || `Layaway #${l.id}`,
+      meta: miniMeta([`Balance ${formatMoney(Number(l.balance || 0))}`, l.due_at ? `Due ${l.due_at}` : "No due date"]),
+      status: l.status
+    }));
+    renderSimpleWorkflowList(els.preorderList, Array.isArray(data.preorders) ? data.preorders : [], "No preorders for this customer.", (p) => ({
+      title: p.title,
+      meta: miniMeta([p.platform || "Any platform", p.release_at ? `Release ${p.release_at}` : "TBD", Number(p.deposit || 0) ? `Deposit ${formatMoney(Number(p.deposit || 0))}` : ""]),
+      status: p.status
+    }));
+    renderSimpleWorkflowList(els.repairList, Array.isArray(data.repairs) ? data.repairs : [], "No repairs for this customer.", (r) => ({
+      title: `${r.ticket_no || "Repair"} - ${r.device || ""}`.trim(),
+      meta: miniMeta([r.issue || "", Number(r.estimate || 0) ? `Estimate ${formatMoney(Number(r.estimate || 0))}` : "", r.due_at ? `Due ${r.due_at}` : ""]),
+      status: r.status
+    }));
+  } catch (err) {
+    console.warn("Failed to load customer workflow details", err);
+    setEmptyList(els.wishlistList, "Customer workflow details failed to load.");
+  }
 }
 
 async function addNote() {
@@ -355,32 +560,136 @@ async function applyCreditAdjustment() {
   await selectCustomer(selectedId);
 }
 
+async function applyLoyaltyAdjustment() {
+  if (!selectedId) {
+    alert("Select a customer first.");
+    return;
+  }
+  const points = Number(els.loyaltyAdjustPoints?.value || 0);
+  if (!Number.isFinite(points) || points === 0) return;
+  try {
+    await apiJson(`/api/customers/${encodeURIComponent(selectedId)}/loyalty/adjust`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ points, reason: els.loyaltyReason?.value || "Manual loyalty adjustment" })
+    });
+    if (els.loyaltyAdjustPoints) els.loyaltyAdjustPoints.value = "";
+    if (els.loyaltyReason) els.loyaltyReason.value = "";
+    if (els.loyaltyStatus) els.loyaltyStatus.textContent = "Loyalty points updated.";
+    await selectCustomer(selectedId);
+  } catch (err) {
+    alert("Loyalty update failed.");
+  }
+}
+
+async function redeemLoyalty() {
+  if (!selectedId) {
+    alert("Select a customer first.");
+    return;
+  }
+  try {
+    await apiJson(`/api/customers/${encodeURIComponent(selectedId)}/loyalty/redeem`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ points: 100 })
+    });
+    if (els.loyaltyStatus) els.loyaltyStatus.textContent = "Redeemed 100 points to $5 store credit.";
+    await selectCustomer(selectedId);
+  } catch (err) {
+    alert("This customer does not have enough points to redeem yet.");
+  }
+}
+
+async function addWishlistItem() {
+  if (!selectedId) {
+    alert("Select a customer first.");
+    return;
+  }
+  const title = (els.wishTitle?.value || "").trim();
+  if (!title) {
+    alert("Enter the item the customer wants.");
+    return;
+  }
+  try {
+    await apiJson("/api/wishlist", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        customer_id: selectedId,
+        customer_name: els.name?.value || "",
+        customer_phone: els.phone?.value || "",
+        customer_email: els.email?.value || "",
+        title,
+        platform: els.wishPlatform?.value || "",
+        max_price: Number(els.wishMax?.value || 0) || 0,
+        notes: els.wishNotes?.value || ""
+      })
+    });
+    if (els.wishTitle) els.wishTitle.value = "";
+    if (els.wishPlatform) els.wishPlatform.value = "";
+    if (els.wishMax) els.wishMax.value = "";
+    if (els.wishNotes) els.wishNotes.value = "";
+    await loadCustomerWorkflows(selectedId);
+  } catch (err) {
+    alert("Wishlist item could not be saved.");
+  }
+}
+
+async function updateWishlistStatus(id, status) {
+  if (!selectedId || !id) return;
+  try {
+    if (status === "cancelled") {
+      await apiJson(`/api/wishlist/${encodeURIComponent(id)}`, { method: "DELETE" });
+    } else {
+      await apiJson(`/api/wishlist/${encodeURIComponent(id)}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ status })
+      });
+    }
+    await loadCustomerWorkflows(selectedId);
+  } catch (err) {
+    alert("Wishlist status could not be updated.");
+  }
+}
+
 async function loadDuplicates() {
   if (!els.dupeList) return;
   const res = await apiFetch(`/api/customers/duplicates`);
   if (!res.ok) {
-    els.dupeList.innerHTML = '<div class="muted" style="padding:10px;">Failed to load duplicates.</div>';
+    els.dupeList.replaceChildren(mutedEmpty("Failed to load duplicates."));
     return;
   }
   const data = await res.json();
   const rows = Array.isArray(data.rows) ? data.rows : [];
   if (!rows.length) {
-    els.dupeList.innerHTML = '<div class="muted" style="padding:10px;">No duplicates found.</div>';
+    els.dupeList.replaceChildren(mutedEmpty("No duplicates found."));
     return;
   }
-  const html = rows.map((r) => {
-    const items = (r.items || []).map((c) => {
+  els.dupeList.replaceChildren();
+  rows.forEach((r) => {
+    const wrap = document.createElement("div");
+    wrap.style.padding = "8px 10px";
+    wrap.style.borderBottom = "1px solid #131a2a";
+
+    const title = document.createElement("div");
+    const strong = document.createElement("strong");
+    strong.textContent = r.key || "Duplicate group";
+    title.append(strong, document.createTextNode(` (${Number(r.count || 0)})`));
+
+    const items = document.createElement("div");
+    items.className = "muted";
+    (Array.isArray(r.items) ? r.items : []).forEach((c) => {
+      const item = document.createElement("div");
+      item.style.padding = "4px 0";
       const contact = c.phone || c.email || c.phone2 || c.email2 || "";
-      return `<div style="padding:4px 0;">#${c.id} • ${c.name || ""} • ${contact}</div>`;
-    }).join("");
-    return `
-      <div style="padding:8px 10px; border-bottom:1px solid #131a2a;">
-        <div><strong>${r.key}</strong> (${r.count})</div>
-        <div class="muted">${items}</div>
-      </div>
-    `;
-  }).join("");
-  els.dupeList.innerHTML = html;
+      item.textContent = `#${c.id} - ${c.name || ""} - ${contact}`;
+      items.appendChild(item);
+    });
+
+    wrap.append(title, items);
+    els.dupeList.appendChild(wrap);
+  });
 }
 
 async function mergeCustomers() {
@@ -546,6 +855,17 @@ function wireEvents() {
   if (els.btnToggleActive) els.btnToggleActive.addEventListener("click", toggleActive);
   if (els.btnAddNote) els.btnAddNote.addEventListener("click", addNote);
   if (els.btnApplyCredit) els.btnApplyCredit.addEventListener("click", applyCreditAdjustment);
+  if (els.btnApplyLoyalty) els.btnApplyLoyalty.addEventListener("click", applyLoyaltyAdjustment);
+  if (els.btnRedeemLoyalty) els.btnRedeemLoyalty.addEventListener("click", redeemLoyalty);
+  if (els.btnAddWishlist) els.btnAddWishlist.addEventListener("click", addWishlistItem);
+  if (els.wishlistList) {
+    els.wishlistList.addEventListener("click", (event) => {
+      const target = event.target.closest("button");
+      if (!target) return;
+      if (target.dataset.wishFulfill) updateWishlistStatus(target.dataset.wishFulfill, "fulfilled");
+      if (target.dataset.wishCancel) updateWishlistStatus(target.dataset.wishCancel, "cancelled");
+    });
+  }
   if (els.btnFindDupes) els.btnFindDupes.addEventListener("click", loadDuplicates);
   if (els.btnMergeCustomers) els.btnMergeCustomers.addEventListener("click", mergeCustomers);
   if (els.btnExportEmails) els.btnExportEmails.addEventListener("click", exportEmailsCsv);
@@ -572,8 +892,31 @@ function syncEinVisibility() {
   els.ein.style.display = isBiz ? "block" : "none";
 }
 
-document.addEventListener("DOMContentLoaded", () => {
+function installDatePresets() {
+  const helper = window.VaultCoreDatePresets;
+  if (!helper || !els.taxExemptExpiresPresets || !els.taxExemptExpires) return;
+  const addYears = (years) => {
+    const d = new Date();
+    return new Date(d.getFullYear() + years, d.getMonth(), d.getDate());
+  };
+  helper.installSingleDatePresets({
+    container: els.taxExemptExpiresPresets,
+    input: els.taxExemptExpires,
+    label: "Expires",
+    presets: [
+      { label: "+30 Days", get: () => helper.addDays(new Date(), 30) },
+      { label: "+60 Days", get: () => helper.addDays(new Date(), 60) },
+      { label: "+90 Days", get: () => helper.addDays(new Date(), 90) },
+      { label: "+1 Year", get: () => addYears(1) }
+    ]
+  });
+}
+
+document.addEventListener("DOMContentLoaded", async () => {
   clearForm();
+  installDatePresets();
   wireEvents();
-  loadCustomers();
+  await loadCustomers();
+  const initialCustomerId = Number(new URLSearchParams(window.location.search).get("customer_id") || 0);
+  if (initialCustomerId) await selectCustomer(initialCustomerId);
 });

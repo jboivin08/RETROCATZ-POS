@@ -220,6 +220,14 @@
     }
     .perm-item input { width: auto; }
 
+    .activity-table { min-width: 860px; }
+    .activity-meta {
+      max-width: 360px;
+      white-space: normal;
+      word-break: break-word;
+      color: var(--muted);
+    }
+
     #notice {
       min-height: 20px;
       font-size: 12px;
@@ -265,6 +273,8 @@
       .toolbar { grid-template-columns: 1fr; }
     }
   </style>
+  <script src="theme.js"></script>
+  <link rel="stylesheet" href="themes.css" />
 </head>
 <body>
   <div class="page-shell">
@@ -317,13 +327,14 @@
                 <th>Display Name</th>
                 <th>Role</th>
                 <th>Status</th>
+                <th>PIN</th>
                 <th>Created</th>
                 <th>Permissions</th>
                 <th>Actions</th>
               </tr>
             </thead>
             <tbody id="users-table">
-              <tr><td colspan="8" class="muted">Loading users...</td></tr>
+              <tr><td colspan="9" class="muted">Loading users...</td></tr>
             </tbody>
           </table>
         </div>
@@ -362,6 +373,7 @@
             <div class="form-actions">
               <button class="btn primary" type="submit">Save Profile & Permissions</button>
               <button class="btn" type="button" id="reset-password-btn">Reset Password</button>
+              <button class="btn" type="button" id="reset-pin-btn">Reset PIN</button>
               <button class="btn danger" type="button" id="delete-user-btn">Delete User</button>
               <button class="btn" type="button" id="cancel-edit">Cancel</button>
             </div>
@@ -383,6 +395,46 @@
               </div>
             </div>
           </form>
+
+          <form id="pin-form" style="display:none; margin-top:10px; border-top:1px solid rgba(159,178,214,.2); padding-top:10px;">
+            <div class="toolbar" style="grid-template-columns: 1fr 1fr auto; margin-bottom:0;">
+              <div>
+                <label for="pin1">New manager PIN</label>
+                <input id="pin1" name="pin1" type="password" inputmode="numeric" pattern="[0-9]{4,12}" minlength="4" maxlength="12" required />
+              </div>
+              <div>
+                <label for="pin2">Confirm PIN</label>
+                <input id="pin2" name="pin2" type="password" inputmode="numeric" pattern="[0-9]{4,12}" minlength="4" maxlength="12" required />
+              </div>
+              <div style="display:flex; align-items:flex-end; gap:8px;">
+                <button class="btn warn" type="submit">Update PIN</button>
+                <button class="btn" type="button" id="cancel-pin">Close</button>
+              </div>
+            </div>
+          </form>
+        </section>
+
+        <section id="activity-panel" class="panel" style="margin-top:12px; display:none; padding:10px;">
+          <h2>
+            Activity Log
+            <span class="muted" id="activity-label">Select a user</span>
+          </h2>
+          <div class="table-wrap">
+            <table class="activity-table">
+              <thead>
+                <tr>
+                  <th>Time</th>
+                  <th>User</th>
+                  <th>Action</th>
+                  <th>Screen</th>
+                  <th>Details</th>
+                </tr>
+              </thead>
+              <tbody id="activity-table">
+                <tr><td colspan="5" class="muted">Select a user to see activity.</td></tr>
+              </tbody>
+            </table>
+          </div>
         </section>
 
         <div id="notice" aria-live="polite"></div>
@@ -417,6 +469,12 @@
 
         <label for="create-password2">Confirm password</label>
         <input id="create-password2" name="password2" type="password" required minlength="8" />
+
+        <label for="create-pin">Manager PIN</label>
+        <input id="create-pin" name="pin" type="password" inputmode="numeric" pattern="[0-9]{4,12}" minlength="4" maxlength="12" placeholder="Optional, 4-12 digits" />
+
+        <label for="create-pin2">Confirm PIN</label>
+        <input id="create-pin2" name="pin2" type="password" inputmode="numeric" pattern="[0-9]{4,12}" minlength="4" maxlength="12" placeholder="Optional" />
 
         <label>
           <input id="create-active" name="active" type="checkbox" checked style="width:auto; margin-right:6px;" />

@@ -1,0 +1,530 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>Register Closeout - VaultCore POS</title>
+<meta http-equiv="Content-Security-Policy"
+      content="default-src 'self' file:;
+               img-src 'self' file: data: http://127.0.0.1:5175 http://localhost:5175;
+               script-src 'self' 'unsafe-inline';
+               connect-src 'self' http://127.0.0.1:5175 http://localhost:5175;
+               style-src 'self' 'unsafe-inline'">
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<style>
+  :root {
+    --bg:#0b0b0d;
+    --panel:#111827;
+    --panel-2:#0f172a;
+    --border:#374151;
+    --text:#e5e7eb;
+    --muted:#9ca3af;
+    --blue:#2563eb;
+    --green:#22c55e;
+    --red:#ef4444;
+    --yellow:#f59e0b;
+    --row-hover:#14161b;
+  }
+  * { box-sizing:border-box; }
+  body { margin:16px; background:var(--bg); color:var(--text); font-family:system-ui, sans-serif; }
+  .page-shell { max-width:1380px; margin:0 auto; width:100%; }
+  .toolbar {
+    display:flex;
+    align-items:center;
+    gap:10px;
+    background:#091226;
+    padding:12px;
+    border-radius:8px;
+    border:1px solid #0e1b36;
+    flex-wrap:wrap;
+  }
+  .toolbar h1 { margin:0; font-size:20px; font-weight:700; }
+  .logo { height:22px; width:auto; display:block; }
+  .toolbar-spacer { flex:1; }
+  .btn {
+    padding:8px 12px;
+    border:1px solid var(--border);
+    border-radius:8px;
+    background:#0c0c0f;
+    color:var(--text);
+    cursor:pointer;
+    font-size:13px;
+    white-space:nowrap;
+  }
+  .btn:hover { border-color:#596274; box-shadow:0 0 0 1px rgba(148,163,184,.35); }
+  .btn.primary { background:var(--blue); border-color:var(--blue); }
+  .btn.success { background:#166534; border-color:#22c55e; }
+  .btn.ghost { background:transparent; }
+  .input, .select, textarea {
+    padding:8px 10px;
+    border:1px solid var(--border);
+    border-radius:8px;
+    background:#000;
+    color:var(--text);
+    width:100%;
+  }
+  textarea { resize:vertical; }
+  label { display:block; font-size:12px; color:var(--muted); margin-bottom:6px; }
+  .row { display:flex; gap:8px; flex-wrap:wrap; align-items:end; margin:10px 0 12px; }
+  .field { min-width:160px; flex:1; }
+  .field.small { max-width:190px; }
+  .muted { color:var(--muted); }
+  .small { font-size:12px; color:var(--muted); }
+  .panel { background:var(--panel); border:1px solid var(--border); border-radius:12px; padding:12px; margin-top:12px; }
+  .panel h2 {
+    margin:0 0 10px;
+    font-size:14px;
+    text-transform:uppercase;
+    letter-spacing:.08em;
+    color:var(--muted);
+  }
+  .grid-2 {
+    display:grid;
+    grid-template-columns:minmax(0, 1fr) minmax(360px, .8fr);
+    gap:12px;
+  }
+  .grid-3 {
+    display:grid;
+    grid-template-columns:repeat(3, minmax(0, 1fr));
+    gap:10px;
+  }
+  .kpi {
+    display:grid;
+    grid-template-columns:repeat(auto-fit, minmax(150px, 1fr));
+    gap:10px;
+  }
+  .kpi-card {
+    border:1px solid var(--border);
+    border-radius:10px;
+    padding:10px;
+    background:#0c1017;
+  }
+  .kpi-card .label { margin:0; font-size:11px; color:var(--muted); }
+  .kpi-card .value { font-size:18px; font-weight:700; margin-top:4px; }
+  .table-wrap {
+    border:1px solid var(--border);
+    border-radius:10px;
+    overflow-x:auto;
+    overflow-y:hidden;
+  }
+  table { width:100%; border-collapse:collapse; }
+  thead th { text-align:left; font-weight:600; color:#cbd5e1; background:#0d0d10; padding:10px; border-bottom:1px solid #1f2937; }
+  tbody td { padding:10px; border-bottom:1px solid rgba(148,163,184,.10); }
+  tbody tr:nth-child(even) { background:rgba(255,255,255,.015); }
+  tbody tr:hover { background:var(--row-hover); }
+  .right { text-align:right; font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; }
+  .pill {
+    display:inline-flex;
+    align-items:center;
+    padding:2px 8px;
+    border-radius:999px;
+    border:1px solid var(--border);
+    color:#cbd5e1;
+    background:#0b1224;
+    font-size:11px;
+  }
+  .pill.closed { border-color:rgba(34,197,94,.65); color:#bbf7d0; }
+  .pill.draft { border-color:rgba(245,158,11,.65); color:#fde68a; }
+  .variance-good { color:#bbf7d0; }
+  .variance-bad { color:#fecaca; }
+  .cash-total {
+    border:1px solid var(--border);
+    border-radius:10px;
+    background:#0c1017;
+    padding:10px;
+  }
+  .cash-total .amount { font-size:24px; font-weight:800; margin-top:4px; }
+  @media (max-width: 1000px) {
+    .grid-2, .grid-3 { grid-template-columns:1fr; }
+    .field.small { max-width:none; }
+  }
+</style>
+  <script src="theme.js"></script>
+  <link rel="stylesheet" href="themes.css" />
+</head>
+<body>
+  <div class="page-shell">
+    <div class="toolbar">
+      <img class="logo" src="assets/VaultCore_Logo_White.png" alt="VaultCore" />
+      <h1>Register Closeout</h1>
+      <button class="btn" id="btnBack">Back to Dashboard</button>
+      <span class="toolbar-spacer"></span>
+      <span class="pill draft" id="closeoutStatus">Draft</span>
+      <span class="small" id="statusText">Ready</span>
+    </div>
+
+    <div class="panel">
+      <div class="row">
+        <div class="field small">
+          <label for="businessDate">Business Date</label>
+          <input class="input" type="date" id="businessDate" />
+          <div id="closeoutDatePresets"></div>
+        </div>
+        <button class="btn primary" id="btnRefresh">Refresh</button>
+        <button class="btn ghost" id="btnPrint">Print</button>
+      </div>
+    </div>
+
+    <div class="grid-2">
+      <section>
+        <div class="panel">
+          <h2>Register Totals</h2>
+          <div class="kpi" id="summaryCards"></div>
+        </div>
+
+        <div class="panel">
+          <h2>Payment Mix</h2>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Type</th>
+                  <th class="right">Sales</th>
+                  <th class="right">Refunds</th>
+                  <th class="right">Net</th>
+                </tr>
+              </thead>
+              <tbody id="paymentBody"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="panel">
+          <h2>History</h2>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Date</th>
+                  <th>Status</th>
+                  <th class="right">Net Sales</th>
+                  <th class="right">Expected Cash</th>
+                  <th class="right">Counted</th>
+                  <th class="right">Variance</th>
+                </tr>
+              </thead>
+              <tbody id="historyBody"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <aside>
+        <div class="panel">
+          <h2>Cash Count</h2>
+          <div class="grid-3">
+            <div>
+              <label for="openingCash">Opening Cash</label>
+              <input class="input money-input" id="openingCash" inputmode="decimal" placeholder="0.00" />
+            </div>
+            <div>
+              <label for="paidIn">Paid In</label>
+              <input class="input money-input" id="paidIn" inputmode="decimal" placeholder="0.00" />
+            </div>
+            <div>
+              <label for="paidOut">Paid Out</label>
+              <input class="input money-input" id="paidOut" inputmode="decimal" placeholder="0.00" />
+            </div>
+            <div>
+              <label for="countedCash">Counted Cash</label>
+              <input class="input money-input" id="countedCash" inputmode="decimal" placeholder="0.00" />
+            </div>
+            <div class="cash-total">
+              <div class="small">Expected Cash</div>
+              <div class="amount" id="expectedCash">$0.00</div>
+            </div>
+            <div class="cash-total">
+              <div class="small">Variance</div>
+              <div class="amount" id="varianceCash">$0.00</div>
+            </div>
+          </div>
+          <div style="margin-top:10px;">
+            <label for="notes">Notes</label>
+            <textarea id="notes" rows="5" placeholder="Drawer notes"></textarea>
+          </div>
+          <div class="row">
+            <button class="btn primary" id="btnSaveDraft">Save Draft</button>
+            <button class="btn success" id="btnCloseDay">Close Day</button>
+          </div>
+        </div>
+      </aside>
+    </div>
+  </div>
+
+<script src="date-presets.js"></script>
+<script>
+(() => {
+  const API_BASE = "http://127.0.0.1:5175";
+  const els = {
+    businessDate: document.getElementById("businessDate"),
+    closeoutDatePresets: document.getElementById("closeoutDatePresets"),
+    statusText: document.getElementById("statusText"),
+    closeoutStatus: document.getElementById("closeoutStatus"),
+    summaryCards: document.getElementById("summaryCards"),
+    paymentBody: document.getElementById("paymentBody"),
+    historyBody: document.getElementById("historyBody"),
+    openingCash: document.getElementById("openingCash"),
+    paidIn: document.getElementById("paidIn"),
+    paidOut: document.getElementById("paidOut"),
+    countedCash: document.getElementById("countedCash"),
+    expectedCash: document.getElementById("expectedCash"),
+    varianceCash: document.getElementById("varianceCash"),
+    notes: document.getElementById("notes"),
+    btnRefresh: document.getElementById("btnRefresh"),
+    btnSaveDraft: document.getElementById("btnSaveDraft"),
+    btnCloseDay: document.getElementById("btnCloseDay"),
+    btnPrint: document.getElementById("btnPrint"),
+    btnBack: document.getElementById("btnBack")
+  };
+
+  let currentMetrics = null;
+  let closeoutSettings = {
+    variance_warn_cents: 500,
+    require_note_on_variance: true,
+    require_opening_cash: false
+  };
+
+  function headers() {
+    return {
+      "Content-Type": "application/json",
+      "rc_session_id": localStorage.getItem("rc_session_id") || ""
+    };
+  }
+
+  function setStatus(text) {
+    els.statusText.textContent = text;
+  }
+
+  function fmtMoney(value) {
+    return "$" + Number(value || 0).toFixed(2);
+  }
+
+  function moneyInput(el) {
+    const value = String(el.value || "").replace(/[^0-9.-]/g, "");
+    const n = Number(value || 0);
+    return Number.isFinite(n) ? n : 0;
+  }
+
+  function setMoneyInput(el, value) {
+    el.value = Number(value || 0).toFixed(2);
+  }
+
+  async function apiGet(path) {
+    const res = await fetch(API_BASE + path, { headers: headers() });
+    if (res.status === 401) {
+      localStorage.removeItem("rc_session_id");
+      window.location.href = "../../public/index.html";
+      throw new Error("session_invalid");
+    }
+    const text = await res.text();
+    const data = text ? JSON.parse(text) : {};
+    if (!res.ok) throw new Error(data.error || "Request failed");
+    return data;
+  }
+
+  async function apiPost(path, body) {
+    const res = await fetch(API_BASE + path, {
+      method: "POST",
+      headers: headers(),
+      body: JSON.stringify(body || {})
+    });
+    if (res.status === 401) {
+      localStorage.removeItem("rc_session_id");
+      window.location.href = "../../public/index.html";
+      throw new Error("session_invalid");
+    }
+    const text = await res.text();
+    const data = text ? JSON.parse(text) : {};
+    if (!res.ok) throw new Error(data.error || "Request failed");
+    return data;
+  }
+
+  function todayInput() {
+    const d = new Date();
+    const local = new Date(d.getFullYear(), d.getMonth(), d.getDate());
+    return local.toISOString().slice(0, 10);
+  }
+
+  function kpi(label, value) {
+    const div = document.createElement("div");
+    div.className = "kpi-card";
+    div.innerHTML = `<div class="label">${label}</div><div class="value">${value}</div>`;
+    return div;
+  }
+
+  function renderSummary(metrics) {
+    els.summaryCards.innerHTML = "";
+    els.summaryCards.appendChild(kpi("Gross Sales", fmtMoney(metrics.total_sales)));
+    els.summaryCards.appendChild(kpi("Refunds", fmtMoney(metrics.total_refunds)));
+    els.summaryCards.appendChild(kpi("Net Sales", fmtMoney(metrics.net_sales)));
+    els.summaryCards.appendChild(kpi("Transactions", String(metrics.transaction_count || 0)));
+    els.summaryCards.appendChild(kpi("Items Sold", String(metrics.item_count || 0)));
+  }
+
+  function renderPayments(metrics) {
+    const rows = [
+      ["Cash", metrics.cash_sales, metrics.cash_refunds],
+      ["Card", metrics.card_sales, 0],
+      ["Store Credit", metrics.store_credit_sales, 0],
+      ["Other", metrics.other_sales, 0]
+    ];
+    els.paymentBody.innerHTML = rows.map(([label, sales, refunds]) => {
+      const net = Number(sales || 0) - Number(refunds || 0);
+      return `
+        <tr>
+          <td>${label}</td>
+          <td class="right">${fmtMoney(sales)}</td>
+          <td class="right">${fmtMoney(refunds)}</td>
+          <td class="right">${fmtMoney(net)}</td>
+        </tr>
+      `;
+    }).join("");
+  }
+
+  function renderStatus(closeout) {
+    const status = closeout?.status || "draft";
+    els.closeoutStatus.textContent = status === "closed" ? "Closed" : "Draft";
+    els.closeoutStatus.classList.toggle("closed", status === "closed");
+    els.closeoutStatus.classList.toggle("draft", status !== "closed");
+  }
+
+  function recalcCash() {
+    if (!currentMetrics) return;
+    const opening = moneyInput(els.openingCash);
+    const paidIn = moneyInput(els.paidIn);
+    const paidOut = moneyInput(els.paidOut);
+    const counted = moneyInput(els.countedCash);
+    const expected = opening + paidIn - paidOut + Number(currentMetrics.cash_sales || 0) - Number(currentMetrics.cash_refunds || 0);
+    const variance = counted - expected;
+    els.expectedCash.textContent = fmtMoney(expected);
+    els.varianceCash.textContent = fmtMoney(variance);
+    const warn = Number(closeoutSettings.variance_warn_cents || 0) / 100;
+    const isBad = warn > 0 ? Math.abs(variance) >= warn : Math.abs(variance) >= 0.005;
+    els.varianceCash.classList.toggle("variance-good", !isBad);
+    els.varianceCash.classList.toggle("variance-bad", isBad);
+  }
+
+  async function loadCloseout() {
+    const date = els.businessDate.value || todayInput();
+    setStatus("Loading closeout...");
+    const data = await apiGet(`/api/register/closeout?date=${encodeURIComponent(date)}`);
+    const metrics = data.metrics || {};
+    const closeout = data.closeout || null;
+    closeoutSettings = data.settings || closeoutSettings;
+    currentMetrics = metrics;
+
+    setMoneyInput(els.openingCash, closeout ? closeout.opening_cash : metrics.opening_cash);
+    setMoneyInput(els.paidIn, closeout ? closeout.paid_in : metrics.paid_in);
+    setMoneyInput(els.paidOut, closeout ? closeout.paid_out : metrics.paid_out);
+    setMoneyInput(els.countedCash, closeout ? closeout.counted_cash : metrics.counted_cash);
+    els.notes.value = closeout?.notes || "";
+
+    renderSummary(metrics);
+    renderPayments(metrics);
+    renderStatus(closeout);
+    recalcCash();
+    setStatus("Closeout loaded");
+  }
+
+  async function loadHistory() {
+    const data = await apiGet("/api/register/closeouts?limit=30");
+    const rows = data.rows || [];
+    if (!rows.length) {
+      els.historyBody.innerHTML = `<tr><td colspan="6" class="muted">No closeouts saved yet</td></tr>`;
+      return;
+    }
+    els.historyBody.innerHTML = rows.map((r) => {
+      const cls = Number(r.variance || 0) === 0 ? "variance-good" : "variance-bad";
+      return `
+        <tr>
+          <td>${r.business_date}</td>
+          <td><span class="pill ${r.status === "closed" ? "closed" : "draft"}">${r.status}</span></td>
+          <td class="right">${fmtMoney(r.net_sales)}</td>
+          <td class="right">${fmtMoney(r.expected_cash)}</td>
+          <td class="right">${fmtMoney(r.counted_cash)}</td>
+          <td class="right ${cls}">${fmtMoney(r.variance)}</td>
+        </tr>
+      `;
+    }).join("");
+  }
+
+  async function refreshAll() {
+    try {
+      await loadCloseout();
+      await loadHistory();
+    } catch (err) {
+      console.error(err);
+      setStatus("Load failed");
+      alert("Closeout load failed: " + err.message);
+    }
+  }
+
+  async function saveCloseout(status) {
+    const date = els.businessDate.value || todayInput();
+    const body = {
+      business_date: date,
+      status,
+      opening_cash: moneyInput(els.openingCash),
+      paid_in: moneyInput(els.paidIn),
+      paid_out: moneyInput(els.paidOut),
+      counted_cash: moneyInput(els.countedCash),
+      notes: els.notes.value || ""
+    };
+    if (status === "closed") {
+      if (closeoutSettings.require_opening_cash && moneyInput(els.openingCash) <= 0) {
+        alert("Opening cash is required before closing the day.");
+        return;
+      }
+      const threshold = Number(closeoutSettings.variance_warn_cents || 0) / 100;
+      const varianceText = String(els.varianceCash.textContent || "").replace(/[^0-9.-]/g, "");
+      const variance = Number(varianceText || 0);
+      if (closeoutSettings.require_note_on_variance && threshold > 0 && Math.abs(variance) >= threshold && !body.notes) {
+        alert("Add a note explaining the cash variance before closing the day.");
+        return;
+      }
+      const ok = confirm("Close this business day? You can still reopen/update it as a manager, but this records the closeout.");
+      if (!ok) return;
+    }
+    try {
+      setStatus(status === "closed" ? "Closing day..." : "Saving draft...");
+      await apiPost("/api/register/closeout", body);
+      await refreshAll();
+      setStatus(status === "closed" ? "Day closed" : "Draft saved");
+    } catch (err) {
+      console.error(err);
+      setStatus("Save failed");
+      if (err.message === "closeout_note_required") {
+        alert("Add a note explaining the cash variance before closing the day.");
+      } else if (err.message === "opening_cash_required") {
+        alert("Opening cash is required before closing the day.");
+      } else {
+        alert("Closeout save failed: " + err.message);
+      }
+    }
+  }
+
+  els.btnRefresh.addEventListener("click", refreshAll);
+  els.btnSaveDraft.addEventListener("click", () => saveCloseout("draft"));
+  els.btnCloseDay.addEventListener("click", () => saveCloseout("closed"));
+  els.btnPrint.addEventListener("click", () => window.print());
+  els.btnBack.addEventListener("click", () => { window.location.href = "index.html"; });
+  [els.openingCash, els.paidIn, els.paidOut, els.countedCash].forEach((el) => {
+    el.addEventListener("input", recalcCash);
+    el.addEventListener("blur", () => setMoneyInput(el, moneyInput(el)));
+  });
+  els.businessDate.addEventListener("change", refreshAll);
+
+  els.businessDate.value = todayInput();
+  if (window.VaultCoreDatePresets) {
+    window.VaultCoreDatePresets.installSingleDatePresets({
+      container: els.closeoutDatePresets,
+      input: els.businessDate,
+      presets: ["today", "yesterday", "previous", "next"],
+      onApply: refreshAll,
+      label: false
+    });
+  }
+  refreshAll();
+})();
+</script>
+</body>
+</html>

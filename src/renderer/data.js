@@ -1,5 +1,5 @@
 // ==============================
-// RetroCatz POS • Data Helpers
+// VaultCore POS - Data Helpers
 // ==============================
 
 // -------- Formatters ----------
@@ -192,7 +192,7 @@ export const ALL_PLATFORMS = [
   'Other'
 ];
 
-export const CATEGORIES = ['Games','Console','Accessory','Apparel','Music','Movie','Other'];
+export const CATEGORIES = ['Games','Consoles','Accessories','Apparel','Music','Movies','Other'];
 export const CONDITIONS = ['New','Like New','Very Good','Good','Acceptable','Poor'];
 
 // ========== Local persistence (IndexedDB) ==========

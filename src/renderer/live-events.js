@@ -1,6 +1,7 @@
 (() => {
   const API_BASE = 'http://127.0.0.1:5175';
   const API_ITEMS = API_BASE + '/api/items';
+  const API_EVENTS = API_BASE + '/api/live-events';
 
   // Auth header pattern (matches your inventory.html)
   function getAuthHeaders() {
@@ -15,6 +16,7 @@
 
   const btnBack = $('btnBack');
   const appStatus = $('appStatus');
+  const createSaveDetail = $('createSaveDetail');
 
   // Views
   const viewLanding = $('viewLanding');
@@ -118,6 +120,23 @@
     else appStatus.style.borderColor = 'rgba(148,163,184,0.35)';
   }
 
+  function setCreateDetail(text) {
+    if (createSaveDetail) createSaveDetail.textContent = text || '';
+  }
+
+  async function fetchWithTimeout(url, options = {}, timeoutMs = 6000) {
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), timeoutMs);
+    try {
+      return await fetch(url, { ...options, signal: options.signal || controller.signal });
+    } catch (err) {
+      if (err && err.name === 'AbortError') throw new Error('server_timeout');
+      throw err;
+    } finally {
+      clearTimeout(timer);
+    }
+  }
+
   function loadEvents() {
     try {
       const raw = localStorage.getItem(STORAGE_KEY);
@@ -128,8 +147,98 @@
     }
   }
 
-  function saveEvents() {
+  function readLocalEvents() {
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      const parsed = raw ? JSON.parse(raw) : [];
+      return Array.isArray(parsed) ? parsed : [];
+    } catch {
+      return [];
+    }
+  }
+
+  function eventUpdatedMs(ev) {
+    const updated = Date.parse(ev?.updatedAt || ev?.updated_at || ev?.createdAt || ev?.created_at || '');
+    return Number.isFinite(updated) ? updated : 0;
+  }
+
+  function mergeEventLists(localRows, backendRows) {
+    const byId = new Map();
+    for (const ev of [...(backendRows || []), ...(localRows || [])]) {
+      if (!ev || !ev.id) continue;
+      const existing = byId.get(ev.id);
+      if (!existing || eventUpdatedMs(ev) >= eventUpdatedMs(existing)) {
+        byId.set(ev.id, ev);
+      }
+    }
+    return [...byId.values()].sort((a, b) => eventUpdatedMs(b) - eventUpdatedMs(a));
+  }
+
+  function persistEventsLocal() {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(events));
+  }
+
+  async function loadEventsFromBackend() {
+    const localRows = readLocalEvents();
+    events = localRows;
+    try {
+      const res = await fetchWithTimeout(API_EVENTS, { cache: 'no-store', headers: { ...getAuthHeaders() } });
+      if (!res.ok) throw new Error(`live_events_load_${res.status}`);
+      const data = await res.json().catch(() => ({}));
+      const backendRows = Array.isArray(data.rows) ? data.rows : [];
+      events = mergeEventLists(localRows, backendRows);
+      persistEventsLocal();
+      if (localRows.length && events.length >= backendRows.length) {
+        clearTimeout(saveEventsTimer);
+        saveEventsTimer = setTimeout(syncEventsToBackend, 250);
+      }
+    } catch (err) {
+      console.warn('Live events backend unavailable, using local fallback', err);
+      events = localRows;
+      persistEventsLocal();
+      setCreateDetail('VaultCore server is offline or still starting. Events will save locally.');
+    }
+  }
+
+  let saveEventsTimer = null;
+  function saveEvents() {
+    persistEventsLocal();
+    clearTimeout(saveEventsTimer);
+    saveEventsTimer = setTimeout(syncEventsToBackend, 150);
+  }
+
+  async function syncEventsToBackend() {
+    try {
+      let failed = 0;
+      for (const ev of events) {
+        const res = await fetchWithTimeout(API_EVENTS, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', ...getAuthHeaders() },
+          body: JSON.stringify(ev)
+        });
+        if (!res.ok) failed += 1;
+      }
+      if (failed) setStatus('Event saved locally; server sync pending', 'warn');
+      else setCreateDetail('Saved locally and synced to VaultCore.');
+    } catch (err) {
+      console.warn('Live events sync failed', err);
+      setStatus('Event saved locally; server sync pending', 'warn');
+      setCreateDetail('Saved locally. VaultCore sync is pending.');
+    }
+  }
+
+  function deleteEventFromBackend(id) {
+    fetchWithTimeout(`${API_EVENTS}/${encodeURIComponent(id)}`, {
+      method: 'DELETE',
+      headers: { ...getAuthHeaders() }
+    }).catch((err) => console.warn('Live event delete sync failed', err));
+  }
+
+  function clearEventsFromBackend() {
+    fetchWithTimeout(API_EVENTS, {
+      method: 'DELETE',
+      headers: { ...getAuthHeaders() }
+    }).catch((err) => console.warn('Live event clear sync failed', err));
   }
 
   function getEventById(id) {
@@ -182,8 +291,8 @@
 
   // -------- Inventory API --------
   async function loadInventory() {
-    setStatus('Loading inventory…', 'warn');
-    const res = await fetch(API_ITEMS, { cache: 'no-store', headers: { ...getAuthHeaders() } });
+    setStatus('Loading inventory...', 'warn');
+    const res = await fetchWithTimeout(API_ITEMS, { cache: 'no-store', headers: { ...getAuthHeaders() } });
     if (!res.ok) throw new Error(`Inventory API failed: ${res.status}`);
     const data = await res.json();
     itemsCache = Array.isArray(data) ? data : (data.items || []);
@@ -226,7 +335,7 @@
   // -------- Override input sync (NEVER overwrite while typing) --------
   function syncOverrideInputFromEvent(ev) {
     if (!overrideTotalSold || !ev) return;
-    if (document.activeElement === overrideTotalSold) return; // user is typing, don’t fight them
+    if (document.activeElement === overrideTotalSold) return; // user is typing, don't fight them
 
     const v = ev.overrideTotalSold;
     overrideTotalSold.value = (v === null || v === undefined || v === '') ? '' : String(v);
@@ -237,7 +346,7 @@
     const ev = currentEventId ? getEventById(currentEventId) : null;
     if (isLocked(ev)) return;
 
-    // Always store the raw string (so typing doesn’t get “fixed” mid-entry)
+    // Always store the raw string (so typing doesn't get "fixed" mid-entry)
     ev.overrideTotalSoldRaw = String(overrideTotalSold.value ?? '');
 
     if (commitNumber) {
@@ -299,10 +408,10 @@
     const avgSold = units > 0 ? (totals.gross / units) : 0;
     const margin = totals.gross > 0 ? (totals.profit / totals.gross) : 0;
 
-    if (ccItemsPerMin) ccItemsPerMin.textContent = (units > 0 ? itemsPerMin.toFixed(2) : '—');
-    if (ccGrossPerHr) ccGrossPerHr.textContent = (totals.gross > 0 ? fmt$(grossPerHr) : '—');
-    if (ccAvgSold) ccAvgSold.textContent = (units > 0 ? fmt$(avgSold) : '—');
-    if (ccMargin) ccMargin.textContent = (totals.gross > 0 ? `${(margin * 100).toFixed(1)}%` : '—');
+    if (ccItemsPerMin) ccItemsPerMin.textContent = (units > 0 ? itemsPerMin.toFixed(2) : '-');
+    if (ccGrossPerHr) ccGrossPerHr.textContent = (totals.gross > 0 ? fmt$(grossPerHr) : '-');
+    if (ccAvgSold) ccAvgSold.textContent = (units > 0 ? fmt$(avgSold) : '-');
+    if (ccMargin) ccMargin.textContent = (totals.gross > 0 ? `${(margin * 100).toFixed(1)}%` : '-');
   }
 
   function startKpiLoop() {
@@ -343,7 +452,7 @@
     viewEditor.classList.remove('hidden');
 
     editorName.textContent = ev.name || '(untitled event)';
-    editorMeta.textContent = `${ev.channel || 'other'} • created ${niceDate(ev.createdAt)} • updated ${niceDate(ev.updatedAt)}`;
+    editorMeta.textContent = `${ev.channel || 'other'} - created ${niceDate(ev.createdAt)} - updated ${niceDate(ev.updatedAt)}`;
 
     if (editorChannel) {
       editorChannel.value = ev.channel || 'other';
@@ -378,7 +487,7 @@
       smartSearch.disabled = false;
       btnClearLines.disabled = false;
       if (btnVoidSale) btnVoidSale.style.display = 'none';
-      searchHint.textContent = 'Type to search inventory…';
+      searchHint.textContent = 'Type to search inventory...';
     }
 
     ensureAverageButtons();
@@ -485,11 +594,11 @@
       div.innerHTML = `
         <div class="result-main">
           <div class="result-title">${escapeHtml(it.title || '(no title)')}</div>
-          <div class="result-sub">SKU: <b>${escapeHtml(it.sku || '')}</b> • ${escapeHtml(it.platform || '')} • ${escapeHtml(it.category || '')}</div>
+          <div class="result-sub">SKU: <b>${escapeHtml(it.sku || '')}</b> - ${escapeHtml(it.platform || '')} - ${escapeHtml(it.category || '')}</div>
         </div>
         <div class="result-meta">
           <div>list: <b>${fmt$(price)}</b></div>
-          <div class="muted">cost: ${fmt$(cost)} • qty: ${qty}</div>
+          <div class="muted">cost: ${fmt$(cost)} - qty: ${qty}</div>
         </div>
       `;
 
@@ -517,7 +626,7 @@
     sumCost.textContent = fmt$(totals.cost);
     sumProfit.textContent = fmt$(totals.profit);
 
-    // Keep override input restored (but don’t fight typing)
+    // Keep override input restored (but don't fight typing)
     syncOverrideInputFromEvent(ev);
 
     // Update pill + command center
@@ -569,9 +678,9 @@
             <div class="line-title">${escapeHtml(ln.title || '(no title)')}</div>
             <div class="line-sub">
               SKU: <b>${escapeHtml(ln.sku || '')}</b>
-              • cost: <b>${fmt$(ln.cost)}</b>
-              • list: <b>${fmt$(listLive)}</b>
-              • platform: ${escapeHtml(ln.platform || '')}
+              - cost: <b>${fmt$(ln.cost)}</b>
+              - list: <b>${fmt$(listLive)}</b>
+              - platform: ${escapeHtml(ln.platform || '')}
             </div>
 
             <div class="line-controls">
@@ -838,7 +947,7 @@
     const ok = confirm('Finalize this event and update inventory quantities? This will reduce qty on hand.');
     if (!ok) return;
 
-    setStatus('Finalizing… posting sale to backend', 'warn');
+    setStatus('Finalizing... posting sale to backend', 'warn');
 
     // Build a sale payload for backend source-of-truth
     const saleItems = (ev.lines || []).map((ln) => {
@@ -907,9 +1016,9 @@
     saveEvents();
 
     if (ev.backendSaleId) {
-      setStatus(`Finalized ✅ Sale #${ev.backendSaleId} posted`, 'ok');
+      setStatus(`Finalized - Sale #${ev.backendSaleId} posted`, 'ok');
     } else {
-      setStatus('Finalized ✅ Inventory updated', 'ok');
+      setStatus('Finalized - Inventory updated', 'ok');
     }
     showEditor(ev.id);
   }
@@ -926,7 +1035,7 @@
     const ok = confirm('Void this event sale and restore all inventory quantities? This will mark the sale as voided.');
     if (!ok) return;
 
-    setStatus('Voiding… restoring inventory', 'warn');
+    setStatus('Voiding... restoring inventory', 'warn');
 
     try {
       const res = await fetch(`${API_BASE}/api/sales/${ev.backendSaleId}/void`, {
@@ -959,7 +1068,7 @@
     ev.updatedAt = nowISO();
     saveEvents();
 
-    setStatus('Voided ✅ Inventory restored', 'ok');
+      setStatus('Voided - Inventory restored', 'ok');
     showEditor(ev.id);
   }
 
@@ -983,7 +1092,7 @@
     if (changed) {
       ev.updatedAt = nowISO();
       saveEvents();
-      editorMeta.textContent = `${ev.channel || 'other'} • created ${niceDate(ev.createdAt)} • updated ${niceDate(ev.updatedAt)}`;
+      editorMeta.textContent = `${ev.channel || 'other'} - created ${niceDate(ev.createdAt)} - updated ${niceDate(ev.updatedAt)}`;
       setStatus('Event updated', 'ok');
       renderLines();
     }
@@ -1008,9 +1117,11 @@
     btnCreateEvent.addEventListener('click', () => {
       const name = (newEventName.value || '').trim();
       const channel = newEventChannel.value || 'other';
+      setCreateDetail(`Create clicked at ${new Date().toLocaleTimeString()}.`);
 
       if (!name) {
         alert('Enter an event name.');
+        setCreateDetail('Create stopped because the event name is blank.');
         newEventName.focus();
         return;
       }
@@ -1030,8 +1141,12 @@
       events.unshift(ev);
       saveEvents();
       newEventName.value = '';
+      filterStatus.value = '';
+      filterText.value = '';
       renderEventsTable();
       showEditor(ev.id);
+      setStatus('Event saved', 'ok');
+      setCreateDetail(`Saved "${ev.name}" locally as ${ev.id}. Syncing to VaultCore...`);
     });
 
     eventsTbody.addEventListener('click', (e) => {
@@ -1045,9 +1160,10 @@
       if (delId) {
         const ev = getEventById(delId);
         if (!ev) return;
-        const ok = confirm(`Delete event "${ev.name}"? This only removes the local record (does not change inventory).`);
+        const ok = confirm(`Delete event "${ev.name}"? This removes the draft record only and does not change inventory.`);
         if (!ok) return;
         events = events.filter(x => x.id !== delId);
+        deleteEventFromBackend(delId);
         saveEvents();
         renderEventsTable();
       }
@@ -1060,9 +1176,10 @@
     });
 
     btnClearAll.addEventListener('click', () => {
-      const ok = confirm('Clear ALL saved events from this machine? (localStorage)');
+      const ok = confirm('Clear ALL saved event drafts? This does not change completed sales or inventory.');
       if (!ok) return;
       events = [];
+      clearEventsFromBackend();
       saveEvents();
       renderEventsTable();
     });
@@ -1072,7 +1189,7 @@
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = 'retrocatz-live-events.json';
+      a.download = 'vaultcore-live-events.json';
       a.click();
       URL.revokeObjectURL(url);
     });
@@ -1261,6 +1378,17 @@
     window.location.href = 'index.html';
   });
 
+  window.addEventListener('error', (event) => {
+    setStatus('Live Events page script error', 'bad');
+    setCreateDetail(event.message || 'The Live Events page hit a script error.');
+  });
+
+  window.addEventListener('unhandledrejection', (event) => {
+    setStatus('Live Events request error', 'bad');
+    const reason = event.reason;
+    setCreateDetail(reason && reason.message ? reason.message : String(reason || 'Request failed'));
+  });
+
   // -------- Init --------
   async function init() {
     loadEvents();
@@ -1268,6 +1396,9 @@
 
     wireLanding();
     wireEditor();
+
+    await loadEventsFromBackend();
+    renderEventsTable();
 
     try {
       await loadInventory();

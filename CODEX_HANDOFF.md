@@ -412,3 +412,52 @@ Files touched: src/renderer/trade-in.html, backend/index.js, backend/providers/p
 - Files: src/renderer/users.js, CODEX_HANDOFF.md
 - Status: Completed (committing/pushing now)
 - Notes/Ideas: Wrapped users page script in idempotent IIFE guard (__vaultcoreUsersBooted) and renamed request helper from pi to equestApi to avoid global symbol collisions if script is injected/loaded more than once.
+
+
+## Entry
+- Timestamp: 2026-05-06 00:14:18
+- Window/Owner: This Codex window
+- Task: Rename POS product identity to VaultCore
+- Files: package.json, package-lock.json, electron-builder.yml, public/index.html, public/login.js, public/app.js, public/add.item.html, public/inventory.html, backend/index.js, backend/providers/ebay.js, backend/providers/pricecharting.js, db/schema.sql, src/renderer/ai.js, src/renderer/data.js, src/renderer/index.css, src/renderer/index.js, src/renderer/inventory.html, src/renderer/live-events.js, src/renderer/trade-in.html, src/renderer/pos.html, src/renderer/accounting.html, src/renderer/reports.html, UI_QA_REPORT.md, OVERNIGHT_PUNCHLIST_2026-02-25.md, CODEX_HANDOFF.md
+- Status: Completed (local syntax checks passed)
+- Notes/Ideas: Updated product-facing names, installer/package identity, login/bootstrap labels, AI assistant prompts, export filenames, and print-offer branding to VaultCore. Left historical handoff notes, project folder paths, and legacy storage keys unchanged to avoid data lookup surprises.
+
+## Entry
+- Timestamp: 2026-05-06 00:37:32
+- Window/Owner: This Codex window
+- Task: End-of-day register closeout
+- Files: backend/db.js, backend/index.js, db/schema.sql, src/renderer/closeout.html, src/renderer/index.html, CODEX_HANDOFF.md
+- Status: Completed (syntax checks and Electron-backend startup checked)
+- Notes/Ideas: Added register_closeouts storage, closeout summary/history/save APIs, dashboard link, and a closeout screen with cash count, expected cash, variance, payment mix, notes, close-day action, and history. Backend startup still needs Electron's embedded Node because better-sqlite3 is built for Electron; eBay outbound calls remain blocked in the Codex sandbox.
+
+## Entry
+- Timestamp: 2026-05-06 00:41:53
+- Window/Owner: This Codex window
+- Task: Closeout practical smoke test
+- Files: CODEX_HANDOFF.md
+- Status: In progress
+- Notes/Ideas: Starting a focused validation pass for the new closeout flow using realistic cash/card/refund examples where the local backend allows it. Will preserve existing uncommitted VaultCore/closeout work.
+
+## Entry
+- Timestamp: 2026-05-06 00:50:35
+- Window/Owner: This Codex window
+- Task: Closeout practical smoke test
+- Files: CODEX_HANDOFF.md
+- Status: Completed
+- Notes/Ideas: Ran an isolated backend/database copy at .codex-smoke-20260506-004345/backend using Electron's embedded Node. Smoke data: cash sale $20.00, card sale $35.50, cash refund $10.00. Verified closeout summary totals (gross $55.50, refunds $10.00, net $45.50, expected cash $10.00 before drawer inputs), draft save (opening $100.00, paid in $20.00, paid out $15.00, counted $116.25, variance $1.25), close day update (counted $115.00, variance $0.00), and recent closeout history. Real backend/inventory.db was not modified. Disposable backend was stopped; temporary copy remains because sandbox blocked recursive cleanup. Follow-up idea: closeout currently stores total refunds and cash refunds, but not separate card/store-credit/other refund buckets; add those if payment-method refund reporting needs to be exact.
+
+## Entry
+- Timestamp: 2026-05-09 18:12:48 -04:00
+- Window/Owner: This Codex window
+- Task: Settings page owner/manager workflow expansion
+- Files: backend/index.js, backend/db.js, db/schema.sql, src/renderer/settings.html, src/renderer/settings.js, src/renderer/pos.html, src/renderer/closeout.html, scripts/settings-ui-smoke-node.js, scripts/settings-endpoint-smoke.js, CODEX_HANDOFF.md
+- Status: Completed (syntax checks, settings UI smoke, and Electron-backed settings endpoint smoke passed)
+- Notes/Ideas: Researched POS settings patterns and added actionable VaultCore settings for payment methods, split tender, customer-required checkout, tax-exempt approval, quick discounts, receipt content/auto-printing, sale ID prefix, held-sale limit, and closeout variance controls. POS now consumes the new register/store settings for tender buttons, quick discount buttons, tax label, receipt content, customer requirement, tax-exempt approval, auto-printing, sale ID prefix, and held-sale limit. Closeout now reads variance policy and gives user-facing guardrails before close-day save.
+
+## Entry
+- Timestamp: 2026-05-09 19:15:00 -04:00
+- Window/Owner: This Codex window
+- Task: Trade-in workflow expansion
+- Files: backend/index.js, backend/db.js, backend/workflows.js, db/schema.sql, src/renderer/trade-in.html, src/renderer/settings.html, src/renderer/settings.js, scripts/settings-ui-smoke-node.js, scripts/settings-endpoint-smoke.js, scripts/store-workflows-smoke.js, CODEX_HANDOFF.md
+- Status: Completed (syntax checks, inline script parse, settings smokes, and Electron-backed store workflow smoke passed; browser visual check blocked by local file URL policy)
+- Notes/Ideas: Added a guided trade workflow with compliance capture, intake checklist, unified Price Check, promo-aware offer rules, inventory posting review, printable agreement details, follow-up task creation for testing/labels/holds, and trade reporting. Backend now stores seller/agreement/checklist/promo/item-posting fields, creates trade intake tasks on completion, and exposes task/report endpoints. The in-app browser refused file:// navigation, so visual verification still needs a live app/Electron run.

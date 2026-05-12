@@ -1,10 +1,36 @@
-appId: com.retrocatz.pos
-productName: RetroCatz POS
+appId: com.vaultcore.pos
+productName: VaultCore POS
+npmRebuild: false
 files:
   - "**/*"
+  - "!**/.env"
+  - "!**/.env.*"
+  - "!.npmrc"
+  - "!**/*.db"
+  - "!**/*.db-shm"
+  - "!**/*.db-wal"
+  - "!**/*.log"
+  - "!backend_run.err"
+  - "!backend_run.log"
+  - "!dist/**"
+  - "!build/**"
+  - "!.git/**"
+  - "!.github/**"
+  - "!.npm-cache/**"
+  - "!.codex-smoke-*/**"
+  - "!CODEX_HANDOFF.md"
+  - "!OVERNIGHT_PUNCHLIST_*.md"
+  - "!UI_AUDIT_MATRIX.md"
+  - "!UI_QA_REPORT.md"
+  - "!RELEASE_WORKFLOW.md"
 extraResources:
   - from: db
     to: db
+    filter:
+      - "**/*"
+      - "!**/*.db"
+      - "!**/*.db-shm"
+      - "!**/*.db-wal"
   - from: assets
     to: assets
   - from: barcodes

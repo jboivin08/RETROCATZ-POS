@@ -15,129 +15,264 @@
     --bg: #0b0b0d;
     --panel: #111827;
     --panel-2: #0f172a;
-    --border: #374151;
+    --panel-3: #0c1017;
+    --border: #334155;
+    --border-soft: rgba(148, 163, 184, 0.18);
     --text: #e5e7eb;
     --muted: #9ca3af;
     --blue: #2563eb;
-    --danger:#7f1d1d;
-    --row-hover:#14161b;
+    --green: #16a34a;
+    --amber: #d97706;
+    --danger: #7f1d1d;
+    --row-hover: #151a24;
   }
+
   * { box-sizing: border-box; }
-  body { margin: 16px; background: var(--bg); color: var(--text); font-family: system-ui, sans-serif; }
+  body {
+    margin: 16px;
+    background: var(--bg);
+    color: var(--text);
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  }
 
   .toolbar {
-    display:flex;
-    align-items:center;
-    gap:10px;
-    background:#091226;
-    padding:12px;
-    border-radius:8px;
-    border:1px solid #0e1b36;
-    flex-wrap:wrap;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: #091226;
+    padding: 12px;
+    border-radius: 8px;
+    border: 1px solid #0e1b36;
+    flex-wrap: wrap;
   }
-  .toolbar h1 { margin:0; font-size:20px; font-weight:700; }
-  .logo { height:22px; width:auto; display:block; }
-  .toolbar-spacer { flex:1; }
+  .toolbar h1 { margin: 0; font-size: 20px; font-weight: 700; }
+  .logo { height: 22px; width: auto; display: block; }
+  .toolbar-spacer { flex: 1; }
 
   .btn {
-    padding:8px 12px;
-    border:1px solid var(--border);
-    border-radius:8px;
-    background:#0c0c0f;
-    color:var(--text);
-    cursor:pointer;
-    transition:box-shadow 0.12s ease, transform 0.12s ease, border-color 0.12s ease;
-    font-size:13px;
-    white-space:nowrap;
+    min-height: 36px;
+    padding: 8px 12px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: #0c0c0f;
+    color: var(--text);
+    cursor: pointer;
+    transition: box-shadow 0.12s ease, transform 0.12s ease, border-color 0.12s ease, filter 0.12s ease;
+    font-size: 13px;
+    white-space: nowrap;
   }
-  .btn:hover{
-    border-color:#596274;
-    box-shadow:0 0 0 1px rgba(148,163,184,.35);
-    transform:translateY(-0.5px);
+  .btn:hover {
+    border-color: #64748b;
+    box-shadow: 0 0 0 1px rgba(148, 163, 184, 0.28);
+    transform: translateY(-0.5px);
   }
-  .btn.primary{ background: var(--blue); border-color: var(--blue); }
-  .btn.primary:hover{ filter:brightness(1.1); }
-  .btn.danger{ border-color:var(--danger); background:var(--danger); }
-  .btn.ghost{ background:transparent; }
+  .btn:disabled {
+    opacity: 0.52;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+  }
+  .btn.primary { background: var(--blue); border-color: var(--blue); }
+  .btn.success { background: var(--green); border-color: var(--green); }
+  .btn.ghost { background: transparent; }
 
-  .input, .select {
-    padding:8px 10px;
-    border:1px solid var(--border);
-    border-radius:8px;
-    background:#000;
-    color:var(--text);
+  .input {
+    min-height: 36px;
+    padding: 8px 10px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: #000;
+    color: var(--text);
   }
 
-  .row { display:flex; gap:8px; flex-wrap:wrap; align-items:center; margin:10px 0 12px; }
+  .controls {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 12px;
+    margin-top: 12px;
+  }
+  .row { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+  .small { font-size: 12px; color: var(--muted); }
   .muted { color: var(--muted); }
-  .small { font-size:12px; color: var(--muted); }
-
-  .panel { background: var(--panel); border:1px solid var(--border); border-radius:12px; padding:12px; margin-top:12px; }
-  .section { border:1px solid var(--border); border-radius:10px; padding:10px; margin-top:10px; background: rgba(255,255,255,0.02); }
-
-  .table-wrap {
-    border:1px solid var(--border);
-    border-radius:10px;
-    overflow-x:auto;
-    overflow-y:hidden;
+  .right {
+    text-align: right;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
   }
-  table { width:100%; border-collapse:collapse; }
-  thead th { text-align:left; font-weight:600; color:#cbd5e1; background:#0d0d10; padding:10px; border-bottom:1px solid #1f2937; user-select:none; }
-  tbody td { padding:10px; }
-  tbody tr { border-bottom:1px solid rgba(148,163,184,0.10); }
-  tbody tr:nth-child(even) { background:rgba(255,255,255,0.015); }
-  tbody tr:hover { background:var(--row-hover); }
-  .right { text-align:right; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono","Courier New", monospace; }
+
+  .tabs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-top: 12px;
+  }
+  .tab {
+    min-height: 36px;
+    padding: 8px 12px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: #0b0f16;
+    color: var(--text);
+    cursor: pointer;
+  }
+  .tab.active {
+    background: var(--blue);
+    border-color: var(--blue);
+  }
+
+  .report-view { display: none; margin-top: 12px; }
+  .report-view.active { display: block; }
+  .report-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+  }
+  .report-section {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 12px;
+    min-width: 0;
+  }
+  .report-section.full { grid-column: 1 / -1; }
+  .section-head {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 10px;
+    margin-bottom: 10px;
+  }
+  .section-head h2,
+  .section-head h3 {
+    margin: 0;
+    font-size: 16px;
+  }
+  .section-actions { display: flex; gap: 8px; flex-wrap: wrap; justify-content: flex-end; }
 
   .kpi {
-    display:grid;
-    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-    gap:10px;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 10px;
   }
   .kpi-card {
-    border:1px solid var(--border);
-    border-radius:10px;
-    padding:10px;
-    background:#0c1017;
+    border: 1px solid var(--border-soft);
+    border-radius: 8px;
+    padding: 10px;
+    background: var(--panel-3);
+    min-height: 72px;
   }
-  .kpi-card .label { font-size:11px; color: var(--muted); }
-  .kpi-card .value { font-size:16px; font-weight:700; margin-top:4px; }
+  .kpi-card .label { font-size: 11px; color: var(--muted); }
+  .kpi-card .value { font-size: 16px; font-weight: 700; margin-top: 5px; overflow-wrap: anywhere; }
+  .kpi-card.good .value { color: #86efac; }
+  .kpi-card.warn .value { color: #fbbf24; }
+  .kpi-card.bad .value { color: #fca5a5; }
 
-  .two-col {
-    display:grid;
-    grid-template-columns: 1fr 1fr;
-    gap:12px;
+  .table-wrap {
+    border: 1px solid var(--border-soft);
+    border-radius: 8px;
+    overflow-x: auto;
+    overflow-y: hidden;
   }
-  @media (max-width: 1000px) { .two-col { grid-template-columns: 1fr; } }
+  table { width: 100%; border-collapse: collapse; min-width: 560px; }
+  thead th {
+    text-align: left;
+    font-weight: 600;
+    color: #cbd5e1;
+    background: #0d0d10;
+    padding: 10px;
+    border-bottom: 1px solid #1f2937;
+    user-select: none;
+    white-space: nowrap;
+  }
+  tbody td { padding: 10px; vertical-align: top; }
+  tbody tr { border-bottom: 1px solid rgba(148, 163, 184, 0.10); }
+  tbody tr:nth-child(even) { background: rgba(255, 255, 255, 0.015); }
+  tbody tr:hover { background: var(--row-hover); }
+  .compact table { min-width: 420px; }
+  .status-line { min-height: 16px; margin-top: 3px; }
+  #inventoryFilter { min-width: 300px; max-width: 100%; }
+
+  @media (max-width: 1000px) {
+    body { margin: 10px; }
+    .report-grid { grid-template-columns: 1fr; }
+    .toolbar-spacer { display: none; }
+    .section-head { flex-direction: column; }
+    .section-actions { justify-content: flex-start; }
+  }
+
+  @media print {
+    body { background: #fff; color: #000; }
+    .toolbar, .controls, .tabs, .section-actions { display: none; }
+    .report-view { display: block; }
+    .report-view:not(.active) { display: none; }
+    .report-section { border-color: #999; background: #fff; break-inside: avoid; }
+    .kpi-card { border-color: #bbb; background: #fff; }
+    thead th { background: #eee; color: #111; }
+    .small, .muted { color: #555; }
+  }
 </style>
+  <script src="theme.js"></script>
+  <link rel="stylesheet" href="themes.css" />
 </head>
 <body>
   <div class="toolbar">
     <img class="logo" src="assets/VaultCore_Logo_White.png" alt="VaultCore" />
     <h1>Reports</h1>
-    <button class="btn" id="btnBack">Back to Dashboard</button>
+    <button class="btn" id="btnBack">Dashboard</button>
     <span class="toolbar-spacer"></span>
     <span class="small" id="statusText">Ready</span>
   </div>
 
-  <div class="panel">
+  <div class="controls">
     <div class="row">
-      <label class="small">Start</label>
+      <label class="small" for="startDate">Start</label>
       <input class="input" type="date" id="startDate" />
-      <label class="small">End</label>
+      <label class="small" for="endDate">End</label>
       <input class="input" type="date" id="endDate" />
       <button class="btn primary" id="btnRun">Run Reports</button>
-      <button class="btn ghost" id="btnRefreshInventory">Refresh Inventory Report</button>
+      <button class="btn ghost" id="btnRefreshInventory">Refresh Inventory</button>
+      <button class="btn ghost" id="btnPrint">Print</button>
+      <button class="btn success" id="btnExportActive">Export Active View</button>
     </div>
-    <div class="small muted">Sales reports use the selected date range. Inventory report is current as of now.</div>
+    <div id="reportRangePresets"></div>
+    <div class="small status-line" id="rangeStatus">Sales, people, events, and operations use the selected date range. Inventory is current as of now.</div>
   </div>
 
-  <div class="panel">
-    <h2>Sales Summary</h2>
-    <div class="kpi" id="salesSummary"></div>
-    <div class="two-col">
-      <div class="section">
-        <h3>Payment Mix</h3>
+  <div class="tabs" role="tablist" aria-label="Report views">
+    <button class="tab active" type="button" data-tab="sales">Sales</button>
+    <button class="tab" type="button" data-tab="inventory">Inventory</button>
+    <button class="tab" type="button" data-tab="people">People</button>
+    <button class="tab" type="button" data-tab="events">Events</button>
+    <button class="tab" type="button" data-tab="operations">Operations</button>
+  </div>
+
+  <section class="report-view active" data-view="sales">
+    <div class="report-grid">
+      <div class="report-section full">
+        <div class="section-head">
+          <div>
+            <h2>Store Snapshot</h2>
+            <div class="small status-line" id="overviewStatus">Ready</div>
+          </div>
+        </div>
+        <div class="kpi" id="overviewSummary"></div>
+      </div>
+
+      <div class="report-section full">
+        <div class="section-head">
+          <div>
+            <h2>Sales Summary</h2>
+            <div class="small status-line" id="salesStatus">Ready</div>
+          </div>
+        </div>
+        <div class="kpi" id="salesSummary"></div>
+      </div>
+
+      <div class="report-section compact">
+        <div class="section-head">
+          <h3>Payment Mix</h3>
+          <div class="section-actions"><button class="btn ghost" data-export="paymentMix">Export</button></div>
+        </div>
         <div class="table-wrap">
           <table>
             <thead><tr><th>Method</th><th class="right">Total</th></tr></thead>
@@ -145,43 +280,91 @@
           </table>
         </div>
       </div>
-      <div class="section">
-        <h3>Sales by Category</h3>
+
+      <div class="report-section compact">
+        <div class="section-head">
+          <h3>Sales by Category</h3>
+          <div class="section-actions"><button class="btn ghost" data-export="salesCategory">Export</button></div>
+        </div>
         <div class="table-wrap">
           <table>
-            <thead><tr><th>Category</th><th class="right">Net Qty</th><th class="right">Net Total</th></tr></thead>
+            <thead><tr><th>Category</th><th class="right">Sold</th><th class="right">Discounts</th><th class="right">Refunds</th><th class="right">Net Qty</th><th class="right">Net Total</th></tr></thead>
             <tbody id="salesByCategoryBody"></tbody>
           </table>
         </div>
       </div>
-    </div>
-    <div class="section">
-      <h3>Sales by Item</h3>
-      <div class="table-wrap">
-        <table>
-          <thead><tr><th>SKU</th><th>Title</th><th class="right">Net Qty</th><th class="right">Net Total</th></tr></thead>
-          <tbody id="salesByItemBody"></tbody>
-        </table>
-      </div>
-    </div>
-  </div>
 
-  <div class="panel">
-    <h2>Inventory Report</h2>
-    <div class="kpi" id="inventorySummary"></div>
-
-    <div class="two-col">
-      <div class="section">
-        <h3>Inventory Aging</h3>
+      <div class="report-section full">
+        <div class="section-head">
+          <h3>Sales by Item</h3>
+          <div class="section-actions"><button class="btn ghost" data-export="salesItem">Export</button></div>
+        </div>
         <div class="table-wrap">
           <table>
-            <thead><tr><th>Bucket (days)</th><th class="right">Items</th><th class="right">Value</th></tr></thead>
+            <thead><tr><th>SKU</th><th>Title</th><th class="right">Sold</th><th class="right">Discounts</th><th class="right">Refunds</th><th class="right">Net Qty</th><th class="right">Net Total</th></tr></thead>
+            <tbody id="salesByItemBody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="report-section">
+        <div class="section-head">
+          <h3>Discount Log</h3>
+          <div class="section-actions"><button class="btn ghost" data-export="discounts">Export</button></div>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Date</th><th>Sale</th><th>User</th><th class="right">Discount</th></tr></thead>
+            <tbody id="discountBody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="report-section">
+        <div class="section-head">
+          <h3>Fee Log</h3>
+          <div class="section-actions"><button class="btn ghost" data-export="fees">Export</button></div>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Date</th><th>Sale</th><th>Fee</th><th>SKU</th><th class="right">Amount</th></tr></thead>
+            <tbody id="feeBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="report-view" data-view="inventory">
+    <div class="report-grid">
+      <div class="report-section full">
+        <div class="section-head">
+          <div>
+            <h2>Inventory Summary</h2>
+            <div class="small status-line" id="inventoryStatus">Ready</div>
+          </div>
+        </div>
+        <div class="kpi" id="inventorySummary"></div>
+      </div>
+
+      <div class="report-section compact">
+        <div class="section-head">
+          <h3>Inventory Aging</h3>
+          <div class="section-actions"><button class="btn ghost" data-export="aging">Export</button></div>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Bucket</th><th class="right">Items</th><th class="right">Value</th></tr></thead>
             <tbody id="agingBody"></tbody>
           </table>
         </div>
       </div>
-      <div class="section">
-        <h3>Top Value Items</h3>
+
+      <div class="report-section compact">
+        <div class="section-head">
+          <h3>Top Value Items</h3>
+          <div class="section-actions"><button class="btn ghost" data-export="topValue">Export</button></div>
+        </div>
         <div class="table-wrap">
           <table>
             <thead><tr><th>SKU</th><th>Title</th><th class="right">Qty</th><th class="right">Value</th></tr></thead>
@@ -189,11 +372,12 @@
           </table>
         </div>
       </div>
-    </div>
 
-    <div class="two-col">
-      <div class="section">
-        <h3>Low Stock (qty <= 1)</h3>
+      <div class="report-section compact">
+        <div class="section-head">
+          <h3>Low Stock</h3>
+          <div class="section-actions"><button class="btn ghost" data-export="lowStock">Export</button></div>
+        </div>
         <div class="table-wrap">
           <table>
             <thead><tr><th>SKU</th><th>Title</th><th class="right">Qty</th></tr></thead>
@@ -201,8 +385,12 @@
           </table>
         </div>
       </div>
-      <div class="section">
-        <h3>Zero Stock</h3>
+
+      <div class="report-section compact">
+        <div class="section-head">
+          <h3>Zero Stock</h3>
+          <div class="section-actions"><button class="btn ghost" data-export="zeroStock">Export</button></div>
+        </div>
         <div class="table-wrap">
           <table>
             <thead><tr><th>SKU</th><th>Title</th><th class="right">Qty</th></tr></thead>
@@ -210,103 +398,294 @@
           </table>
         </div>
       </div>
-    </div>
 
-    <div class="section">
-      <h3>Inventory by Platform</h3>
-      <div class="table-wrap">
-        <table>
-          <thead><tr><th>Platform</th><th class="right">Items</th><th class="right">Units</th><th class="right">Value</th></tr></thead>
-          <tbody id="byPlatformBody"></tbody>
-        </table>
-      </div>
-    </div>
-
-    <div class="section">
-      <h3>Inventory by Category</h3>
-      <div class="table-wrap">
-        <table>
-          <thead><tr><th>Category</th><th class="right">Items</th><th class="right">Units</th><th class="right">Value</th></tr></thead>
-          <tbody id="byCategoryBody"></tbody>
-        </table>
-      </div>
-    </div>
-
-    <div class="section">
-      <h3>Full Inventory</h3>
-      <div class="row">
-        <input class="input" id="inventoryFilter" placeholder="Filter by SKU/title/platform/category" style="min-width:300px;" />
-      </div>
-      <div class="table-wrap">
-        <table>
-          <thead>
-            <tr>
-              <th>SKU</th><th>Title</th><th>Platform</th><th>Category</th><th class="right">Qty</th><th class="right">Cost</th><th class="right">Price</th><th class="right">Value</th><th class="right">Age (days)</th>
-            </tr>
-          </thead>
-          <tbody id="inventoryBody"></tbody>
-        </table>
-      </div>
-      <div class="small muted" id="inventoryCount"></div>
-    </div>
-  </div>
-
-  <div class="panel">
-    <h2>Write-Offs and Deleted Items</h2>
-    <div class="two-col">
-      <div class="section">
-        <h3>Write-Offs</h3>
+      <div class="report-section compact">
+        <div class="section-head">
+          <h3>By Platform</h3>
+          <div class="section-actions"><button class="btn ghost" data-export="inventoryPlatform">Export</button></div>
+        </div>
         <div class="table-wrap">
           <table>
-            <thead><tr><th>Date</th><th>SKU</th><th>Title</th><th class="right">Qty</th><th class="right">Total Cost</th><th class="right">Total Price</th><th>Reason</th></tr></thead>
+            <thead><tr><th>Platform</th><th class="right">Items</th><th class="right">Units</th><th class="right">Value</th></tr></thead>
+            <tbody id="byPlatformBody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="report-section compact">
+        <div class="section-head">
+          <h3>By Category</h3>
+          <div class="section-actions"><button class="btn ghost" data-export="inventoryCategory">Export</button></div>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Category</th><th class="right">Items</th><th class="right">Units</th><th class="right">Value</th></tr></thead>
+            <tbody id="byCategoryBody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="report-section full">
+        <div class="section-head">
+          <div>
+            <h3>Full Inventory</h3>
+            <div class="small status-line" id="inventoryCount"></div>
+          </div>
+          <div class="section-actions">
+            <input class="input" id="inventoryFilter" placeholder="Filter by SKU, title, platform, or category" />
+            <button class="btn ghost" data-export="inventory">Export</button>
+          </div>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>SKU</th><th>Title</th><th>Platform</th><th>Category</th><th class="right">Qty</th><th class="right">Cost</th><th class="right">Price</th><th class="right">Value</th><th class="right">Age</th>
+              </tr>
+            </thead>
+            <tbody id="inventoryBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="report-view" data-view="people">
+    <div class="report-grid">
+      <div class="report-section full">
+        <div class="section-head">
+          <div>
+            <h2>Staff Summary</h2>
+            <div class="small status-line" id="peopleStatus">Ready</div>
+          </div>
+        </div>
+        <div class="kpi" id="staffSummary"></div>
+      </div>
+
+      <div class="report-section full">
+        <div class="section-head">
+          <h3>Staff Performance</h3>
+          <div class="section-actions"><button class="btn ghost" data-export="staff">Export</button></div>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>User</th><th>Role</th><th class="right">Transactions</th><th class="right">Items</th><th class="right">Sales</th><th class="right">Discounts</th><th class="right">Refunds</th><th class="right">Voids</th></tr></thead>
+            <tbody id="staffBody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="report-section full">
+        <div class="section-head">
+          <div>
+            <h3>Store Credit Movement</h3>
+            <div class="small status-line" id="storeCreditSummary"></div>
+          </div>
+          <div class="section-actions"><button class="btn ghost" data-export="storeCredit">Export</button></div>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Date</th><th>Customer</th><th>User</th><th>Reason</th><th class="right">Amount</th></tr></thead>
+            <tbody id="storeCreditBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="report-view" data-view="events">
+    <div class="report-grid">
+      <div class="report-section full">
+        <div class="section-head">
+          <div>
+            <h2>Event Summary</h2>
+            <div class="small status-line" id="eventsStatus">Ready</div>
+          </div>
+          <div class="section-actions"><button class="btn ghost" data-export="eventSummary">Export</button></div>
+        </div>
+        <div class="kpi" id="eventsSummary"></div>
+        <div class="table-wrap" style="margin-top:10px;">
+          <table>
+            <thead><tr><th>Channel</th><th>Status</th><th class="right">Events</th><th class="right">Sales</th></tr></thead>
+            <tbody id="eventSummaryBody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="report-section full">
+        <div class="section-head">
+          <h3>Event Items</h3>
+          <div class="section-actions"><button class="btn ghost" data-export="eventItems">Export</button></div>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Event</th><th>Channel</th><th>Status</th><th>SKU</th><th>Title</th><th class="right">Qty</th><th class="right">Sell</th><th class="right">Cost</th><th class="right">Margin</th></tr></thead>
+            <tbody id="eventItemsBody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="report-section full">
+        <div class="section-head">
+          <h3>Event List</h3>
+          <div class="section-actions"><button class="btn ghost" data-export="events">Export</button></div>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Updated</th><th>Name</th><th>Channel</th><th>Status</th><th>Sale</th><th class="right">Sale Total</th></tr></thead>
+            <tbody id="eventsBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="report-view" data-view="operations">
+    <div class="report-grid">
+      <div class="report-section full">
+        <div class="section-head">
+          <div>
+            <h2>Operations Summary</h2>
+            <div class="small status-line" id="operationsStatus">Ready</div>
+          </div>
+        </div>
+        <div class="kpi" id="operationsSummary"></div>
+      </div>
+
+      <div class="report-section">
+        <div class="section-head">
+          <h3>Waste by Reason</h3>
+          <div class="section-actions"><button class="btn ghost" data-export="wasteReason">Export</button></div>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Reason</th><th class="right">Events</th><th class="right">Units</th><th class="right">Cost</th><th class="right">Price</th></tr></thead>
+            <tbody id="wasteReasonBody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="report-section">
+        <div class="section-head">
+          <h3>Waste by Category</h3>
+          <div class="section-actions"><button class="btn ghost" data-export="wasteCategory">Export</button></div>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Category</th><th class="right">Events</th><th class="right">Units</th><th class="right">Cost</th><th class="right">Price</th></tr></thead>
+            <tbody id="wasteCategoryBody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="report-section full">
+        <div class="section-head">
+          <h3>Write-Offs</h3>
+          <div class="section-actions"><button class="btn ghost" data-export="waste">Export</button></div>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Date</th><th>SKU</th><th>Title</th><th>Category</th><th class="right">Qty</th><th class="right">Total Cost</th><th class="right">Total Price</th><th>Reason</th></tr></thead>
             <tbody id="wasteBody"></tbody>
           </table>
         </div>
       </div>
-      <div class="section">
-        <h3>Deleted Items</h3>
+
+      <div class="report-section full">
+        <div class="section-head">
+          <h3>Deleted Items</h3>
+          <div class="section-actions"><button class="btn ghost" data-export="deleted">Export</button></div>
+        </div>
         <div class="table-wrap">
           <table>
-            <thead><tr><th>Date</th><th>SKU</th><th>Title</th><th>Reason</th><th class="right">Qty</th></tr></thead>
+            <thead><tr><th>Date</th><th>SKU</th><th>Title</th><th>Category</th><th>Reason</th><th class="right">Qty</th><th class="right">Total Cost</th><th class="right">Total Price</th></tr></thead>
             <tbody id="deletedBody"></tbody>
           </table>
         </div>
       </div>
     </div>
-  </div>
+  </section>
 
+<script src="date-presets.js"></script>
 <script>
 (() => {
   const API_BASE = 'http://127.0.0.1:5175';
-  const fmt$ = (n) => `$${(Number(n||0)).toFixed(2)}`;
-  const statusText = document.getElementById('statusText');
+  const fmtMoney = (n) => `$${Number(n || 0).toFixed(2)}`;
+  const fmtCents = (n) => fmtMoney(Number(n || 0) / 100);
+  const fmtInt = (n) => Number(n || 0).toLocaleString();
+  const toNumber = (n) => Number(n || 0);
 
+  const statusText = document.getElementById('statusText');
+  const rangeStatus = document.getElementById('rangeStatus');
   const startDate = document.getElementById('startDate');
   const endDate = document.getElementById('endDate');
   const btnRun = document.getElementById('btnRun');
   const btnBack = document.getElementById('btnBack');
   const btnRefreshInventory = document.getElementById('btnRefreshInventory');
-
-  const salesSummary = document.getElementById('salesSummary');
-  const paymentMixBody = document.getElementById('paymentMixBody');
-  const salesByCategoryBody = document.getElementById('salesByCategoryBody');
-  const salesByItemBody = document.getElementById('salesByItemBody');
-
-  const inventorySummary = document.getElementById('inventorySummary');
-  const agingBody = document.getElementById('agingBody');
-  const topValueBody = document.getElementById('topValueBody');
-  const lowStockBody = document.getElementById('lowStockBody');
-  const zeroStockBody = document.getElementById('zeroStockBody');
-  const byPlatformBody = document.getElementById('byPlatformBody');
-  const byCategoryBody = document.getElementById('byCategoryBody');
-  const inventoryBody = document.getElementById('inventoryBody');
-  const inventoryCount = document.getElementById('inventoryCount');
+  const btnPrint = document.getElementById('btnPrint');
+  const btnExportActive = document.getElementById('btnExportActive');
   const inventoryFilter = document.getElementById('inventoryFilter');
 
-  const wasteBody = document.getElementById('wasteBody');
-  const deletedBody = document.getElementById('deletedBody');
+  const els = {
+    overviewSummary: document.getElementById('overviewSummary'),
+    salesSummary: document.getElementById('salesSummary'),
+    paymentMixBody: document.getElementById('paymentMixBody'),
+    salesByCategoryBody: document.getElementById('salesByCategoryBody'),
+    salesByItemBody: document.getElementById('salesByItemBody'),
+    discountBody: document.getElementById('discountBody'),
+    feeBody: document.getElementById('feeBody'),
+    inventorySummary: document.getElementById('inventorySummary'),
+    agingBody: document.getElementById('agingBody'),
+    topValueBody: document.getElementById('topValueBody'),
+    lowStockBody: document.getElementById('lowStockBody'),
+    zeroStockBody: document.getElementById('zeroStockBody'),
+    byPlatformBody: document.getElementById('byPlatformBody'),
+    byCategoryBody: document.getElementById('byCategoryBody'),
+    inventoryBody: document.getElementById('inventoryBody'),
+    inventoryCount: document.getElementById('inventoryCount'),
+    staffSummary: document.getElementById('staffSummary'),
+    staffBody: document.getElementById('staffBody'),
+    storeCreditSummary: document.getElementById('storeCreditSummary'),
+    storeCreditBody: document.getElementById('storeCreditBody'),
+    eventsSummary: document.getElementById('eventsSummary'),
+    eventSummaryBody: document.getElementById('eventSummaryBody'),
+    eventItemsBody: document.getElementById('eventItemsBody'),
+    eventsBody: document.getElementById('eventsBody'),
+    operationsSummary: document.getElementById('operationsSummary'),
+    wasteReasonBody: document.getElementById('wasteReasonBody'),
+    wasteCategoryBody: document.getElementById('wasteCategoryBody'),
+    wasteBody: document.getElementById('wasteBody'),
+    deletedBody: document.getElementById('deletedBody')
+  };
 
-  let inventoryCache = [];
+  const state = {
+    activeTab: 'sales',
+    loadFailures: 0,
+    overview: null,
+    dailySales: null,
+    paymentMix: [],
+    salesByCategory: [],
+    salesByItem: [],
+    discounts: [],
+    fees: [],
+    inventory: [],
+    aging: [],
+    topValue: [],
+    lowStock: [],
+    zeroStock: [],
+    inventoryPlatform: [],
+    inventoryCategory: [],
+    filteredInventory: [],
+    staff: [],
+    storeCredit: [],
+    eventSummary: [],
+    eventItems: [],
+    events: [],
+    wasteReason: [],
+    wasteCategory: [],
+    waste: [],
+    deleted: []
+  };
 
   function getHeaders() {
     const sid = localStorage.getItem('rc_session_id') || '';
@@ -317,7 +696,7 @@
     const res = await fetch(API_BASE + path, { headers: getHeaders() });
     if (res.status === 401) {
       localStorage.removeItem('rc_session_id');
-      window.location.href = 'login.html';
+      window.location.href = '../../public/index.html';
       throw new Error('session_invalid');
     }
     if (!res.ok) {
@@ -327,209 +706,706 @@
     return res.json();
   }
 
-  function setStatus(msg) { statusText.textContent = msg; }
+  function setStatus(message) {
+    statusText.textContent = message;
+  }
+
+  function setSectionStatus(id, message) {
+    const el = document.getElementById(id);
+    if (el) el.textContent = message;
+  }
+
+  function rangeParams() {
+    return `start=${encodeURIComponent(startDate.value)}&end=${encodeURIComponent(endDate.value)}`;
+  }
+
+  function rangeIsValid() {
+    if (!startDate.value || !endDate.value) return false;
+    return startDate.value <= endDate.value;
+  }
 
   function setDefaultDates() {
     const today = new Date();
     const end = new Date(today.getFullYear(), today.getMonth(), today.getDate());
     const start = new Date(end);
-    start.setDate(start.getDate() - 7);
-    const toInput = (d) => d.toISOString().slice(0,10);
+    start.setDate(start.getDate() - 6);
+    const toInput = (d) => d.toISOString().slice(0, 10);
     startDate.value = toInput(start);
     endDate.value = toInput(end);
   }
 
-  function kpiCard(label, value) {
+  function setBusy(isBusy) {
+    btnRun.disabled = isBusy;
+    btnRefreshInventory.disabled = isBusy;
+    btnExportActive.disabled = isBusy;
+  }
+
+  async function safeLoad(label, path, statusId) {
+    setSectionStatus(statusId, 'Loading');
+    try {
+      const data = await apiGet(path);
+      setSectionStatus(statusId, 'Loaded');
+      return data;
+    } catch (err) {
+      console.error(`[Reports] ${label} failed`, err);
+      state.loadFailures += 1;
+      if (String(err.message || '').includes('403')) {
+        setSectionStatus(statusId, 'Reports permission is required');
+      } else if (err.message !== 'session_invalid') {
+        setSectionStatus(statusId, 'Unavailable');
+      }
+      return null;
+    }
+  }
+
+  function kpiCard(label, value, tone = '') {
     const div = document.createElement('div');
-    div.className = 'kpi-card';
-    div.innerHTML = `<div class="label">${label}</div><div class="value">${value}</div>`;
+    div.className = `kpi-card${tone ? ` ${tone}` : ''}`;
+    const labelEl = document.createElement('div');
+    labelEl.className = 'label';
+    labelEl.textContent = String(label ?? '');
+    const valueEl = document.createElement('div');
+    valueEl.className = 'value';
+    valueEl.textContent = String(value ?? '');
+    div.append(labelEl, valueEl);
     return div;
   }
 
-  function renderSalesSummary(summary, refunds) {
-    salesSummary.innerHTML = '';
-    salesSummary.appendChild(kpiCard('Transactions', summary.transactionCount));
-    salesSummary.appendChild(kpiCard('Subtotal', fmt$(summary.subtotal)));
-    salesSummary.appendChild(kpiCard('Tax', fmt$(summary.tax)));
-    salesSummary.appendChild(kpiCard('Total', fmt$(summary.total)));
-    salesSummary.appendChild(kpiCard('Refunds', fmt$(refunds)));
-    salesSummary.appendChild(kpiCard('Net', fmt$(summary.total - refunds)));
+  function renderKpis(container, cards) {
+    container.replaceChildren(...cards.map((card) => kpiCard(card.label, card.value, card.tone || '')));
+  }
+
+  function textCell(value, className = '') {
+    const td = document.createElement('td');
+    if (className) td.className = className;
+    td.textContent = String(value ?? '');
+    return td;
+  }
+
+  function textRow(cells) {
+    const tr = document.createElement('tr');
+    for (const cell of cells) {
+      tr.appendChild(cell instanceof Node ? cell : textCell(cell));
+    }
+    return tr;
   }
 
   function renderRows(body, rows, cols, emptyMsg) {
-    body.innerHTML = '';
+    body.replaceChildren();
     if (!rows || !rows.length) {
-      const tr = document.createElement('tr');
-      tr.innerHTML = `<td colspan="${cols}" class="muted">${emptyMsg}</td>`;
-      body.appendChild(tr);
+      const td = textCell(emptyMsg, 'muted');
+      td.colSpan = cols;
+      body.appendChild(textRow([td]));
       return;
     }
-    for (const r of rows) body.appendChild(r);
+    body.replaceChildren(...rows);
+  }
+
+  function displayDate(value) {
+    if (!value) return '';
+    const date = new Date(value);
+    if (Number.isNaN(date.getTime())) return String(value);
+    return date.toLocaleString();
+  }
+
+  function renderOverview(data) {
+    const s = data?.summary || {};
+    state.overview = s;
+    renderKpis(els.overviewSummary, [
+      { label: 'Sales', value: fmtMoney(s.sales_total), tone: 'good' },
+      { label: 'Transactions', value: fmtInt(s.sales_count) },
+      { label: 'Tax', value: fmtMoney(s.tax_total) },
+      { label: 'Discounts', value: fmtMoney(s.discount_total), tone: s.discount_total ? 'warn' : '' },
+      { label: 'Event Sales', value: fmtMoney(s.event_sales_total) },
+      { label: 'Waste Cost', value: fmtMoney(s.waste_cost), tone: s.waste_cost ? 'bad' : '' },
+      { label: 'Trade Quotes', value: fmtInt(s.trade_quotes) },
+      { label: 'Trade Credit', value: fmtMoney(s.trade_credit) }
+    ]);
+  }
+
+  function renderSalesSummary(daily, discounts, fees) {
+    const s = daily?.summary || {};
+    const discountTotal = toNumber(discounts?.summary?.total ?? s.discount);
+    const feeTotal = toNumber(fees?.summary?.total ?? s.fees);
+    renderKpis(els.salesSummary, [
+      { label: 'Transactions', value: fmtInt(s.transactionCount) },
+      { label: 'Subtotal', value: fmtMoney(s.subtotal) },
+      { label: 'Discounts', value: fmtMoney(discountTotal), tone: discountTotal ? 'warn' : '' },
+      { label: 'Fees', value: fmtMoney(feeTotal) },
+      { label: 'Tax', value: fmtMoney(s.tax) },
+      { label: 'Total', value: fmtMoney(s.total), tone: 'good' },
+      { label: 'Refunds', value: fmtMoney(s.refunds), tone: s.refunds ? 'bad' : '' },
+      { label: 'Net', value: fmtMoney(s.net ?? (toNumber(s.total) - toNumber(s.refunds))), tone: 'good' }
+    ]);
+  }
+
+  async function runOverviewReport() {
+    const data = await safeLoad('overview', `/api/reports/dashboard?${rangeParams()}`, 'overviewStatus');
+    if (data) renderOverview(data);
   }
 
   async function runSalesReports() {
-    const start = startDate.value;
-    const end = endDate.value;
-    setStatus('Loading sales reports...');
+    const [daily, payment, byItem, byCategory, discounts, fees] = await Promise.all([
+      safeLoad('daily sales', `/api/reports/daily-sales?${rangeParams()}`, 'salesStatus'),
+      safeLoad('payment mix', `/api/reports/payment-mix?${rangeParams()}`, 'salesStatus'),
+      safeLoad('sales by item', `/api/reports/sales-by-item?${rangeParams()}`, 'salesStatus'),
+      safeLoad('sales by category', `/api/reports/sales-by-category?${rangeParams()}`, 'salesStatus'),
+      safeLoad('discounts', `/api/reports/discounts?${rangeParams()}`, 'salesStatus'),
+      safeLoad('fees', `/api/reports/fees?${rangeParams()}`, 'salesStatus')
+    ]);
 
-    const daily = await apiGet(`/api/reports/daily-sales?start=${encodeURIComponent(start)}&end=${encodeURIComponent(end)}`);
-    renderSalesSummary(daily.summary, daily.summary.refunds || 0);
+    state.dailySales = daily || null;
+    state.paymentMix = payment?.rows || [];
+    state.salesByItem = byItem?.rows || [];
+    state.salesByCategory = byCategory?.rows || [];
+    state.discounts = discounts?.rows || [];
+    state.fees = fees?.rows || [];
 
-    const payment = await apiGet(`/api/reports/payment-mix?start=${encodeURIComponent(start)}&end=${encodeURIComponent(end)}`);
-    renderRows(paymentMixBody, (payment.rows || []).map(r => {
-      const tr = document.createElement('tr');
-      tr.innerHTML = `<td>${r.method}</td><td class="right">${fmt$(r.total)}</td>`;
-      return tr;
-    }), 2, 'No data');
+    renderSalesSummary(daily, discounts, fees);
+    renderRows(els.paymentMixBody, state.paymentMix.map((r) => textRow([
+      r.method || 'unknown',
+      textCell(fmtMoney(r.total ?? r.amount), 'right')
+    ])), 2, 'No payment data');
 
-    const sbi = await apiGet(`/api/reports/sales-by-item?start=${encodeURIComponent(start)}&end=${encodeURIComponent(end)}`);
-    renderRows(salesByItemBody, (sbi.rows || []).map(r => {
-      const tr = document.createElement('tr');
-      tr.innerHTML = `<td>${r.sku}</td><td>${r.title}</td><td class="right">${r.net_qty}</td><td class="right">${fmt$(r.net_total)}</td>`;
-      return tr;
-    }), 4, 'No data');
+    renderRows(els.salesByCategoryBody, state.salesByCategory.map((r) => textRow([
+      r.category || '(uncategorized)',
+      textCell(fmtInt(r.sold_qty), 'right'),
+      textCell(fmtMoney(r.discount_allocated), 'right'),
+      textCell(fmtMoney(r.refunded_total), 'right'),
+      textCell(fmtInt(r.net_qty), 'right'),
+      textCell(fmtMoney(r.net_total), 'right')
+    ])), 6, 'No category sales');
 
-    const sbc = await apiGet(`/api/reports/sales-by-category?start=${encodeURIComponent(start)}&end=${encodeURIComponent(end)}`);
-    renderRows(salesByCategoryBody, (sbc.rows || []).map(r => {
-      const tr = document.createElement('tr');
-      tr.innerHTML = `<td>${r.category}</td><td class="right">${r.net_qty}</td><td class="right">${fmt$(r.net_total)}</td>`;
-      return tr;
-    }), 3, 'No data');
+    renderRows(els.salesByItemBody, state.salesByItem.map((r) => textRow([
+      r.sku || '',
+      r.title || '',
+      textCell(fmtInt(r.sold_qty), 'right'),
+      textCell(fmtMoney(r.discount_allocated), 'right'),
+      textCell(fmtMoney(r.refunded_total), 'right'),
+      textCell(fmtInt(r.net_qty), 'right'),
+      textCell(fmtMoney(r.net_total), 'right')
+    ])), 7, 'No item sales');
+
+    renderRows(els.discountBody, state.discounts.map((r) => textRow([
+      displayDate(r.created_at),
+      `#${r.sale_id}`,
+      r.username || '',
+      textCell(fmtMoney(r.discount_total), 'right')
+    ])), 4, 'No discounts in range');
+
+    renderRows(els.feeBody, state.fees.map((r) => textRow([
+      displayDate(r.created_at),
+      `#${r.sale_id}`,
+      r.title || '',
+      r.sku || '',
+      textCell(fmtMoney(r.fee_total), 'right')
+    ])), 5, 'No fees in range');
+
+    const loaded = [daily, payment, byItem, byCategory, discounts, fees].filter(Boolean).length;
+    setSectionStatus('salesStatus', loaded === 6 ? 'Loaded' : `Loaded ${loaded} of 6 feeds`);
   }
 
   async function runInventoryReport() {
-    setStatus('Loading inventory report...');
-    const inv = await apiGet('/api/reports/inventory');
-    inventoryCache = inv.items || [];
+    const inv = await safeLoad('inventory', '/api/reports/inventory', 'inventoryStatus');
+    if (!inv) return;
 
-    inventorySummary.innerHTML = '';
-    inventorySummary.appendChild(kpiCard('Items', inv.summary.itemCount));
-    inventorySummary.appendChild(kpiCard('Units', inv.summary.totalUnits));
-    inventorySummary.appendChild(kpiCard('Value', fmt$(inv.summary.totalValue)));
-    inventorySummary.appendChild(kpiCard('Cost', fmt$(inv.summary.totalCost)));
-    inventorySummary.appendChild(kpiCard('Profit', fmt$(inv.summary.totalProfit)));
-    inventorySummary.appendChild(kpiCard('Low Stock', inv.summary.lowStockCount));
-    inventorySummary.appendChild(kpiCard('Zero Stock', inv.summary.zeroStockCount));
+    state.inventory = inv.items || [];
+    state.filteredInventory = state.inventory.slice();
+    state.aging = inv.agingBuckets || [];
+    state.topValue = inv.topValue || [];
+    state.lowStock = inv.lowStock || [];
+    state.zeroStock = inv.zeroStock || [];
+    state.inventoryPlatform = inv.byPlatform || [];
+    state.inventoryCategory = inv.byCategory || [];
 
-    renderRows(agingBody, (inv.agingBuckets || []).map(b => {
-      const tr = document.createElement('tr');
-      tr.innerHTML = `<td>${b.label}</td><td class="right">${b.count}</td><td class="right">${fmt$(b.value)}</td>`;
-      return tr;
-    }), 3, 'No data');
+    renderKpis(els.inventorySummary, [
+      { label: 'Items', value: fmtInt(inv.summary?.itemCount) },
+      { label: 'Units', value: fmtInt(inv.summary?.totalUnits) },
+      { label: 'Value', value: fmtMoney(inv.summary?.totalValue), tone: 'good' },
+      { label: 'Cost', value: fmtMoney(inv.summary?.totalCost) },
+      { label: 'Potential Profit', value: fmtMoney(inv.summary?.totalProfit), tone: 'good' },
+      { label: 'Low Stock', value: fmtInt(inv.summary?.lowStockCount), tone: inv.summary?.lowStockCount ? 'warn' : '' },
+      { label: 'Zero Stock', value: fmtInt(inv.summary?.zeroStockCount), tone: inv.summary?.zeroStockCount ? 'bad' : '' }
+    ]);
 
-    renderRows(topValueBody, (inv.topValue || []).map(i => {
-      const tr = document.createElement('tr');
-      tr.innerHTML = `<td>${i.sku}</td><td>${i.title}</td><td class="right">${i.qty}</td><td class="right">${fmt$(i.value)}</td>`;
-      return tr;
-    }), 4, 'No data');
+    renderRows(els.agingBody, state.aging.map((b) => textRow([
+      b.label,
+      textCell(fmtInt(b.count), 'right'),
+      textCell(fmtMoney(b.value), 'right')
+    ])), 3, 'No aging data');
 
-    renderRows(lowStockBody, (inv.lowStock || []).map(i => {
-      const tr = document.createElement('tr');
-      tr.innerHTML = `<td>${i.sku}</td><td>${i.title}</td><td class="right">${i.qty}</td>`;
-      return tr;
-    }), 3, 'No data');
+    renderRows(els.topValueBody, state.topValue.map((i) => textRow([
+      i.sku || '',
+      i.title || '',
+      textCell(fmtInt(i.qty), 'right'),
+      textCell(fmtMoney(i.value), 'right')
+    ])), 4, 'No value data');
 
-    renderRows(zeroStockBody, (inv.zeroStock || []).map(i => {
-      const tr = document.createElement('tr');
-      tr.innerHTML = `<td>${i.sku}</td><td>${i.title}</td><td class="right">${i.qty}</td>`;
-      return tr;
-    }), 3, 'No data');
+    renderRows(els.lowStockBody, state.lowStock.map((i) => textRow([
+      i.sku || '',
+      i.title || '',
+      textCell(fmtInt(i.qty), 'right')
+    ])), 3, 'No low stock');
 
-    renderRows(byPlatformBody, (inv.byPlatform || []).map(i => {
-      const tr = document.createElement('tr');
-      tr.innerHTML = `<td>${i.platform}</td><td class="right">${i.count}</td><td class="right">${i.units}</td><td class="right">${fmt$(i.value)}</td>`;
-      return tr;
-    }), 4, 'No data');
+    renderRows(els.zeroStockBody, state.zeroStock.map((i) => textRow([
+      i.sku || '',
+      i.title || '',
+      textCell(fmtInt(i.qty), 'right')
+    ])), 3, 'No zero stock');
 
-    renderRows(byCategoryBody, (inv.byCategory || []).map(i => {
-      const tr = document.createElement('tr');
-      tr.innerHTML = `<td>${i.category}</td><td class="right">${i.count}</td><td class="right">${i.units}</td><td class="right">${fmt$(i.value)}</td>`;
-      return tr;
-    }), 4, 'No data');
+    renderRows(els.byPlatformBody, state.inventoryPlatform.map((r) => textRow([
+      r.platform || '(no platform)',
+      textCell(fmtInt(r.count), 'right'),
+      textCell(fmtInt(r.units), 'right'),
+      textCell(fmtMoney(r.value), 'right')
+    ])), 4, 'No platform data');
 
-    renderInventoryTable(inventoryCache);
-    inventoryCount.textContent = `${inventoryCache.length} items total`;
+    renderRows(els.byCategoryBody, state.inventoryCategory.map((r) => textRow([
+      r.category || '(uncategorized)',
+      textCell(fmtInt(r.count), 'right'),
+      textCell(fmtInt(r.units), 'right'),
+      textCell(fmtMoney(r.value), 'right')
+    ])), 4, 'No category data');
+
+    filterInventory();
   }
 
   function renderInventoryTable(list) {
-    inventoryBody.innerHTML = '';
-    if (!list.length) {
-      const tr = document.createElement('tr');
-      tr.innerHTML = `<td colspan="9" class="muted">No inventory</td>`;
-      inventoryBody.appendChild(tr);
-      return;
-    }
-    for (const i of list) {
-      const tr = document.createElement('tr');
-      tr.innerHTML = `
-        <td>${i.sku}</td>
-        <td>${i.title}</td>
-        <td>${i.platform}</td>
-        <td>${i.category}</td>
-        <td class="right">${i.qty}</td>
-        <td class="right">${fmt$(i.cost)}</td>
-        <td class="right">${fmt$(i.price)}</td>
-        <td class="right">${fmt$(i.value)}</td>
-        <td class="right">${i.ageDays}</td>
-      `;
-      inventoryBody.appendChild(tr);
-    }
+    state.filteredInventory = list.slice();
+    renderRows(els.inventoryBody, list.map((i) => textRow([
+      i.sku || '',
+      i.title || '',
+      i.platform || '',
+      i.category || '',
+      textCell(fmtInt(i.qty), 'right'),
+      textCell(fmtMoney(i.cost), 'right'),
+      textCell(fmtMoney(i.price), 'right'),
+      textCell(fmtMoney(i.value), 'right'),
+      textCell(fmtInt(i.ageDays), 'right')
+    ])), 9, 'No inventory');
+    els.inventoryCount.textContent = `${fmtInt(list.length)} of ${fmtInt(state.inventory.length)} items`;
   }
 
   function filterInventory() {
     const q = (inventoryFilter.value || '').trim().toLowerCase();
     if (!q) {
-      renderInventoryTable(inventoryCache);
-      inventoryCount.textContent = `${inventoryCache.length} items total`;
+      renderInventoryTable(state.inventory);
       return;
     }
-    const filtered = inventoryCache.filter(i =>
+    const filtered = state.inventory.filter((i) =>
       String(i.sku || '').toLowerCase().includes(q) ||
       String(i.title || '').toLowerCase().includes(q) ||
       String(i.platform || '').toLowerCase().includes(q) ||
       String(i.category || '').toLowerCase().includes(q)
     );
     renderInventoryTable(filtered);
-    inventoryCount.textContent = `${filtered.length} items match`;
   }
 
-  async function runWasteDeletedReports() {
-    const start = startDate.value;
-    const end = endDate.value;
-    const waste = await apiGet(`/api/reports/waste?start=${encodeURIComponent(start)}&end=${encodeURIComponent(end)}`);
-    renderRows(wasteBody, (waste.rows || []).map(r => {
-      const tr = document.createElement('tr');
-      tr.innerHTML = `<td>${r.created_at || ''}</td><td>${r.sku || ''}</td><td>${r.title || ''}</td><td class="right">${r.qty || 0}</td><td class="right">${fmt$(r.total_cost || 0)}</td><td class="right">${fmt$(r.total_price || 0)}</td><td>${r.reason || ''}</td>`;
-      return tr;
-    }), 7, 'No write-offs in range');
+  async function runPeopleReports() {
+    const [staff, credit] = await Promise.all([
+      safeLoad('staff performance', `/api/reports/staff-performance?${rangeParams()}`, 'peopleStatus'),
+      safeLoad('store credit', `/api/reports/store-credit?${rangeParams()}`, 'peopleStatus')
+    ]);
 
-    const deleted = await apiGet(`/api/reports/deleted?start=${encodeURIComponent(start)}&end=${encodeURIComponent(end)}`);
-    renderRows(deletedBody, (deleted.rows || []).map(r => {
-      const tr = document.createElement('tr');
-      tr.innerHTML = `<td>${r.deleted_at || ''}</td><td>${r.sku || ''}</td><td>${r.title || ''}</td><td>${r.reason || ''}</td><td class="right">${r.qty || 0}</td>`;
-      return tr;
-    }), 5, 'No deletions in range');
+    state.staff = staff?.rows || [];
+    state.storeCredit = credit?.rows || [];
+    const staffSummary = staff?.summary || {};
+    const creditSummary = credit?.summary || {};
+
+    renderKpis(els.staffSummary, [
+      { label: 'Transactions', value: fmtInt(staffSummary.transactions) },
+      { label: 'Items Sold', value: fmtInt(staffSummary.items_sold) },
+      { label: 'Staff Sales', value: fmtMoney(staffSummary.total), tone: 'good' },
+      { label: 'Discounts', value: fmtMoney(staffSummary.discount_total), tone: staffSummary.discount_total ? 'warn' : '' },
+      { label: 'Refunds', value: fmtMoney(staffSummary.refund_total), tone: staffSummary.refund_total ? 'bad' : '' },
+      { label: 'Voids', value: fmtMoney(staffSummary.void_total), tone: staffSummary.void_total ? 'bad' : '' },
+      { label: 'Credit Issued', value: fmtCents(creditSummary.issued_cents), tone: creditSummary.issued_cents ? 'warn' : '' },
+      { label: 'Credit Outstanding', value: fmtCents(creditSummary.current_balance_cents), tone: 'good' }
+    ]);
+
+    renderRows(els.staffBody, state.staff.map((r) => textRow([
+      r.username || 'Unassigned',
+      r.role || '',
+      textCell(fmtInt(r.transactions), 'right'),
+      textCell(fmtInt(r.items_sold), 'right'),
+      textCell(fmtMoney(r.total), 'right'),
+      textCell(fmtMoney(r.discount_total), 'right'),
+      textCell(fmtMoney(r.refund_total), 'right'),
+      textCell(fmtMoney(r.void_total), 'right')
+    ])), 8, 'No staff activity in range');
+
+    els.storeCreditSummary.textContent = `${fmtCents(creditSummary.issued_cents)} issued, ${fmtCents(creditSummary.redeemed_cents)} redeemed, ${fmtCents(creditSummary.current_balance_cents)} outstanding`;
+    renderRows(els.storeCreditBody, state.storeCredit.map((r) => textRow([
+      displayDate(r.created_at),
+      r.customer_name || `Customer #${r.customer_id || ''}`,
+      r.username || '',
+      r.reason || '',
+      textCell(fmtCents(r.amount_cents), 'right')
+    ])), 5, 'No store credit movement in range');
+
+    const loaded = [staff, credit].filter(Boolean).length;
+    setSectionStatus('peopleStatus', loaded === 2 ? 'Loaded' : `Loaded ${loaded} of 2 feeds`);
+  }
+
+  async function runEventReports() {
+    const [summary, items, events] = await Promise.all([
+      safeLoad('event summary', `/api/reports/event-summary?${rangeParams()}`, 'eventsStatus'),
+      safeLoad('event items', `/api/reports/event-items?${rangeParams()}`, 'eventsStatus'),
+      safeLoad('events list', `/api/reports/events/list?${rangeParams()}`, 'eventsStatus')
+    ]);
+
+    state.eventSummary = summary?.rows || [];
+    state.eventItems = items?.rows || [];
+    state.events = events?.rows || [];
+
+    const eventCount = state.eventSummary.reduce((sum, r) => sum + toNumber(r.event_count), 0);
+    const eventSales = state.eventSummary.reduce((sum, r) => sum + toNumber(r.sales_total), 0);
+    const eventUnits = state.eventItems.reduce((sum, r) => sum + toNumber(r.qty), 0);
+    const eventMargin = state.eventItems.reduce((sum, r) => sum + ((toNumber(r.sell_price) - toNumber(r.cost)) * toNumber(r.qty)), 0);
+    renderKpis(els.eventsSummary, [
+      { label: 'Events', value: fmtInt(eventCount) },
+      { label: 'Event Items', value: fmtInt(state.eventItems.length) },
+      { label: 'Units Sold', value: fmtInt(eventUnits) },
+      { label: 'Event Sales', value: fmtMoney(eventSales), tone: 'good' },
+      { label: 'Item Margin', value: fmtMoney(eventMargin), tone: eventMargin >= 0 ? 'good' : 'bad' }
+    ]);
+
+    renderRows(els.eventSummaryBody, state.eventSummary.map((r) => textRow([
+      r.channel || 'other',
+      r.status || '',
+      textCell(fmtInt(r.event_count), 'right'),
+      textCell(fmtMoney(r.sales_total), 'right')
+    ])), 4, 'No event summary data');
+
+    renderRows(els.eventItemsBody, state.eventItems.map((r) => {
+      const margin = (toNumber(r.sell_price) - toNumber(r.cost)) * toNumber(r.qty);
+      return textRow([
+        r.event_name || '',
+        r.channel || '',
+        r.status || '',
+        r.sku || '',
+        r.title || '',
+        textCell(fmtInt(r.qty), 'right'),
+        textCell(fmtMoney(r.sell_price), 'right'),
+        textCell(fmtMoney(r.cost), 'right'),
+        textCell(fmtMoney(margin), 'right')
+      ]);
+    }), 9, 'No event items in range');
+
+    renderRows(els.eventsBody, state.events.map((r) => textRow([
+      displayDate(r.updated_at || r.created_at),
+      r.name || '',
+      r.channel || '',
+      r.status || '',
+      r.backend_sale_id ? `#${r.backend_sale_id}` : '',
+      textCell(fmtMoney(r.sale_total), 'right')
+    ])), 6, 'No events in range');
+
+    const loaded = [summary, items, events].filter(Boolean).length;
+    setSectionStatus('eventsStatus', loaded === 3 ? 'Loaded' : `Loaded ${loaded} of 3 feeds`);
+  }
+
+  async function runOperationsReports() {
+    const [analytics, waste, deleted] = await Promise.all([
+      safeLoad('waste analytics', `/api/reports/waste-analytics?${rangeParams()}`, 'operationsStatus'),
+      safeLoad('write-offs', `/api/reports/waste?${rangeParams()}`, 'operationsStatus'),
+      safeLoad('deleted items', `/api/reports/deleted?${rangeParams()}`, 'operationsStatus')
+    ]);
+
+    state.wasteReason = analytics?.byReason || [];
+    state.wasteCategory = analytics?.byCategory || [];
+    state.waste = waste?.rows || [];
+    state.deleted = deleted?.rows || [];
+
+    const wasteSummary = analytics?.summary || {};
+    const deletedSummary = deleted?.summary || {};
+    renderKpis(els.operationsSummary, [
+      { label: 'Write-Off Events', value: fmtInt(wasteSummary.events), tone: wasteSummary.events ? 'warn' : '' },
+      { label: 'Write-Off Units', value: fmtInt(wasteSummary.units), tone: wasteSummary.units ? 'warn' : '' },
+      { label: 'Write-Off Cost', value: fmtMoney(wasteSummary.cost), tone: wasteSummary.cost ? 'bad' : '' },
+      { label: 'Write-Off Price', value: fmtMoney(wasteSummary.price) },
+      { label: 'Deleted Events', value: fmtInt(deletedSummary.totalEvents), tone: deletedSummary.totalEvents ? 'bad' : '' },
+      { label: 'Deleted Units', value: fmtInt(deletedSummary.totalUnits), tone: deletedSummary.totalUnits ? 'bad' : '' },
+      { label: 'Deleted Cost', value: fmtMoney(deletedSummary.totalCost), tone: deletedSummary.totalCost ? 'bad' : '' },
+      { label: 'Deleted Price', value: fmtMoney(deletedSummary.totalPrice) }
+    ]);
+
+    renderRows(els.wasteReasonBody, state.wasteReason.map((r) => textRow([
+      r.reason || 'unspecified',
+      textCell(fmtInt(r.events), 'right'),
+      textCell(fmtInt(r.units), 'right'),
+      textCell(fmtMoney(r.cost), 'right'),
+      textCell(fmtMoney(r.price), 'right')
+    ])), 5, 'No write-off analytics');
+
+    renderRows(els.wasteCategoryBody, state.wasteCategory.map((r) => textRow([
+      r.category || 'uncategorized',
+      textCell(fmtInt(r.events), 'right'),
+      textCell(fmtInt(r.units), 'right'),
+      textCell(fmtMoney(r.cost), 'right'),
+      textCell(fmtMoney(r.price), 'right')
+    ])), 5, 'No category analytics');
+
+    renderRows(els.wasteBody, state.waste.map((r) => textRow([
+      displayDate(r.createdAt || r.created_at),
+      r.sku || '',
+      r.title || '',
+      r.category || '',
+      textCell(fmtInt(r.qty), 'right'),
+      textCell(fmtMoney(r.totalCost ?? r.total_cost), 'right'),
+      textCell(fmtMoney(r.totalPrice ?? r.total_price), 'right'),
+      r.reason || ''
+    ])), 8, 'No write-offs in range');
+
+    renderRows(els.deletedBody, state.deleted.map((r) => textRow([
+      displayDate(r.deletedAt || r.deleted_at),
+      r.sku || '',
+      r.title || '',
+      r.category || '',
+      r.reason || '',
+      textCell(fmtInt(r.qty), 'right'),
+      textCell(fmtMoney(r.totalCost ?? r.total_cost), 'right'),
+      textCell(fmtMoney(r.totalPrice ?? r.total_price), 'right')
+    ])), 8, 'No deleted items in range');
+
+    const loaded = [analytics, waste, deleted].filter(Boolean).length;
+    setSectionStatus('operationsStatus', loaded === 3 ? 'Loaded' : `Loaded ${loaded} of 3 feeds`);
   }
 
   async function runAll() {
-    try {
-      await runSalesReports();
-      await runInventoryReport();
-      await runWasteDeletedReports();
-      setStatus('Reports loaded');
-    } catch (e) {
-      console.error(e);
-      setStatus('Report load failed');
-      alert('Report load failed. Check server connectivity and session.');
+    if (!rangeIsValid()) {
+      rangeStatus.textContent = 'Choose a valid date range.';
+      setStatus('Date range needed');
+      return;
     }
+    rangeStatus.textContent = `Showing ${startDate.value} through ${endDate.value}. Inventory is current as of now.`;
+    setBusy(true);
+    state.loadFailures = 0;
+    setStatus('Loading reports...');
+    await Promise.all([
+      runOverviewReport(),
+      runSalesReports(),
+      runInventoryReport(),
+      runPeopleReports(),
+      runEventReports(),
+      runOperationsReports()
+    ]);
+    setBusy(false);
+    const time = new Date().toLocaleTimeString();
+    setStatus(state.loadFailures ? `Reports loaded with ${state.loadFailures} issue(s) ${time}` : `Reports loaded ${time}`);
   }
 
+  function setActiveTab(tabName) {
+    state.activeTab = tabName;
+    document.querySelectorAll('.tab').forEach((btn) => {
+      btn.classList.toggle('active', btn.dataset.tab === tabName);
+    });
+    document.querySelectorAll('.report-view').forEach((view) => {
+      view.classList.toggle('active', view.dataset.view === tabName);
+    });
+  }
+
+  function csvValue(value) {
+    const raw = String(value ?? '');
+    if (/[",\r\n]/.test(raw)) return `"${raw.replace(/"/g, '""')}"`;
+    return raw;
+  }
+
+  function downloadCsv(name, rows) {
+    if (!rows.length) {
+      setStatus('No rows to export');
+      return;
+    }
+    const headers = Object.keys(rows[0]);
+    const csv = [
+      headers.map(csvValue).join(','),
+      ...rows.map((row) => headers.map((h) => csvValue(row[h])).join(','))
+    ].join('\r\n');
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `${name}-${startDate.value}-to-${endDate.value}.csv`;
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+    setStatus('Export ready');
+  }
+
+  function moneyExport(value) {
+    return Number(value || 0).toFixed(2);
+  }
+
+  function centsExport(value) {
+    return (Number(value || 0) / 100).toFixed(2);
+  }
+
+  const exportBuilders = {
+    paymentMix: () => state.paymentMix.map((r) => ({
+      method: r.method || 'unknown',
+      total: moneyExport(r.total ?? r.amount)
+    })),
+    salesCategory: () => state.salesByCategory.map((r) => ({
+      category: r.category || '',
+      sold_qty: r.sold_qty || 0,
+      gross_total: moneyExport(r.gross_sold_total),
+      discounts: moneyExport(r.discount_allocated),
+      refunds: moneyExport(r.refunded_total),
+      net_qty: r.net_qty || 0,
+      net_total: moneyExport(r.net_total)
+    })),
+    salesItem: () => state.salesByItem.map((r) => ({
+      sku: r.sku || '',
+      title: r.title || '',
+      sold_qty: r.sold_qty || 0,
+      gross_total: moneyExport(r.gross_sold_total),
+      discounts: moneyExport(r.discount_allocated),
+      refunds: moneyExport(r.refunded_total),
+      net_qty: r.net_qty || 0,
+      net_total: moneyExport(r.net_total)
+    })),
+    discounts: () => state.discounts.map((r) => ({
+      created_at: r.created_at || '',
+      sale_id: r.sale_id || '',
+      username: r.username || '',
+      discount_total: moneyExport(r.discount_total)
+    })),
+    fees: () => state.fees.map((r) => ({
+      created_at: r.created_at || '',
+      sale_id: r.sale_id || '',
+      title: r.title || '',
+      sku: r.sku || '',
+      fee_total: moneyExport(r.fee_total)
+    })),
+    inventory: () => state.filteredInventory.map((i) => ({
+      sku: i.sku || '',
+      title: i.title || '',
+      platform: i.platform || '',
+      category: i.category || '',
+      condition: i.condition || '',
+      qty: i.qty || 0,
+      cost: moneyExport(i.cost),
+      price: moneyExport(i.price),
+      value: moneyExport(i.value),
+      age_days: i.ageDays || 0
+    })),
+    aging: () => state.aging.map((b) => ({ bucket: b.label || '', items: b.count || 0, value: moneyExport(b.value) })),
+    topValue: () => state.topValue.map((i) => ({ sku: i.sku || '', title: i.title || '', qty: i.qty || 0, value: moneyExport(i.value) })),
+    lowStock: () => state.lowStock.map((i) => ({ sku: i.sku || '', title: i.title || '', qty: i.qty || 0 })),
+    zeroStock: () => state.zeroStock.map((i) => ({ sku: i.sku || '', title: i.title || '', qty: i.qty || 0 })),
+    inventoryPlatform: () => state.inventoryPlatform.map((r) => ({ platform: r.platform || '', items: r.count || 0, units: r.units || 0, value: moneyExport(r.value) })),
+    inventoryCategory: () => state.inventoryCategory.map((r) => ({ category: r.category || '', items: r.count || 0, units: r.units || 0, value: moneyExport(r.value) })),
+    staff: () => state.staff.map((r) => ({
+      username: r.username || '',
+      role: r.role || '',
+      transactions: r.transactions || 0,
+      items_sold: r.items_sold || 0,
+      sales: moneyExport(r.total),
+      discounts: moneyExport(r.discount_total),
+      refunds: moneyExport(r.refund_total),
+      voids: moneyExport(r.void_total)
+    })),
+    storeCredit: () => state.storeCredit.map((r) => ({
+      created_at: r.created_at || '',
+      customer_id: r.customer_id || '',
+      customer_name: r.customer_name || '',
+      username: r.username || '',
+      reason: r.reason || '',
+      amount: centsExport(r.amount_cents)
+    })),
+    eventSummary: () => state.eventSummary.map((r) => ({
+      channel: r.channel || '',
+      status: r.status || '',
+      event_count: r.event_count || 0,
+      sales_total: moneyExport(r.sales_total)
+    })),
+    eventItems: () => state.eventItems.map((r) => {
+      const margin = (toNumber(r.sell_price) - toNumber(r.cost)) * toNumber(r.qty);
+      return {
+        event: r.event_name || '',
+        channel: r.channel || '',
+        status: r.status || '',
+        sku: r.sku || '',
+        title: r.title || '',
+        qty: r.qty || 0,
+        sell_price: moneyExport(r.sell_price),
+        cost: moneyExport(r.cost),
+        margin: moneyExport(margin)
+      };
+    }),
+    events: () => state.events.map((r) => ({
+      updated_at: r.updated_at || '',
+      name: r.name || '',
+      channel: r.channel || '',
+      status: r.status || '',
+      backend_sale_id: r.backend_sale_id || '',
+      sale_total: moneyExport(r.sale_total)
+    })),
+    wasteReason: () => state.wasteReason.map((r) => ({ reason: r.reason || '', events: r.events || 0, units: r.units || 0, cost: moneyExport(r.cost), price: moneyExport(r.price) })),
+    wasteCategory: () => state.wasteCategory.map((r) => ({ category: r.category || '', events: r.events || 0, units: r.units || 0, cost: moneyExport(r.cost), price: moneyExport(r.price) })),
+    waste: () => state.waste.map((r) => ({
+      created_at: r.createdAt || r.created_at || '',
+      sku: r.sku || '',
+      title: r.title || '',
+      category: r.category || '',
+      qty: r.qty || 0,
+      total_cost: moneyExport(r.totalCost ?? r.total_cost),
+      total_price: moneyExport(r.totalPrice ?? r.total_price),
+      reason: r.reason || ''
+    })),
+    deleted: () => state.deleted.map((r) => ({
+      deleted_at: r.deletedAt || r.deleted_at || '',
+      sku: r.sku || '',
+      title: r.title || '',
+      category: r.category || '',
+      qty: r.qty || 0,
+      total_cost: moneyExport(r.totalCost ?? r.total_cost),
+      total_price: moneyExport(r.totalPrice ?? r.total_price),
+      reason: r.reason || ''
+    }))
+  };
+
+  const activeExport = {
+    sales: 'salesItem',
+    inventory: 'inventory',
+    people: 'staff',
+    events: 'eventItems',
+    operations: 'waste'
+  };
+
+  document.querySelectorAll('.tab').forEach((btn) => {
+    btn.addEventListener('click', () => setActiveTab(btn.dataset.tab));
+  });
+
+  document.addEventListener('click', (event) => {
+    const btn = event.target.closest('[data-export]');
+    if (!btn) return;
+    const key = btn.dataset.export;
+    const rows = exportBuilders[key] ? exportBuilders[key]() : [];
+    downloadCsv(key, rows);
+  });
+
+  btnExportActive.addEventListener('click', () => {
+    const key = activeExport[state.activeTab] || 'salesItem';
+    const rows = exportBuilders[key] ? exportBuilders[key]() : [];
+    downloadCsv(key, rows);
+  });
   btnRun.addEventListener('click', runAll);
   btnBack.addEventListener('click', () => { window.location.href = 'index.html'; });
   btnRefreshInventory.addEventListener('click', runInventoryReport);
+  btnPrint.addEventListener('click', () => window.print());
   inventoryFilter.addEventListener('input', filterInventory);
 
   setDefaultDates();
+  if (window.VaultCoreDatePresets) {
+    window.VaultCoreDatePresets.installRangePresets({
+      container: 'reportRangePresets',
+      start: startDate,
+      end: endDate,
+      onApply: runAll
+    });
+  }
   runAll();
 })();
 </script>

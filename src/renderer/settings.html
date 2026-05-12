@@ -6,48 +6,57 @@
   <meta http-equiv="Content-Security-Policy"
         content="default-src 'self';
                  script-src 'self' 'unsafe-inline';
+                 connect-src 'self' http://127.0.0.1:5175 http://localhost:5175;
                  style-src 'self' 'unsafe-inline'">
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <style>
     :root {
       --bg: #0b0b0d;
       --panel: #111827;
-      --border: #374151;
+      --panel-2: #0f172a;
+      --panel-3: #0c1017;
+      --border: #334155;
+      --border-soft: rgba(148, 163, 184, 0.18);
       --text: #e5e7eb;
       --muted: #9ca3af;
+      --blue: #2563eb;
+      --green: #16a34a;
+      --amber: #d97706;
+      --danger: #7f1d1d;
+      --row-hover: #151a24;
     }
     * { box-sizing: border-box; }
     body {
-      margin: 0;
-      font-family: system-ui, Arial, sans-serif;
+      margin: 16px;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
       background: var(--bg);
       color: var(--text);
     }
     .page {
-      padding: 16px;
       display: flex;
       flex-direction: column;
       gap: 12px;
-      min-height: 100vh;
-      max-width: 1380px;
+      min-height: calc(100vh - 32px);
+      max-width: 1480px;
       margin: 0 auto;
       width: 100%;
     }
     .page-toolbar {
-      display:flex;
-      align-items:center;
-      gap:10px;
-      background:#091226;
-      padding:12px;
-      border-radius:8px;
-      border:1px solid #0e1b36;
-      flex-wrap:wrap;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: #091226;
+      padding: 12px;
+      border-radius: 8px;
+      border: 1px solid #0e1b36;
+      flex-wrap: wrap;
     }
-    .page-toolbar h1 { margin:0; font-size:20px; font-weight:700; }
-    .logo { height:22px; width:auto; display:block; }
-    .toolbar-spacer { flex:1; }
+    .page-toolbar h1 { margin: 0; font-size: 20px; font-weight: 700; }
+    .logo { height: 22px; width: auto; display: block; }
+    .toolbar-spacer { flex: 1; }
     .page-toolbar-note { color: var(--muted); font-size: 12px; }
     .btn {
+      min-height: 36px;
       background: #0c0c0f;
       border: 1px solid var(--border);
       color: var(--text);
@@ -56,176 +65,838 @@
       cursor: pointer;
       font-size: 13px;
       white-space: nowrap;
-      transition:box-shadow 0.12s ease, transform 0.12s ease, border-color 0.12s ease;
+      transition: box-shadow 0.12s ease, transform 0.12s ease, border-color 0.12s ease;
     }
     .btn:hover {
-      border-color:#596274;
-      box-shadow:0 0 0 1px rgba(148,163,184,.35);
-      transform:translateY(-0.5px);
+      border-color: #596274;
+      box-shadow: 0 0 0 1px rgba(148,163,184,.35);
+      transform: translateY(-0.5px);
+    }
+    .btn.primary { background: var(--blue); border-color: var(--blue); color: #fff; font-weight: 600; }
+    .btn.success { background: var(--green); border-color: var(--green); color: #fff; }
+    .btn.ghost { background: transparent; }
+    .btn:disabled { opacity: 0.55; cursor: not-allowed; box-shadow: none; transform: none; }
+    .tabs {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+    .tab {
+      min-height: 36px;
+      padding: 8px 12px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background: #0b0f16;
+      color: var(--text);
+      cursor: pointer;
+    }
+    .tab.active { background: var(--blue); border-color: var(--blue); }
+    .view { display: none; }
+    .view.active { display: block; }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
     }
     .panel {
       background: var(--panel);
       border: 1px solid var(--border);
-      border-radius: 12px;
+      border-radius: 8px;
       padding: 12px;
+      min-width: 0;
+    }
+    .panel.full { grid-column: 1 / -1; }
+    .section-head {
       display: flex;
-      flex-direction: column;
+      justify-content: space-between;
+      gap: 10px;
+      margin-bottom: 10px;
+      align-items: flex-start;
+    }
+    .section-head h2, .section-head h3 {
+      margin: 0;
+      font-size: 16px;
+    }
+    .section-actions { display: flex; gap: 8px; flex-wrap: wrap; justify-content: flex-end; }
+    .muted { color: var(--muted); font-size: 12px; }
+    .status { min-height: 16px; }
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
       gap: 10px;
     }
-    .panel h2 {
-      margin: 0;
-      font-size: 14px;
-      text-transform: uppercase;
-      letter-spacing: 0.08em;
+    .span-2 { grid-column: span 2; }
+    .span-3 { grid-column: span 3; }
+    label {
+      display: block;
+      margin-bottom: 4px;
       color: var(--muted);
+      font-size: 12px;
     }
-    .muted { color: var(--muted); font-size: 12px; }
-    .settings-row {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 8px;
-    }
-    input, select {
+    input, select, textarea {
       width: 100%;
-      padding: 8px;
+      min-height: 36px;
+      padding: 8px 10px;
       border-radius: 8px;
       border: 1px solid var(--border);
       background: #000;
       color: var(--text);
-      font-size: 12px;
+      font-size: 13px;
     }
-    .settings-toggles {
+    textarea { resize: vertical; min-height: 76px; }
+    .toggle-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
       gap: 8px;
     }
-    .settings-toggle {
+    .toggle {
       display: flex;
       align-items: center;
       gap: 8px;
       font-size: 12px;
       color: var(--muted);
-      border: 1px solid var(--border);
-      padding: 8px;
+      border: 1px solid var(--border-soft);
+      padding: 9px;
       border-radius: 8px;
-      background: #0f172a;
+      background: var(--panel-2);
+      min-height: 42px;
     }
-    .settings-toggle label { flex: 1; }
-    .settings-toggle input[type="checkbox"] {
+    .toggle label { flex: 1; margin: 0; }
+    .toggle input[type="checkbox"] {
       width: 16px;
       height: 16px;
       margin: 0;
+      min-height: 16px;
     }
-    .row-actions {
-      display: flex;
+    .kpi {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: 10px;
+    }
+    .kpi-card {
+      border: 1px solid var(--border-soft);
+      border-radius: 8px;
+      padding: 10px;
+      background: var(--panel-3);
+      min-height: 72px;
+    }
+    .kpi-card .label { font-size: 11px; color: var(--muted); }
+    .kpi-card .value { font-size: 16px; font-weight: 700; margin-top: 5px; overflow-wrap: anywhere; }
+    .kpi-card.good .value { color: #86efac; }
+    .kpi-card.warn .value { color: #fbbf24; }
+    .kpi-card.bad .value { color: #fca5a5; }
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      padding: 2px 8px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      background: #0b1224;
+      color: #cbd5e1;
+      font-size: 11px;
+      white-space: nowrap;
+    }
+    .pill.good { border-color: rgba(34,197,94,.65); color: #bbf7d0; }
+    .pill.warn { border-color: rgba(217,119,6,.7); color: #fde68a; }
+    .pill.bad { border-color: rgba(127,29,29,.9); color: #fecaca; }
+    .local-note {
+      border: 1px solid var(--border-soft);
+      background: var(--panel-2);
+      border-radius: 8px;
+      padding: 10px;
+      color: var(--muted);
+      font-size: 12px;
+    }
+    .location-list {
+      display: grid;
       gap: 8px;
-      flex-wrap: wrap;
+      margin-top: 10px;
     }
-    @media (max-width: 700px) {
-      .settings-row { grid-template-columns: 1fr; }
+    .location-row {
+      display: grid;
+      grid-template-columns: minmax(130px, 0.7fr) minmax(130px, 1fr) auto;
+      gap: 8px;
+      align-items: center;
+      border: 1px solid var(--border-soft);
+      background: var(--panel-2);
+      border-radius: 8px;
+      padding: 9px;
+      font-size: 13px;
+    }
+    .location-key {
+      color: var(--muted);
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: 12px;
+    }
+    .theme-picker {
+      display: grid;
+      grid-template-columns: minmax(220px, 0.8fr) minmax(260px, 1.2fr);
+      gap: 10px;
+      margin-top: 10px;
+      align-items: stretch;
+    }
+    .theme-preview-card {
+      border: 1px solid var(--border-soft);
+      background: var(--panel-2);
+      border-radius: 8px;
+      padding: 10px;
+      display: grid;
+      gap: 8px;
+      min-height: 92px;
+    }
+    .theme-preview-title {
+      display: flex;
+      justify-content: space-between;
+      gap: 8px;
+      align-items: center;
+      font-size: 13px;
+      font-weight: 700;
+    }
+    .theme-preview-note {
+      color: var(--muted);
+      font-size: 12px;
+    }
+    .theme-swatches {
+      display: flex;
+      gap: 6px;
+    }
+    .theme-swatch {
+      width: 28px;
+      height: 18px;
+      border-radius: 6px;
+      border: 1px solid var(--border);
+      background: var(--vc-panel);
+    }
+    .theme-swatch.bg { background: var(--vc-bg); }
+    .theme-swatch.panel { background: var(--vc-panel); }
+    .theme-swatch.primary { background: var(--vc-primary); }
+    .theme-swatch.text { background: var(--vc-text); }
+    @media (max-width: 1000px) {
+      body { margin: 10px; }
+      .grid, .form-grid, .theme-picker { grid-template-columns: 1fr; }
+      .span-2, .span-3 { grid-column: span 1; }
+      .toolbar-spacer { display: none; }
+      .section-head { flex-direction: column; }
+      .section-actions { justify-content: flex-start; }
+      .location-row { grid-template-columns: 1fr; }
     }
   </style>
+  <script src="theme.js"></script>
+  <link rel="stylesheet" href="themes.css" />
 </head>
 <body>
   <div class="page">
     <div class="page-toolbar">
       <img class="logo" src="assets/VaultCore_Logo_White.png" alt="VaultCore" />
       <h1>Settings</h1>
-      <button id="back-btn" class="btn">Back to Dashboard</button>
+      <button id="back-btn" class="btn" type="button" onclick="goSettingsDashboard()">Dashboard</button>
       <span class="toolbar-spacer"></span>
-      <span class="page-toolbar-note">Tax, register, and export preferences</span>
+      <span class="page-toolbar-note" id="settingsTopStatus">Ready</span>
     </div>
 
-    <section class="panel">
-      <h2>Tax Settings</h2>
-      <div class="settings-row">
-        <div>
-          <label class="muted" for="settingsTaxRate">Default Sales Tax (%)</label>
-          <input type="number" min="0" max="25" step="0.01" id="settingsTaxRate" placeholder="e.g. 7.00">
+    <div class="tabs" role="tablist" aria-label="Settings sections">
+      <button class="tab active" type="button" data-tab="store" onclick="switchSettingsTab('store')">Store</button>
+      <button class="tab" type="button" data-tab="register" onclick="switchSettingsTab('register')">Register</button>
+      <button class="tab" type="button" data-tab="sync" onclick="switchSettingsTab('sync')">Sync</button>
+      <button class="tab" type="button" data-tab="trade" onclick="switchSettingsTab('trade')">Trade-In</button>
+      <button class="tab" type="button" data-tab="ai" onclick="switchSettingsTab('ai')">AI</button>
+      <button class="tab" type="button" data-tab="local" onclick="switchSettingsTab('local')">Local</button>
+      <button class="tab" type="button" data-tab="system" onclick="switchSettingsTab('system')">System</button>
+    </div>
+
+    <section class="view active" data-view="store">
+      <div class="grid">
+        <div class="panel full">
+          <div class="section-head">
+            <div>
+              <h2>Store Profile</h2>
+              <div class="muted status" id="storeStatus">Store identity, receipt footer, and operating defaults.</div>
+            </div>
+            <div class="section-actions">
+              <button class="btn primary" id="btnSaveStore" type="button" onclick="saveStoreSettings()">Save Store Settings</button>
+            </div>
+          </div>
+          <div class="form-grid">
+            <div>
+              <label for="storeName">Store Name</label>
+              <input id="storeName" maxlength="80" />
+            </div>
+            <div>
+              <label for="storePhone">Phone</label>
+              <input id="storePhone" maxlength="40" />
+            </div>
+            <div>
+              <label for="storeEmail">Email</label>
+              <input id="storeEmail" maxlength="120" />
+            </div>
+            <div>
+              <label for="storeWebsite">Website</label>
+              <input id="storeWebsite" maxlength="160" />
+            </div>
+            <div>
+              <label for="storeAddress1">Address 1</label>
+              <input id="storeAddress1" maxlength="120" />
+            </div>
+            <div>
+              <label for="storeAddress2">Address 2</label>
+              <input id="storeAddress2" maxlength="120" />
+            </div>
+            <div>
+              <label for="storeCity">City</label>
+              <input id="storeCity" maxlength="80" />
+            </div>
+            <div>
+              <label for="storeState">State</label>
+              <input id="storeState" maxlength="40" />
+            </div>
+            <div>
+              <label for="storeZip">ZIP</label>
+              <input id="storeZip" maxlength="20" />
+            </div>
+            <div>
+              <label for="lowStockThreshold">Low Stock Threshold</label>
+              <input id="lowStockThreshold" type="number" min="0" max="999" step="1" />
+            </div>
+            <div>
+              <label for="defaultInventoryCategory">Default Category</label>
+              <input id="defaultInventoryCategory" maxlength="80" />
+            </div>
+            <div>
+              <label for="defaultMarkupPercent">Default Markup (%)</label>
+              <input id="defaultMarkupPercent" type="number" min="0" max="500" step="0.01" />
+            </div>
+            <div class="span-3">
+              <label for="receiptFooter">Receipt Footer</label>
+              <textarea id="receiptFooter" maxlength="240"></textarea>
+            </div>
+          </div>
+          <div class="toggle-grid" style="margin-top:10px;">
+            <div class="toggle">
+              <input type="checkbox" id="lockStoreSettings">
+              <label for="lockStoreSettings">Owner lock store profile and defaults</label>
+            </div>
+          </div>
         </div>
-        <div>
-          <label class="muted" for="settingsManagerPin">Manager PIN (optional)</label>
-          <input type="password" id="settingsManagerPin" placeholder="Leave blank to disable">
+        <div class="panel full">
+          <div class="section-head">
+            <div>
+              <h2>Inventory Locations</h2>
+              <div class="muted status" id="inventoryLocationStatus">Approved locations used by inventory status changes.</div>
+            </div>
+            <div class="section-actions">
+              <button class="btn primary" id="btnSaveStoreLocations" type="button" onclick="saveStoreSettings()">Save Locations</button>
+            </div>
+          </div>
+          <div class="form-grid">
+            <div class="span-2">
+              <label for="inventoryLocationName">Add Location</label>
+              <input id="inventoryLocationName" maxlength="60" placeholder="Pop Up, Back Room, Event Table" />
+            </div>
+            <div>
+              <label>&nbsp;</label>
+              <button class="btn" id="btnAddInventoryLocation" type="button">Add Location</button>
+            </div>
+            <div class="span-3">
+              <div class="local-note">Store remains the default location. Add future stores, pop-ups, event areas, or cases here so staff can choose from a dropdown instead of typing.</div>
+              <div class="location-list" id="inventoryLocationsList"></div>
+            </div>
+          </div>
         </div>
       </div>
-      <div class="settings-toggles">
-        <div class="settings-toggle">
-          <input type="checkbox" id="chkTaxIncluded" disabled>
-          <label for="chkTaxIncluded">Tax is included in prices (future)</label>
-        </div>
-        <div class="settings-toggle">
-          <input type="checkbox" id="chkAutoApplyTax" checked disabled>
-          <label for="chkAutoApplyTax">Apply tax automatically</label>
-        </div>
-      </div>
-      <div class="row-actions">
-        <button class="btn" id="btnSaveTaxSettings">Save Tax Settings</button>
-      </div>
-      <div id="settingsStatus" class="muted">Tax changes apply to new totals immediately.</div>
     </section>
 
-    <section class="panel">
-      <h2>Inventory Behavior</h2>
-      <div class="settings-toggles">
-        <div class="settings-toggle">
-          <input type="checkbox" id="chkRemoveOnSale" checked disabled>
-          <label for="chkRemoveOnSale">Remove inventory on sale</label>
+    <section class="view" data-view="register">
+      <div class="grid">
+        <div class="panel full">
+          <div class="section-head">
+            <div>
+              <h2>Tax and Sale Rules</h2>
+              <div class="muted status" id="registerStatus">Tax, approval prompts, receipt behavior, and register closeout policy.</div>
+            </div>
+            <div class="section-actions">
+              <button class="btn primary" id="btnSaveTaxSettings" type="button" onclick="saveRegisterSettings()">Save Register Settings</button>
+            </div>
+          </div>
+          <div class="form-grid">
+            <div>
+              <label for="settingsTaxRate">Default Sales Tax (%)</label>
+              <input type="number" min="0" max="25" step="0.01" id="settingsTaxRate" placeholder="7.00">
+            </div>
+            <div>
+              <label for="settingsTaxLabel">Tax Label</label>
+              <input id="settingsTaxLabel" maxlength="40" />
+            </div>
+            <div>
+              <label for="saleIdPrefix">Sale ID Prefix</label>
+              <input id="saleIdPrefix" maxlength="10" />
+            </div>
+            <div>
+              <label for="maxHeldSales">Held Sale Limit</label>
+              <input id="maxHeldSales" type="number" min="1" max="100" step="1" />
+            </div>
+            <div>
+              <label for="lockOwnerSettings">Owner Lock</label>
+              <select id="lockOwnerSettings">
+                <option value="0">Managers can edit unlocked settings</option>
+                <option value="1">Owner locked</option>
+              </select>
+            </div>
+          </div>
+          <div class="toggle-grid" style="margin-top:10px;">
+            <div class="toggle">
+              <input type="checkbox" id="settingsPinPriceOverride">
+              <label for="settingsPinPriceOverride">Require manager PIN for price overrides</label>
+            </div>
+            <div class="toggle">
+              <input type="checkbox" id="settingsPinDiscounts">
+              <label for="settingsPinDiscounts">Require manager PIN for discounts</label>
+            </div>
+            <div class="toggle">
+              <input type="checkbox" id="settingsPinTaxExempt">
+              <label for="settingsPinTaxExempt">Require manager PIN for tax-exempt sale</label>
+            </div>
+            <div class="toggle">
+              <input type="checkbox" id="requireCustomerForSale">
+              <label for="requireCustomerForSale">Require customer before completing sale</label>
+            </div>
+            <div class="toggle">
+              <input type="checkbox" id="allowSplitTender">
+              <label for="allowSplitTender">Allow split tender</label>
+            </div>
+            <div class="toggle">
+              <input type="checkbox" id="chkRemoveOnSale" checked disabled>
+              <label for="chkRemoveOnSale">Remove inventory on sale</label>
+            </div>
+            <div class="toggle">
+              <input type="checkbox" id="chkRestockOnReturn" checked disabled>
+              <label for="chkRestockOnReturn">Restock inventory on void/refund</label>
+            </div>
+          </div>
         </div>
-        <div class="settings-toggle">
-          <input type="checkbox" id="chkRestockOnReturn" checked disabled>
-          <label for="chkRestockOnReturn">Restock inventory on void/refund</label>
+        <div class="panel">
+          <div class="section-head">
+            <div>
+              <h2>Payment Methods</h2>
+            </div>
+          </div>
+          <div class="toggle-grid">
+            <div class="toggle">
+              <input type="checkbox" id="paymentCashEnabled">
+              <label for="paymentCashEnabled">Cash</label>
+            </div>
+            <div class="toggle">
+              <input type="checkbox" id="paymentCardEnabled">
+              <label for="paymentCardEnabled">Card</label>
+            </div>
+            <div class="toggle">
+              <input type="checkbox" id="paymentStoreCreditEnabled">
+              <label for="paymentStoreCreditEnabled">Store credit</label>
+            </div>
+            <div class="toggle">
+              <input type="checkbox" id="paymentOtherEnabled">
+              <label for="paymentOtherEnabled">Other and event tender</label>
+            </div>
+          </div>
+        </div>
+        <div class="panel">
+          <div class="section-head">
+            <div>
+              <h2>Quick Discounts</h2>
+            </div>
+          </div>
+          <div class="form-grid">
+            <div>
+              <label for="quickDiscountPercent1">Percent 1</label>
+              <input id="quickDiscountPercent1" type="number" min="0" max="100" step="0.01" />
+            </div>
+            <div>
+              <label for="quickDiscountPercent2">Percent 2</label>
+              <input id="quickDiscountPercent2" type="number" min="0" max="100" step="0.01" />
+            </div>
+            <div>
+              <label for="quickDiscountAmount1">Amount 1</label>
+              <input id="quickDiscountAmount1" type="number" min="0" max="999" step="0.01" />
+            </div>
+            <div>
+              <label for="quickDiscountAmount2">Amount 2</label>
+              <input id="quickDiscountAmount2" type="number" min="0" max="999" step="0.01" />
+            </div>
+          </div>
+        </div>
+        <div class="panel full">
+          <div class="section-head">
+            <div>
+              <h2>Receipts</h2>
+            </div>
+          </div>
+          <div class="toggle-grid">
+            <div class="toggle">
+              <input type="checkbox" id="receiptPrintAfterSale">
+              <label for="receiptPrintAfterSale">Print receipt after sale</label>
+            </div>
+            <div class="toggle">
+              <input type="checkbox" id="receiptShowSku">
+              <label for="receiptShowSku">Show SKU on receipt</label>
+            </div>
+            <div class="toggle">
+              <input type="checkbox" id="receiptShowPlatformCondition">
+              <label for="receiptShowPlatformCondition">Show platform and condition</label>
+            </div>
+            <div class="toggle">
+              <input type="checkbox" id="receiptShowTaxRate">
+              <label for="receiptShowTaxRate">Show tax rate</label>
+            </div>
+            <div class="toggle">
+              <input type="checkbox" id="receiptShowBarcode">
+              <label for="receiptShowBarcode">Show sale barcode</label>
+            </div>
+            <div class="toggle">
+              <input type="checkbox" id="receiptShowCustomer">
+              <label for="receiptShowCustomer">Show customer name</label>
+            </div>
+          </div>
+          <div class="form-grid" style="margin-top:10px;">
+            <div class="span-3">
+              <label for="receiptReturnPolicy">Return Policy</label>
+              <textarea id="receiptReturnPolicy" maxlength="240"></textarea>
+            </div>
+          </div>
+        </div>
+        <div class="panel full">
+          <div class="section-head">
+            <div>
+              <h2>Closeout Controls</h2>
+            </div>
+          </div>
+          <div class="form-grid">
+            <div>
+              <label for="closeoutVarianceWarn">Variance Note Threshold</label>
+              <input id="closeoutVarianceWarn" type="number" min="0" max="9999" step="0.01" />
+            </div>
+          </div>
+          <div class="toggle-grid" style="margin-top:10px;">
+            <div class="toggle">
+              <input type="checkbox" id="closeoutRequireNoteOnVariance">
+              <label for="closeoutRequireNoteOnVariance">Require note when variance reaches threshold</label>
+            </div>
+            <div class="toggle">
+              <input type="checkbox" id="closeoutRequireOpeningCash">
+              <label for="closeoutRequireOpeningCash">Require opening cash before closing day</label>
+            </div>
+          </div>
         </div>
       </div>
     </section>
 
-    <section class="panel">
-      <h2>Register Behavior</h2>
-      <div class="settings-toggles">
-        <div class="settings-toggle">
-          <input type="checkbox" id="chkAutoClearCart" checked disabled>
-          <label for="chkAutoClearCart">Auto-clear cart after sale</label>
-        </div>
-        <div class="settings-toggle">
-          <input type="checkbox" id="chkAutoFocusScan" checked disabled>
-          <label for="chkAutoFocusScan">Auto-focus scan field</label>
-        </div>
-        <div class="settings-toggle">
-          <input type="checkbox" id="chkShowQuickKeys" checked disabled>
-          <label for="chkShowQuickKeys">Show quick keys</label>
+    <section class="view" data-view="sync">
+      <div class="grid">
+        <div class="panel full">
+          <div class="section-head">
+            <div>
+              <h2>Wix Inventory Sync</h2>
+              <div class="muted status" id="syncStatus">Automatic pushes, manual full push, and scheduled full sync.</div>
+            </div>
+            <div class="section-actions">
+              <button class="btn success" id="btnManualWixPush" type="button" onclick="manualWixPush()">Manual Push Now</button>
+              <button class="btn primary" id="btnSaveSync" type="button" onclick="saveSyncSettings()">Save Sync Settings</button>
+              <button class="btn ghost" type="button" onclick="location.href='sync.html'">Open Sync Monitor</button>
+            </div>
+          </div>
+          <div class="kpi" id="syncCards"></div>
+          <div class="toggle-grid" style="margin-top:10px;">
+            <div class="toggle">
+              <input type="checkbox" id="wixAutoSyncEnabled">
+              <label for="wixAutoSyncEnabled">Automatically push Wix updates when POS inventory changes</label>
+            </div>
+            <div class="toggle">
+              <input type="checkbox" id="wixScheduledSyncEnabled">
+              <label for="wixScheduledSyncEnabled">Run an automated full Wix push on a schedule</label>
+            </div>
+          </div>
+          <div class="form-grid" style="margin-top:10px;">
+            <div>
+              <label for="wixScheduledFrequency">Automated Full Push Frequency</label>
+              <select id="wixScheduledFrequency">
+                <option value="hourly">Every hour</option>
+                <option value="daily">Once a day</option>
+                <option value="weekly">Once a week</option>
+                <option value="monthly">Once a month</option>
+              </select>
+            </div>
+            <div class="span-2">
+              <label>What this controls</label>
+              <div class="local-note">
+                Automatic push controls add, edit, sale, void, refund, delete, and write-off updates. Manual push and scheduled full push send all active POS inventory rows to Wix using sellable quantity only.
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </section>
 
-    <section class="panel">
-      <h2>Customer CSV Export</h2>
-      <div class="muted">Choose columns for the Customers export (saved locally).</div>
-      <div class="settings-toggles">
-        <div class="settings-toggle"><input type="checkbox" class="export-col" data-col="name" checked><label>Name</label></div>
-        <div class="settings-toggle"><input type="checkbox" class="export-col" data-col="type" checked><label>Type</label></div>
-        <div class="settings-toggle"><input type="checkbox" class="export-col" data-col="email" checked><label>Email (Primary)</label></div>
-        <div class="settings-toggle"><input type="checkbox" class="export-col" data-col="email2"><label>Email 2</label></div>
-        <div class="settings-toggle"><input type="checkbox" class="export-col" data-col="email3"><label>Email 3</label></div>
-        <div class="settings-toggle"><input type="checkbox" class="export-col" data-col="phone" checked><label>Phone (Primary)</label></div>
-        <div class="settings-toggle"><input type="checkbox" class="export-col" data-col="phone2"><label>Phone 2</label></div>
-        <div class="settings-toggle"><input type="checkbox" class="export-col" data-col="phone3"><label>Phone 3</label></div>
-        <div class="settings-toggle"><input type="checkbox" class="export-col" data-col="address1"><label>Address 1</label></div>
-        <div class="settings-toggle"><input type="checkbox" class="export-col" data-col="address2"><label>Address 2</label></div>
-        <div class="settings-toggle"><input type="checkbox" class="export-col" data-col="city"><label>City</label></div>
-        <div class="settings-toggle"><input type="checkbox" class="export-col" data-col="state"><label>State</label></div>
-        <div class="settings-toggle"><input type="checkbox" class="export-col" data-col="zip"><label>ZIP</label></div>
-        <div class="settings-toggle"><input type="checkbox" class="export-col" data-col="ein"><label>EIN</label></div>
-        <div class="settings-toggle"><input type="checkbox" class="export-col" data-col="tags"><label>Tags</label></div>
-        <div class="settings-toggle"><input type="checkbox" class="export-col" data-col="tax_exempt"><label>Tax Exempt</label></div>
-        <div class="settings-toggle"><input type="checkbox" class="export-col" data-col="store_credit_cents"><label>Store Credit</label></div>
-        <div class="settings-toggle"><input type="checkbox" class="export-col" data-col="active"><label>Active</label></div>
+    <section class="view" data-view="trade">
+      <div class="grid">
+        <div class="panel full">
+          <div class="section-head">
+            <div>
+              <h2>Trade-In Policy</h2>
+              <div class="muted status" id="tradeStatus">Quote expiration, approval limits, and comp lookup behavior.</div>
+            </div>
+            <div class="section-actions">
+              <button class="btn primary" id="btnSaveTrade" type="button" onclick="saveTradeSettings()">Save Trade-In Settings</button>
+            </div>
+          </div>
+          <div class="form-grid">
+            <div>
+              <label for="tradeExpiryDays">Quote Expiry Days</label>
+              <input id="tradeExpiryDays" type="number" min="1" max="365" step="1" />
+            </div>
+            <div>
+              <label for="tradeCashLimit">Cash Approval Limit</label>
+              <input id="tradeCashLimit" type="number" min="0" step="0.01" />
+            </div>
+            <div>
+              <label for="tradeCreditLimit">Credit Approval Limit</label>
+              <input id="tradeCreditLimit" type="number" min="0" step="0.01" />
+            </div>
+            <div>
+              <label for="tradeCountry">Comp Country</label>
+              <input id="tradeCountry" maxlength="2" />
+            </div>
+            <div>
+              <label for="tradeDefaultCreditPercent">Default Credit %</label>
+              <input id="tradeDefaultCreditPercent" type="number" min="5" max="95" step="1" />
+            </div>
+            <div>
+              <label for="tradeDefaultCashPercent">Cash % of Credit</label>
+              <input id="tradeDefaultCashPercent" type="number" min="5" max="100" step="1" />
+            </div>
+            <div>
+              <label for="tradeMarginFloorPercent">Margin Warning %</label>
+              <input id="tradeMarginFloorPercent" type="number" min="0" max="95" step="1" />
+            </div>
+            <div>
+              <label for="tradeOfferBasis">Preferred Price Basis</label>
+              <select id="tradeOfferBasis">
+                <option value="sold_median">Sold median</option>
+                <option value="sold_average">Sold average</option>
+                <option value="pricecharting">PriceCharting</option>
+                <option value="store_history">Store history</option>
+                <option value="manual">Manual comp</option>
+              </select>
+            </div>
+            <div>
+              <label for="tradeDefaultHoldDays">Default Hold Days</label>
+              <input id="tradeDefaultHoldDays" type="number" min="0" max="365" step="1" />
+            </div>
+            <div>
+              <label for="tradePromoLabel">Promo Label</label>
+              <input id="tradePromoLabel" type="text" maxlength="120" placeholder="Trade bonus weekend" />
+            </div>
+            <div>
+              <label for="tradePromoCreditBonus">Credit Bonus %</label>
+              <input id="tradePromoCreditBonus" type="number" min="0" max="100" step="1" />
+            </div>
+          </div>
+          <div class="toggle-grid" style="margin-top:10px;">
+            <div class="toggle">
+              <input type="checkbox" id="tradeEbaySold">
+              <label for="tradeEbaySold">Use sold eBay comps</label>
+            </div>
+            <div class="toggle">
+              <input type="checkbox" id="tradeEbayActive">
+              <label for="tradeEbayActive">Use active eBay listings</label>
+            </div>
+            <div class="toggle">
+              <input type="checkbox" id="tradeRequireCustomer">
+              <label for="tradeRequireCustomer">Require saved customer before presenting or accepting</label>
+            </div>
+            <div class="toggle">
+              <input type="checkbox" id="tradeRequireSellerId">
+              <label for="tradeRequireSellerId">Require seller ID last 4</label>
+            </div>
+            <div class="toggle">
+              <input type="checkbox" id="tradeRequireAgreement">
+              <label for="tradeRequireAgreement">Require signed trade agreement before accepting</label>
+            </div>
+            <div class="toggle">
+              <input type="checkbox" id="tradeTestingQueueEnabled">
+              <label for="tradeTestingQueueEnabled">Create testing tasks after intake</label>
+            </div>
+            <div class="toggle">
+              <input type="checkbox" id="tradeAutoLabelOnComplete">
+              <label for="tradeAutoLabelOnComplete">Create label tasks after intake</label>
+            </div>
+            <div class="toggle">
+              <input type="checkbox" id="tradePromoActive">
+              <label for="tradePromoActive">Apply credit promo on trade quotes</label>
+            </div>
+          </div>
+        </div>
       </div>
-      <div class="row-actions">
-        <button class="btn" id="btnSaveExportCols">Save Export Columns</button>
+    </section>
+
+    <section class="view" data-view="ai">
+      <div class="grid">
+        <div class="panel">
+          <div class="section-head">
+            <div>
+              <h2>AI Assistant</h2>
+              <div class="muted status" id="aiStatus">AI pricing, store oracle, and market watcher behavior.</div>
+            </div>
+            <div class="section-actions">
+              <button class="btn primary" id="btnSaveAi" type="button" onclick="saveAiSettings()">Save AI Settings</button>
+            </div>
+          </div>
+          <div class="form-grid">
+            <div>
+              <label for="aiMode">Mode</label>
+              <select id="aiMode">
+                <option value="off">Off</option>
+                <option value="lab">Lab</option>
+                <option value="on">On</option>
+              </select>
+            </div>
+            <div>
+              <label for="aiChattiness">Chattiness</label>
+              <select id="aiChattiness">
+                <option value="quiet">Quiet</option>
+                <option value="normal">Normal</option>
+                <option value="chatty">Chatty</option>
+              </select>
+            </div>
+          </div>
+        </div>
+        <div class="panel">
+          <div class="section-head">
+            <h2>AI Status</h2>
+          </div>
+          <div class="kpi" id="aiStatusCards"></div>
+        </div>
       </div>
-      <div id="exportColsStatus" class="muted">Used by Customers -> Export CSV.</div>
+    </section>
+
+    <section class="view" data-view="local">
+      <div class="grid">
+        <div class="panel full">
+          <div class="section-head">
+            <div>
+              <h2>This Register</h2>
+              <div class="muted status" id="localStatus">These preferences are saved on this machine only.</div>
+            </div>
+            <div class="section-actions">
+              <button class="btn primary" id="btnSaveLocal" type="button" onclick="saveLocalSettings()">Save Local Settings</button>
+            </div>
+          </div>
+          <div class="toggle-grid">
+            <div class="toggle">
+              <input type="checkbox" id="vaultcoreLoadingEnabled">
+              <label for="vaultcoreLoadingEnabled">Show VaultCore loading screen on login</label>
+            </div>
+          </div>
+          <div class="theme-picker">
+            <div>
+              <label for="visualThemeSelect">Visual Style</label>
+              <select id="visualThemeSelect"></select>
+            </div>
+            <div class="theme-preview-card" id="visualThemePreview">
+              <div class="theme-preview-title">
+                <span id="visualThemeName">VaultCore Classic</span>
+                <span class="pill" id="visualThemeTag">Local</span>
+              </div>
+              <div class="theme-swatches" aria-hidden="true">
+                <span class="theme-swatch bg"></span>
+                <span class="theme-swatch panel"></span>
+                <span class="theme-swatch primary"></span>
+                <span class="theme-swatch text"></span>
+              </div>
+              <div class="theme-preview-note" id="visualThemeNote">The current dark professional look.</div>
+            </div>
+          </div>
+          <div class="local-note" style="margin-top:10px;">
+            Loading screen, visual style, and customer export columns are local to this register. Server-owned policy lives in the other tabs.
+          </div>
+        </div>
+
+        <div class="panel full">
+          <div class="section-head">
+            <div>
+              <h2>Customer CSV Export</h2>
+              <div class="muted status" id="exportColsStatus">Used by Customers export.</div>
+            </div>
+            <div class="section-actions">
+              <button class="btn primary" id="btnSaveExportCols" type="button" onclick="saveExportColumnsFromUI()">Save Export Columns</button>
+            </div>
+          </div>
+          <div class="toggle-grid">
+            <div class="toggle"><input type="checkbox" class="export-col" data-col="name"><label>Name</label></div>
+            <div class="toggle"><input type="checkbox" class="export-col" data-col="type"><label>Type</label></div>
+            <div class="toggle"><input type="checkbox" class="export-col" data-col="email"><label>Email</label></div>
+            <div class="toggle"><input type="checkbox" class="export-col" data-col="email2"><label>Email 2</label></div>
+            <div class="toggle"><input type="checkbox" class="export-col" data-col="email3"><label>Email 3</label></div>
+            <div class="toggle"><input type="checkbox" class="export-col" data-col="phone"><label>Phone</label></div>
+            <div class="toggle"><input type="checkbox" class="export-col" data-col="phone2"><label>Phone 2</label></div>
+            <div class="toggle"><input type="checkbox" class="export-col" data-col="phone3"><label>Phone 3</label></div>
+            <div class="toggle"><input type="checkbox" class="export-col" data-col="address1"><label>Address 1</label></div>
+            <div class="toggle"><input type="checkbox" class="export-col" data-col="address2"><label>Address 2</label></div>
+            <div class="toggle"><input type="checkbox" class="export-col" data-col="city"><label>City</label></div>
+            <div class="toggle"><input type="checkbox" class="export-col" data-col="state"><label>State</label></div>
+            <div class="toggle"><input type="checkbox" class="export-col" data-col="zip"><label>ZIP</label></div>
+            <div class="toggle"><input type="checkbox" class="export-col" data-col="ein"><label>EIN</label></div>
+            <div class="toggle"><input type="checkbox" class="export-col" data-col="tags"><label>Tags</label></div>
+            <div class="toggle"><input type="checkbox" class="export-col" data-col="tax_exempt"><label>Tax Exempt</label></div>
+            <div class="toggle"><input type="checkbox" class="export-col" data-col="store_credit_cents"><label>Store Credit</label></div>
+            <div class="toggle"><input type="checkbox" class="export-col" data-col="active"><label>Active</label></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="view" data-view="system">
+      <div class="grid">
+        <div class="panel full">
+          <div class="section-head">
+            <div>
+              <h2>System Status</h2>
+              <div class="muted status" id="systemStatus">API, integrations, and last background runs.</div>
+            </div>
+            <div class="section-actions">
+              <button class="btn ghost" id="btnRefreshSystem" type="button" onclick="loadSystemStatus()">Refresh Status</button>
+            </div>
+          </div>
+          <div class="kpi" id="systemCards"></div>
+        </div>
+      </div>
     </section>
   </div>
 
-  <script src="./settings.js"></script>
+  <script>
+    (function () {
+      function setInlineStatus(message) {
+        var topStatus = document.getElementById("settingsTopStatus");
+        if (topStatus) topStatus.textContent = message;
+      }
+
+      window.goSettingsDashboard = window.goSettingsDashboard || function () {
+        window.location.href = "index.html";
+      };
+
+      window.switchSettingsTab = window.switchSettingsTab || function (tab) {
+        document.querySelectorAll(".tab").forEach(function (btn) {
+          btn.classList.toggle("active", btn.getAttribute("data-tab") === tab);
+        });
+        document.querySelectorAll(".view").forEach(function (view) {
+          view.classList.toggle("active", view.getAttribute("data-view") === tab);
+        });
+      };
+
+      ["saveStoreSettings", "saveRegisterSettings", "saveSyncSettings", "manualWixPush", "saveTradeSettings", "saveAiSettings", "saveLocalSettings", "saveExportColumnsFromUI", "loadSystemStatus"].forEach(function (name) {
+        window[name] = window[name] || function () {
+          setInlineStatus("Settings are still loading. Try again in a moment.");
+        };
+      });
+    })();
+  </script>
+  <script src="settings.js" onerror="document.getElementById('settingsTopStatus').textContent='Settings script did not load.'"></script>
 </body>
 </html>

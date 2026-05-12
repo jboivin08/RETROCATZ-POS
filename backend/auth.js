@@ -15,12 +15,18 @@ function hasColumn(db, table, column) {
 function getPerms(db, userId) {
   const p = db.prepare(`
     SELECT inv_add, inv_edit, inv_delete, cost_change,
-           category_admin, user_admin, checkout, reports
+           category_admin, user_admin, checkout, reports,
+           discount_override, void_refund, settings_admin,
+           closeout_admin, tax_admin, sync_admin, store_credit,
+           trade_override
     FROM permissions WHERE user_id = ?
   `).get(userId);
   return p || {
     inv_add: 0, inv_edit: 0, inv_delete: 0, cost_change: 0,
-    category_admin: 0, user_admin: 0, checkout: 0, reports: 0
+    category_admin: 0, user_admin: 0, checkout: 0, reports: 0,
+    discount_override: 0, void_refund: 0, settings_admin: 0,
+    closeout_admin: 0, tax_admin: 0, sync_admin: 0, store_credit: 0,
+    trade_override: 0
   };
 }
 
